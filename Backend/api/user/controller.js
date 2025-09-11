@@ -8,7 +8,7 @@ class userController {
             res.json(ApiResponse.success("OTP sent successfully", { otp: result }, 200));
         } catch (err) {
             console.error(err.message);
-            res.json(ApiResponse.error(err.message, 500));
+            res.status(500).json(ApiResponse.error(err.message, 500));
         }
     }
 
@@ -21,13 +21,13 @@ class userController {
             const { email, name, password, otp } = req.body;
             const result = await userService.register(email, name, password, otp);
             if (!result) {
-                res.json(ApiResponse.error("OTP is not valid", 400));
+                res.status(400).json(ApiResponse.error("OTP is not valid", 400));
             }else{
-                res.json(ApiResponse.success("User registered successfully", { user: result }, 201));
+                res.status(201).json(ApiResponse.success("User registered successfully", { user: result }, 201));
             }
         } catch (err) {
             console.error(err.message)
-            res.json(ApiResponse.error(err.message, 500));
+            res.status(500).json(ApiResponse.error(err.message, 500));
         }
     }
 }
