@@ -13,7 +13,14 @@ class userController {
     }
 
     static async login(req, res) {
-        res.json({message: "Login endpoint"});
+        try {
+            const { email, password } = req.body;
+            const result = await userService.login(email, password);
+            res.status(200).json(ApiResponse.success("User logged in successfully", { refreshToken: result.refreshToken, accessToken: result.accessToken }, 200));
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json(ApiResponse.error(err.message, 500));
+        }
     }
 
     static async register(req, res) {
@@ -23,8 +30,19 @@ class userController {
             if (!result) {
                 res.status(400).json(ApiResponse.error("OTP is not valid", 400));
             }else{
-                res.status(201).json(ApiResponse.success("User registered successfully", { user: result }, 201));
+                res.status(201).json(ApiResponse.success("User registered successfully", { refreshToken: result.refreshToken, accessToken: result.accessToken }, 201));
             }
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error(err.message, 500));
+        }
+    }
+
+    static async refresh(req, res) {
+        try {
+            const {refreshToken} = req.body;
+            const result = await userService.refresh(refreshToken);
+            res.status(200).json(ApiResponse.success("Access token generated successfully", { accessToken: result }, 200));
         } catch (err) {
             console.error(err.message)
             res.status(500).json(ApiResponse.error(err.message, 500));

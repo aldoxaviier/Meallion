@@ -7,7 +7,7 @@ module.exports = async(req,res,next) =>{
         if(!jwtToken){
             res.status(403).json("unauthorized");
         }
-        const payload = jwt.verify(jwtToken,process.env.JWT_SECRET);
+        const payload = jwt.verify(jwtToken,process.env.AccessSecret);
         req.user = payload.user;
         next();
     } catch (err) {
