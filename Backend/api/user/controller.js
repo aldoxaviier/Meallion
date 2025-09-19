@@ -1,5 +1,6 @@
 const userService = require("./service");
 const ApiResponse = require("../../utils/apiResponse");
+const userRepository = require("./repository");
 class userController {
     static async reqOTP(req, res) {
         try {
@@ -43,6 +44,17 @@ class userController {
             const {refreshToken} = req.body;
             const result = await userService.refresh(refreshToken);
             res.status(200).json(ApiResponse.success("Access token generated successfully", { accessToken: result }, 200));
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error(err.message, 500));
+        }
+    }
+
+    static async logout(req, res) {
+        try {
+            const userId = req.user;
+            await userRepository.deleterefreshtoken(userId);
+            res.status(200).json(ApiResponse.success("User logged out successfully", {}, 200));
         } catch (err) {
             console.error(err.message)
             res.status(500).json(ApiResponse.error(err.message, 500));

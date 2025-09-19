@@ -16,8 +16,17 @@ class userRepository {
         return result;
     }
 
+    static async deleterefreshtoken(user_id) {
+        await Database.from("users").update({ refresh_token: null }).eq("user_id", user_id);
+    }
+
     static async findUserByEmail(email) {
         const result = await Database.from("users").select("*").eq("email", email);
+        return result;
+    }
+
+    static async findUserRefreshToken(refreshToken) {
+        const result = await Database.from("users").select("*").eq("refresh_token", refreshToken);
         return result;
     }
 }

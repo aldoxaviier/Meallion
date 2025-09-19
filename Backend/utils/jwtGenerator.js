@@ -4,14 +4,14 @@ const accessToken= (user_id) =>{
     const payload = {
         user: user_id
     }
-    return jwt.sign(payload, process.env.AccessSecret, { expiresIn: 120 });
+    return jwt.sign(payload, process.env.AccessSecret, { expiresIn: "10m" });
 }
 
 const refreshToken = (user_id) =>{
     const payload = {
         user: user_id
     }
-    return jwt.sign(payload, process.env.RefreshSecret, { expiresIn: 300 });
+    return jwt.sign(payload, process.env.RefreshSecret, { expiresIn: "15m" });
 }
 
 module.exports = { accessToken, refreshToken };

@@ -8,5 +8,5 @@ router.post("/login", validation(loginSchema), userController.login);
 router.post("/register", validation(registerSchema), userController.register);
 router.post("/SendOTP", validation(otpSchema), userController.reqOTP);
 router.post("/refresh", userController.refresh);
-router.get("/logout",authorization, userController.logout);
+router.get("/logout", authorization, userController.logout);
 module.exports = router;

@@ -1,7 +1,7 @@
 const randomstring = require("randomstring");
 const mailer = require("../../utils/nodemailer");
 const { redisClient } = require("../../utils/redis");
-const userRepository = require("./respository");
+const userRepository = require("./repository");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../../utils/jwtGenerator");
 const jwt = require("jsonwebtoken");
@@ -50,6 +50,10 @@ class userService {
 
     static async refresh(refreshToken) {
         const isvalid = jwt.verify(refreshToken, process.env.RefreshSecret);
+        const storedRefreshToken = await userRepository.findUserRefreshToken(refreshToken);
+        if(storedRefreshToken.data.length === 0){
+            throw new Error("Refresh token is revoked");
+        }
         if(isvalid){
             const newAccessToken = jwtGenerator.accessToken(isvalid.user);
             return newAccessToken;
