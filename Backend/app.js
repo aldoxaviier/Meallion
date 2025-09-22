@@ -11,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/auth", require("./api/user/router"));
+app.use("/recipes", require("./api/recipes/router"));
 //app.use("/profile",require("./api/profile/router"));
 
 app.listen(PORT, () => {
