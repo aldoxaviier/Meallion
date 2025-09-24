@@ -1,0 +1,8 @@
+supabase
+fastapi
+python-dotenv
+pydantic-settings
+greenlet
+uvicorn
+pandas    
+python-jose[cryptography]                                                                                          
