@@ -39,6 +39,8 @@ class userService {
             throw new Error("Email or password is incorrect");
         }
         const validPassword = await bcrypt.compare(password, user.data[0].password);
+        console.log(validPassword);
+        console.log(password)
         if(!validPassword){
             throw new Error("Email or password is incorrect");
         }
