@@ -1,27 +1,35 @@
 import { createContext,useState } from "react";
 import * as SecureStore from 'expo-secure-store';
+import { useEffect } from "react";
+import { attachTokenInterceptor } from "../utils/api";
 
 interface AuthContextType {
-    token: string;
-    login: (tokenprop: string) => void;
+    accessToken: string;
+    login: (accessToken: string, refreshToken: string) => void;
     logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const AuthProvider = ({children}: {children: React.ReactNode}) => {
-    const [token, setToken] = useState<string>('');
+    const [accessToken, setAccessToken] = useState<string>('');
 
-    const login = (tokenprop: string) => {
-        setToken(tokenprop);
+    useEffect(() => {
+        attachTokenInterceptor(() => accessToken);
+    }, [accessToken]);
+
+    const login = async(accessToken: string, refreshToken: string) => {
+        setAccessToken(accessToken);
+        await SecureStore.setItemAsync('refreshToken', refreshToken);
     }
 
-    const logout = () => {
-        setToken('');
+    const logout = async () => {
+        setAccessToken('');
+        await SecureStore.deleteItemAsync('refreshToken');
     }
 
     return (
-        <AuthContext.Provider value={{ token, login, logout }}>
+        <AuthContext.Provider value={{ accessToken, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

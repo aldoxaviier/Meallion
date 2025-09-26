@@ -5,6 +5,7 @@ require("dotenv").config();
 module.exports = async(req,res,next) =>{
     try {
         const header = req.header("Authorization");
+        console.log(header);
         let token = "";
         if(header && header.startsWith("Bearer ")){
             token = header.slice(7);
