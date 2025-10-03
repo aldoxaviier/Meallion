@@ -1,29 +1,25 @@
 import { useContext, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
+  Text,
 } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 import { Link } from 'expo-router';
 import { AuthContext } from './store/authContext';
 import api from './utils/api';
-
-const MAROON_PRIMARY = '#8b102a';
-const MAROON_DARK = '#2b0010';
-const MAROON_MUTED = '#b3261e';
+import { useRouter } from 'expo-router';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const router = useRouter();
   const authContext = useContext(AuthContext);
 
   const onPressLogin = async () => {
@@ -33,7 +29,7 @@ const Login = () => {
     try {
       const body = { email, password };
       const response = await api.post(`/auth/login`, body);
-
+      console.log('Login response:', response.data);
       if (response.status === 200) {
         authContext?.login(response.data.data.accessToken, response.data.data.refreshToken);
       }
@@ -46,104 +42,87 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: MAROON_DARK }}>
-      <StatusBar barStyle="light-content" />
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} >
-          <View className="flex-1 px-6 pt-14 pb-10">
-
-            <View className="items-center mb-12">
-              <View
-                className="h-16 w-16 items-center justify-center rounded-3xl"
-                style={{ backgroundColor: `${MAROON_PRIMARY}dd`, shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 20 }}
-              >
-                <Text className="text-3xl font-bold text-white">M</Text>
-              </View>
-              <Text className="mt-6 text-3xl font-semibold text-white">Welcome Back</Text>
-              <Text className="mt-2 text-center text-base text-white/70">
-                Sign in to continue exploring curated meals crafted around your taste.
+    <SafeAreaView className='bg-white'>
+      <StatusBar barStyle="dark-content" />        
+          <View className="px-6 py-6 bg-white h-full flex-col gap-2">
+            <TouchableOpacity className="mb-6" onPress={() => router.back()}><Feather name="arrow-left" size={24} color="black" /></TouchableOpacity>
+            {/* Logo/Brand Section */}
+            <View className="flex flex-col justify-start ">
+              <Text className="text-4xl font-bold text-primary-400 font-fogsta">Log in</Text>
+              <Text className="text-gray-600 font-brsegma-500">
+                Please enter your credentials to continue
               </Text>
             </View>
 
-            <View
-              className="rounded-3xl px-6 py-8"
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.96)',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 20 },
-                shadowOpacity: 0.2,
-                shadowRadius: 24,
-                elevation: 18,
-              }}
-            >
-              <View className="mb-6">
-                <Text className="mb-2 font-semibold" style={{ color: MAROON_DARK }}>
-                  Email
-                </Text>
+            {/* Login Form */}
+            <View className=" flex-col gap-4 ">
+              {/* Email Input */}
+              <View className="flex-col gap-1">
+                <Text className="text-gray-700 font-brsegma-600">Email</Text>
                 <TextInput
-                  className="rounded-2xl px-4 py-3 text-base"
-                  placeholder="you@example.com"
-                  placeholderTextColor="#a16879"
+                  className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 text-base"
+                  placeholder="Enter your email"
+                  placeholderTextColor="#9CA3AF"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
                   textContentType="emailAddress"
-                  style={{ borderWidth: 1, borderColor: `${MAROON_PRIMARY}33`, color: MAROON_DARK }}
                 />
               </View>
 
-              <View className="mb-4">
-                <Text className="mb-2 font-semibold" style={{ color: MAROON_DARK }}>
-                  Password
-                </Text>
+              {/* Password Input */}
+              <View className="flex-col gap-1">
+                <Text className="text-gray-700 font-brsegma-600">Password</Text>
                 <TextInput
-                  className="rounded-2xl px-4 py-3 text-base"
-                  placeholder="••••••••"
-                  placeholderTextColor="#a16879"
+                  className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 text-base"
+                  placeholder="Enter your password"
+                  placeholderTextColor="#9CA3AF"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
                   textContentType="password"
-                  style={{ borderWidth: 1, borderColor: `${MAROON_PRIMARY}33`, color: MAROON_DARK }}
                 />
               </View>
 
-              <TouchableOpacity className="ml-auto">
-                <Text className="text-sm font-semibold" style={{ color: MAROON_PRIMARY }}>
-                  Forgot password?
+              {/* Forgot Password */}
+              <TouchableOpacity className="mb-6" activeOpacity={0.7}>
+                <Text className="text-primary-400 font-medium text-right font-brsegma-600">
+                  Forgot Password?
                 </Text>
               </TouchableOpacity>
 
+              {/* Error Message */}
               {message ? (
-                <Text className="mt-4 text-center text-sm" style={{ color: MAROON_MUTED }}>
+                <Text className="text-red-500 text-center mb-4 text-sm font-brsegma-600">
                   {message}
                 </Text>
               ) : null}
 
+              {/* Sign In Button */}
               <TouchableOpacity
                 onPress={onPressLogin}
                 disabled={isLoading}
-                className="mt-8 rounded-2xl py-4 items-center"
-                style={{ backgroundColor: MAROON_PRIMARY, opacity: isLoading ? 0.6 : 1 }}
-                activeOpacity={0.85}
+                className={`bg-primary-400 rounded-xl py-4 items-center mb-6 ${
+                  isLoading ? 'opacity-70' : ''
+                }`}
+                activeOpacity={0.8}
               >
-                <Text className="text-base font-semibold text-white">
-                  {isLoading ? 'Signing you in…' : 'Sign in'}
+                <Text className="text-white font-brsegma-600 text-lg">
+                  {isLoading ? 'Signing In...' : 'Sign In'}
                 </Text>
               </TouchableOpacity>
-            </View>
 
-            <View className="mt-10 items-center">
-              <Text className="text-sm text-white/70">
-                Don’t have an account?{' '}
-                <Link href="/register" className="font-semibold" style={{ color: MAROON_MUTED }}>
-                  Create one now
+              {/* Sign Up Link */}
+              <View className="flex-row justify-center">
+                <Text className="text-gray-600 font-brsegma-500">Don't have an account? </Text>
+                <Link href="/register" push>
+                  <Text className="text-primary-400 font-brsegma-600">Sign Up</Text>
                 </Link>
-              </Text>
+              </View>
             </View>
           </View>
-        </ScrollView>
     </SafeAreaView>
   );
 };

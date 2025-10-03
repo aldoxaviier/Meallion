@@ -9,4 +9,5 @@ router.post("/register", validation(registerSchema), userController.register);
 router.post("/SendOTP", validation(otpSchema), userController.reqOTP);
 router.post("/refresh", userController.refresh);
 router.get("/logout", authorization, userController.logout);
+
 module.exports = router;
