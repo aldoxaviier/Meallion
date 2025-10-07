@@ -12,8 +12,12 @@ module.exports = {
           600: "#3E0703",
         },
         secondary : {
+          300: "#FFF0C4",
           400: "#F2E8C6",
           500: "#DAD4B5",
+        },
+        third : {
+          500: "#056066",
         }
       },
       fontFamily: {

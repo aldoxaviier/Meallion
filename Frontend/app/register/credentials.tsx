@@ -14,6 +14,7 @@ import api from '../utils/api';
 import { RegisterContext } from '../store/registerContext';
 import { useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Credentials = () => {
   const [name, setName] = useState('');
@@ -38,6 +39,7 @@ const Credentials = () => {
   };
 
   return (
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-secondary-400">
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -45,7 +47,10 @@ const Credentials = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 bg-secondary-400 flex-col items-center">
             {/* Header Section */}
-            <View className="flex flex-col gap-2 flex-[2]  items-center justify-center">
+            <View className="flex flex-col gap-2 flex-[2] px-6 py-6 items-center">
+              <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
+                <Feather name="arrow-left" size={24} color="black" />
+                </TouchableOpacity>
                 <Text className="text-4xl text-primary-500 font-fogsta">
                     Let's get you started
                 </Text>
@@ -87,10 +92,20 @@ const Credentials = () => {
                   {isLoading ? 'Loading...' : 'Continue'}
                 </Text>
               </TouchableHighlight>
+              <TouchableHighlight
+                className="bg-primary-500 rounded-[40px] p-5"
+                underlayColor="#500902"
+                onPress={() => router.push('/register/profileonboard')}
+              >
+                <Text className="text-white text-center font-brsegma-600">
+                  profile onboard
+                </Text>
+              </TouchableHighlight>
             </View>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

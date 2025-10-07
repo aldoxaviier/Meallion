@@ -45,8 +45,10 @@ const Login = () => {
   return (
     <SafeAreaView className='bg-white'>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>       
-          <View className="px-6 py-6 bg-white h-full flex-col gap-2">
-            <TouchableOpacity className="mb-6" onPress={() => router.back()}><Feather name="arrow-left" size={24} color="black" /></TouchableOpacity>
+          <View className="px-6 py-6 bg-white h-full w-full flex-col gap-2">
+            <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
+              <Feather name="arrow-left" size={24} color="black" />
+            </TouchableOpacity>
             {/* Logo/Brand Section */}
             <View className="flex flex-col justify-start ">
               <Text className="text-4xl font-bold text-primary-400 font-fogsta">Log in</Text>
