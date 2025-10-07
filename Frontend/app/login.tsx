@@ -2,6 +2,8 @@ import { useContext, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
   StatusBar,
   TextInput,
   TouchableOpacity,
@@ -25,11 +27,10 @@ const Login = () => {
   const onPressLogin = async () => {
     setMessage('');
     setIsLoading(true);
-
     try {
       const body = { email, password };
       const response = await api.post(`/auth/login`, body);
-      console.log('Login response:', response.data);
+      console.log('Login response:', response);
       if (response.status === 200) {
         authContext?.login(response.data.data.accessToken, response.data.data.refreshToken);
       }
@@ -43,7 +44,7 @@ const Login = () => {
 
   return (
     <SafeAreaView className='bg-white'>
-      <StatusBar barStyle="dark-content" />        
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>       
           <View className="px-6 py-6 bg-white h-full flex-col gap-2">
             <TouchableOpacity className="mb-6" onPress={() => router.back()}><Feather name="arrow-left" size={24} color="black" /></TouchableOpacity>
             {/* Logo/Brand Section */}
@@ -59,31 +60,13 @@ const Login = () => {
               {/* Email Input */}
               <View className="flex-col gap-1">
                 <Text className="text-gray-700 font-brsegma-600">Email</Text>
-                <TextInput
-                  className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 text-base"
-                  placeholder="Enter your email"
-                  placeholderTextColor="#9CA3AF"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  textContentType="emailAddress"
-                />
+                <TextInput placeholder='Enter your email' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500' onChangeText={setEmail}/>
               </View>
 
               {/* Password Input */}
               <View className="flex-col gap-1">
                 <Text className="text-gray-700 font-brsegma-600">Password</Text>
-                <TextInput
-                  className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 text-base"
-                  placeholder="Enter your password"
-                  placeholderTextColor="#9CA3AF"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                  textContentType="password"
-                />
+                <TextInput placeholder='Password' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500' secureTextEntry onChangeText={setPassword}/>
               </View>
 
               {/* Forgot Password */}
@@ -117,12 +100,13 @@ const Login = () => {
               {/* Sign Up Link */}
               <View className="flex-row justify-center">
                 <Text className="text-gray-600 font-brsegma-500">Don't have an account? </Text>
-                <Link href="/register" push>
+                <Link href="/register/credentials" replace>
                   <Text className="text-primary-400 font-brsegma-600">Sign Up</Text>
                 </Link>
               </View>
             </View>
           </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };

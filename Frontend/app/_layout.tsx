@@ -34,6 +34,7 @@ function LayoutContent() {
         // Load stored refresh token
         const storedRefreshToken = await SecureStore.getItemAsync("refreshToken");
         console.log("Stored refresh token:", storedRefreshToken);
+        console.log("access token:", user);
         setRefreshToken(storedRefreshToken);
       } catch (e) {
         console.warn("Error loading refresh token:", e);
@@ -48,14 +49,14 @@ function LayoutContent() {
   }, [user]);
 
   // Show custom splash until app is ready
-  if (!isAppReady) {
+  if (!isAppReady && !fontsLoaded) {
     return <CustomSplash />;
   }
 
   // After splash ends, render main app
   return (
     <>
-    <StatusBar style="light" />
+    <StatusBar style="dark" />
     <Stack>
       <Stack.Protected guard={!!refreshToken}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

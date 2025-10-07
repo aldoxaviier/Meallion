@@ -3,6 +3,7 @@ const ApiResponse = require("../../utils/apiResponse");
 const userRepository = require("./repository");
 class userController {
     static async reqOTP(req, res) {
+        console.log("Requesting OTP");
         try {
             const { email } = req.body;
             const result = await userService.reqOTP(email);

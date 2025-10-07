@@ -4,6 +4,7 @@ import { attachTokenInterceptor, registerAuthHandlers } from "../utils/api";
 
 interface AuthContextType {
   accessToken: string;
+  setAccessToken: React.Dispatch<React.SetStateAction<string>>;
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
 }
@@ -19,6 +20,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     attachTokenInterceptor(() => accessToken);
   }, [accessToken]);
 
+  
+
   const login = async (accessToken: string, refreshToken: string) => {
     setAccessToken(accessToken);
     await SecureStore.setItemAsync("refreshToken", refreshToken);
@@ -30,7 +33,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ accessToken, login, logout }}>
+    <AuthContext.Provider value={{ accessToken, setAccessToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

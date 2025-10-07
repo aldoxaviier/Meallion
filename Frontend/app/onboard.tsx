@@ -1,13 +1,12 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 
 const Onboard = () => {
   const router = useRouter();
 
   const handleSignUp = () => {
     // Navigate to sign up screen
-    router.push("/register");
+    router.push("/register/credentials");
   };
 
   const handleSignIn = () => {
@@ -24,7 +23,7 @@ const Onboard = () => {
           className="bg-white rounded-full py-4 w-full"
         >
           <Text className="text-center text-primary-500 font-semibold text-lg">
-            Sign up
+            Create an Account
           </Text>
         </TouchableOpacity>
         

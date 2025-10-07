@@ -3,6 +3,7 @@ import {Link} from 'expo-router';
 import api from '../utils/api';
 import { AuthContext } from '../store/authContext';
 import { useContext } from 'react';
+import * as SecureStore from "expo-secure-store";
 
 const Profile = () => {
   const authContext = useContext(AuthContext);
@@ -18,6 +19,17 @@ const Profile = () => {
     }
   }
 
+  const handleRefresh = async () => {
+    try {
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      const response = await api.post('/auth/refresh',{ refreshToken });
+      console.log("Profile response:", response.data);
+      authContext?.setAccessToken(response.data.data.accessToken);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   return (
     <>
@@ -25,6 +37,9 @@ const Profile = () => {
         <Text className="text-5xl">Profile</Text>
         <TouchableHighlight onPress={onPressLogout} className='border p-3 rounded-md'>
           <Text className="text-lg">Logout</Text>
+        </TouchableHighlight>
+        <TouchableHighlight onPress={handleRefresh} className='border p-3 rounded-md'>
+          <Text className="text-lg">refresh</Text>
         </TouchableHighlight>
       </View>
     </>
