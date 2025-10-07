@@ -1,5 +1,5 @@
-const recipesRepository = require("./repository");
-const ApiResponse = require("../../utils/apiResponse");
+const recipesRepository = require("../repositories/recipesRepository");
+const ApiResponse = require("../utils/apiResponse");
 
 class recipesController {
    static async getAllRecipes(req, res) {

@@ -7,6 +7,7 @@ export default function RegisterLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="credentials"/>
         <Stack.Screen name="otp"/>
+        
       </Stack>
     </RegisterProvider>
   );

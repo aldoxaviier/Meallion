@@ -1,9 +1,9 @@
 const randomstring = require("randomstring");
-const mailer = require("../../utils/nodemailer");
-const { redisClient } = require("../../utils/redis");
-const userRepository = require("./repository");
+const mailer = require("../utils/nodemailer");
+const { redisClient } = require("../utils/redis");
+const userRepository = require("../repositories/userRepository");
 const bcrypt = require("bcrypt");
-const jwtGenerator = require("../../utils/jwtGenerator");
+const jwtGenerator = require("../utils/jwtGenerator");
 const jwt = require("jsonwebtoken");
 class userService {
     static async reqOTP(email,res) {

@@ -1,6 +1,6 @@
-const userService = require("./service");
-const ApiResponse = require("../../utils/apiResponse");
-const userRepository = require("./repository");
+const userService = require("../service/userService");
+const ApiResponse = require("../utils/apiResponse");
+const userRepository = require("../repositories/userRepository");
 class userController {
     static async reqOTP(req, res) {
         console.log("Requesting OTP");

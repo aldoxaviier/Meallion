@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const { recipesController } = require("./controller");
-const authorization = require("../../middleware/authorization");
+const { recipesController } = require("../controller/recipesController");
+const authorization = require("../middleware/authorization");
 
 router.get("/getAll", recipesController.getAllRecipes);
 router.post("/addBookmark", authorization, recipesController.addBookmark);
