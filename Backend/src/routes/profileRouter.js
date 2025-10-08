@@ -1,6 +1,8 @@
 const router = require("express").Router();
-const { profileController } = require("./controller");
+const { profileController } = require("../controller/profileController");
 const validation = require("../middleware/validations");
 const authorization = require("../middleware/authorization");
 
 router.post("/addProfile", authorization, profileController.addProfile);
+
+module.exports = router;

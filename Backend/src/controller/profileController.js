@@ -1,8 +1,8 @@
 const ApiResponse = require("../utils/apiResponse");
-const { profileRepository } = require("./repository");
+const { profileRepository } = require("../repositories/profileRepository");
 
-class ProfileController {
-    async addProfile(req, res) {
+class profileController {
+    static async addProfile(req, res) {
         try {
             const userId = req.user;
             const {height, weight, activity_level, goal_plan, allergies, diet_preferences, updated_at} = req.body;
@@ -15,4 +15,4 @@ class ProfileController {
     }
 }
 
-module.exports = {ProfileController}
+module.exports = {profileController}

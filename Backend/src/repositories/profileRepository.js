@@ -1,4 +1,4 @@
-const Database = require("../../database");
+const Database = require("../config/db");
 
 class profileRepository {
     async addProfile(data) {

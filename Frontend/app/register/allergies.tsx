@@ -1,10 +1,8 @@
-import { View,Text,TouchableHighlight,TouchableOpacity, ActivityIndicator } from "react-native";
+import { View,Text,TouchableHighlight,TouchableOpacity } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useState, useEffect } from "react";
-import { Asset } from "expo-asset";
-const profileonboard = () => {
+const allergies = () => {
     const router = useRouter();
     return (
         <>
@@ -15,8 +13,8 @@ const profileonboard = () => {
                 </TouchableOpacity>
                 <View className="flex flex-row gap-1 mb-4">
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
-                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
-                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
                     <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
                 </View>
                 <View className="flex flex-col justify-between flex-1">
@@ -34,4 +32,4 @@ const profileonboard = () => {
     );
 }
 
-export default profileonboard;
+export default allergies;

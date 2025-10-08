@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
   Text,
+  TouchableHighlight,
 } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { Link } from 'expo-router';
@@ -25,22 +26,30 @@ const Login = () => {
   const authContext = useContext(AuthContext);
 
   const onPressLogin = async () => {
-    setMessage('');
-    setIsLoading(true);
-    try {
-      const body = { email, password };
-      const response = await api.post(`/auth/login`, body);
-      console.log('Login response:', response);
-      if (response.status === 200) {
-        authContext?.login(response.data.data.accessToken, response.data.data.refreshToken);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setMessage('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+  setMessage('');
+  setIsLoading(true);
+  try {
+    const body = { email, password };
+    const response = await api.post(`/auth/login`, body);
+
+    console.log('Login response:', response);
+
+    if (response.status === 200) {
+      authContext?.login(
+        response.data.data.accessToken,
+        response.data.data.refreshToken
+      );
     }
-  };
+  } catch (error : any) {
+    if (error.response) {
+      console.error('Login error response:', error.response.data);
+      setMessage(error.response.data.message);
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <SafeAreaView className='bg-white'>
@@ -78,26 +87,22 @@ const Login = () => {
                 </Text>
               </TouchableOpacity>
 
+              {/* Sign In Button */}
+              <TouchableHighlight
+                onPress={onPressLogin}
+                className={`bg-primary-400 rounded-xl py-4 items-center mb-6`}
+              >
+                <Text className="text-white font-brsegma-600 text-lg">
+                  {isLoading ? 'Signing In...' : 'Sign In'}
+                </Text>
+              </TouchableHighlight>
+
               {/* Error Message */}
               {message ? (
                 <Text className="text-red-500 text-center mb-4 text-sm font-brsegma-600">
                   {message}
                 </Text>
               ) : null}
-
-              {/* Sign In Button */}
-              <TouchableOpacity
-                onPress={onPressLogin}
-                disabled={isLoading}
-                className={`bg-primary-400 rounded-xl py-4 items-center mb-6 ${
-                  isLoading ? 'opacity-70' : ''
-                }`}
-                activeOpacity={0.8}
-              >
-                <Text className="text-white font-brsegma-600 text-lg">
-                  {isLoading ? 'Signing In...' : 'Sign In'}
-                </Text>
-              </TouchableOpacity>
 
               {/* Sign Up Link */}
               <View className="flex-row justify-center">

@@ -16,6 +16,16 @@ const Personal = () => {
   ];
   const [selectedChoices, setSelectedChoices] = useState<string[]>([]);
 
+  // Image mapping object
+  const imageMap: { [key: string]: any } = {
+    "Pescatarian": require("../../assets/images/pescatarian.png"),
+    "Vegetarian": require("../../assets/images/vegetarian.png"),
+    "Vegan": require("../../assets/images/vegan.png"),
+    "Dairy-free": require("../../assets/images/dairy-free.png"),
+    "Gluten-free": require("../../assets/images/gluten-free.png"),
+    "Pork-free": require("../../assets/images/pork-free.png"),
+  };
+
   const toggleChoice = (choice: string) => {
     if (selectedChoices.includes(choice)) {
       setSelectedChoices(selectedChoices.filter((c) => c !== choice));
@@ -29,16 +39,15 @@ const Personal = () => {
     return (
       <TouchableOpacity
         onPress={() => toggleChoice(item)}
-        activeOpacity={0.8}
+        activeOpacity={1}
         style={{ flex: 1 }}
-        className={`py-8 items-center rounded-2xl  ${
-          isSelected ? "border-primary-500 bg-primary-100" : "bg-[#fcfaf3]"
+        className={`py-7 items-center rounded-2xl border-2 bg-[#faf6ea] ${
+          isSelected ? "border-primary-500" : "border-transparent"
         }`}
       >
-        <Image source={require('../../assets/images/pork.png')}  className="h-20 w-20"/>
+        <Image source={imageMap[item]}  className="h-20 w-20"/>
         <Text
-          className={`text-base font-brsegma-500 ${
-            isSelected ? "text-primary-600" : "text-primary-400"
+          className={`text-base font-brsegma-500 text-primary-600
           }`}
         >
           {item}
@@ -49,7 +58,7 @@ const Personal = () => {
 
   return (
     <SafeAreaView className="bg-white flex-1">
-      <View className="flex-1 flex-col gap-4 px-6 py-6">
+      <View className="h-full w-full flex-col gap-4 px-6 py-6">
         {/* Back button */}
         <TouchableOpacity
           className="self-start pr-2 py-2 rounded-lg"
@@ -76,6 +85,7 @@ const Personal = () => {
           </Text>
         </View>
 
+        <View className="flex flex-col justify-between flex-1">
         {/* Choice grid */}
         <FlatList
           data={choices}
@@ -85,7 +95,6 @@ const Personal = () => {
           contentContainerStyle={{
             gap: 12,
             paddingTop: 12,
-            paddingBottom: 32,
           }}
           keyExtractor={(item) => item}
           showsVerticalScrollIndicator={false}
@@ -94,13 +103,14 @@ const Personal = () => {
 
         {/* Next button */}
         <TouchableOpacity
-          className="bg-primary-500 py-4 rounded-full mt-auto"
-          onPress={() => router.push("/(tabs)")}
+          className="bg-primary-500 rounded-full self-center py-4 px-10"
+          onPress={() => router.push("/register/allergies")}
         >
-          <Text className="text-white text-center font-brsegma-600 text-lg">
+          <Text className="text-white text-center font-brsegma-600 ">
             Next
           </Text>
         </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
