@@ -21,6 +21,7 @@ const Credentials = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
   const registerContext = useContext(RegisterContext);
   const router = useRouter();
 
@@ -30,11 +31,13 @@ const Credentials = () => {
       registerContext?.setRegisterData({ name, email, password });
       const body = { email };
       const response = await api.post(`/auth/sendOTP`, body);
-      console.log(response.data);
       router.push('/register/otp');
       setIsLoading(false);
-    } catch (err) {
-      console.error('Error during registration:', err);
+    } catch (error : any) {
+      console.error(error.response.data);
+      setMessage(error.response.data.message);
+    }finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,13 +95,23 @@ const Credentials = () => {
                   {isLoading ? 'Loading...' : 'Continue'}
                 </Text>
               </TouchableHighlight>
+              {message ? <Text className="text-red-500 text-center text-sm font-brsegma-600">{message}</Text> : null}
               <TouchableHighlight
-                className="bg-primary-500 rounded-[40px] p-5"
+                className="bg-primary-500 rounded-[40px] p-2"
                 underlayColor="#500902"
                 onPress={() => router.push('/register/profileonboard')}
               >
                 <Text className="text-white text-center font-brsegma-600">
                   profile onboard
+                </Text>
+              </TouchableHighlight>
+              <TouchableHighlight
+                className="bg-primary-500 rounded-[40px] p-2"
+                underlayColor="#500902"
+                onPress={() => router.push('/register/otp')}
+              >
+                <Text className="text-white text-center font-brsegma-600">
+                  otp
                 </Text>
               </TouchableHighlight>
             </View>

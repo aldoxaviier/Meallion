@@ -9,6 +9,7 @@ const otp = () => {
     const registerContext = useContext(RegisterContext);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const [message, setMessage] = useState('');
     const authContext = useContext(AuthContext);
     const handleContinue = async() => {
         setIsLoading(true);
@@ -17,12 +18,15 @@ const otp = () => {
                 name: registerContext?.registerData.name,
                 email: registerContext?.registerData.email, 
                 password: registerContext?.registerData.password, 
-                otp 
+                otp: otp
             };
+            console.log("body:", body);
             const response = await api.post(`/auth/register`, body);
             authContext?.login(response.data.data.accessToken, response.data.data.refreshToken);
-        } catch (error) {
-            console.log(error);
+            router.push('/(tabs)');
+        } catch (error : any) {
+            console.log(error.response.data);
+            setMessage(error.response.data.message);
         }
     }
 
@@ -36,7 +40,7 @@ const otp = () => {
                     <Text className="text-primary-500 font-brsegma-500 text-center">We have sent a One Time Password to your email</Text>
                 </View>
                 <View className='bg-white basis-[60vh] w-full rounded-t-[20px] flex flex-col gap-4 px-4 py-6'>
-                    <TextInput placeholder='OTP' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500' />
+                    <TextInput placeholder='OTP' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500' onChangeText={setOtp}/>
                     <TouchableHighlight className='bg-primary-500 rounded-[40px] p-5' onPress={handleContinue} disabled={isLoading}>
                         <Text className='text-white text-center font-brsegma-600'>Continue</Text>
                     </TouchableHighlight>
