@@ -52,7 +52,7 @@ const Login = () => {
 
 
   return (
-    <SafeAreaView className='bg-white'>
+    <SafeAreaView className='bg-white pt-6'>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>       
           <View className="px-6 py-6 bg-white h-full w-full flex-col gap-2">
             <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>

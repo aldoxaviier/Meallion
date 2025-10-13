@@ -5,7 +5,7 @@ import MyTabBar from "../components/tabbar";
 
 const _Layout = () => {
     return (
-        <Tabs tabBar={(props) => <MyTabBar {...props} />}>
+        <Tabs>
             <Tabs.Screen 
                 name="index"
                 options={{ title: "Home",
