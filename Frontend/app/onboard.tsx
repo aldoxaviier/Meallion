@@ -35,6 +35,34 @@ const Onboard = () => {
             Sign In
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => router.push("/register/profileonboard")}
+          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
+        >
+          <Text className="text-center text-secondary-400 font-semibold text-lg">
+            Profile Onboard
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => router.push("/register/otp")
+            
+          }
+          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
+        >
+          <Text className="text-center text-secondary-400 font-semibold text-lg">
+            OTP
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => router.push("/register/otpduplicated")
+            
+          }
+          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
+        >
+          <Text className="text-center text-secondary-400 font-semibold text-lg">
+            OTP Duplicated
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

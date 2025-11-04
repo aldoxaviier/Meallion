@@ -61,8 +61,6 @@ const Credentials = () => {
                     Create account to personalized your recommendations
                 </Text>
             </View>
-
-            {/* Form Section */}
             <View className="bg-white flex-[3] w-full rounded-t-[20px] flex flex-col gap-4 px-4 py-6">
               <TextInput
                 placeholder="Name"
@@ -96,24 +94,6 @@ const Credentials = () => {
                 </Text>
               </TouchableHighlight>
               {message ? <Text className="text-red-500 text-center text-sm font-brsegma-600">{message}</Text> : null}
-              <TouchableHighlight
-                className="bg-primary-500 rounded-[40px] p-2"
-                underlayColor="#500902"
-                onPress={() => router.push('/register/profileonboard')}
-              >
-                <Text className="text-white text-center font-brsegma-600">
-                  profile onboard
-                </Text>
-              </TouchableHighlight>
-              <TouchableHighlight
-                className="bg-primary-500 rounded-[40px] p-2"
-                underlayColor="#500902"
-                onPress={() => router.push('/register/otp')}
-              >
-                <Text className="text-white text-center font-brsegma-600">
-                  otp
-                </Text>
-              </TouchableHighlight>
             </View>
           </View>
         </TouchableWithoutFeedback>

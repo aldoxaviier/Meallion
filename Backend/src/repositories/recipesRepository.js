@@ -16,6 +16,11 @@ class recipesRepository {
         const result = await Database.from("bookmarks").select("*").eq("user_id", userId);
         return result.data;
    }
+
+   static async getIngredients(query) {
+        const result = await Database.from("ingredients").select("*").ilike("name", `%${query}%`);
+        return result.data;
+   }
 }
 
 module.exports = recipesRepository;

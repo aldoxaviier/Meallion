@@ -16,7 +16,6 @@ const Personal = () => {
   ];
   const [selectedChoices, setSelectedChoices] = useState<string[]>([]);
 
-  // Image mapping object
   const imageMap: { [key: string]: any } = {
     "Pescatarian": require("../../assets/images/pescatarian.png"),
     "Vegetarian": require("../../assets/images/vegetarian.png"),
@@ -59,23 +58,18 @@ const Personal = () => {
   return (
     <SafeAreaView className="bg-white flex-1">
       <View className="h-full w-full flex-col gap-4 px-6 py-6">
-        {/* Back button */}
         <TouchableOpacity
           className="self-start pr-2 py-2 rounded-lg"
           onPress={() => router.back()}
         >
           <Feather name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
-
-        {/* Progress bar */}
         <View className="flex flex-row gap-1 mb-4">
           <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
           <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
           <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
           <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
         </View>
-
-        {/* Title */}
         <View className="items-center mb-2">
           <Text className="text-3xl text-primary-500 font-fogsta text-center">
             Are there any dietary requirements?
@@ -84,9 +78,7 @@ const Personal = () => {
             Choose as many that apply.
           </Text>
         </View>
-
         <View className="flex flex-col justify-between flex-1">
-        {/* Choice grid */}
         <FlatList
           data={choices}
           renderItem={renderChoice}
@@ -100,8 +92,6 @@ const Personal = () => {
           showsVerticalScrollIndicator={false}
           scrollEnabled={false}
         />
-
-        {/* Next button */}
         <TouchableOpacity
           className="bg-primary-500 rounded-full self-center py-4 px-10"
           onPress={() => router.push("/register/allergies")}
