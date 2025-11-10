@@ -5,7 +5,8 @@ import { RegisterContext } from '../store/registerContext';
 import api from '../utils/api';
 import { useRouter } from 'expo-router';
 import { AuthContext } from '../store/authContext';
-const otp = () => {
+import { Ionicons } from '@expo/vector-icons';
+const otpduplicated = () => {
     const [otpValue, setOtpValue] = useState('');
     const hiddenInputRef = useRef<any>(null);
     const registerContext = useContext(RegisterContext);
@@ -32,7 +33,7 @@ const otp = () => {
                 name: registerContext?.registerData.name,
                 email: registerContext?.registerData.email, 
                 password: registerContext?.registerData.password, 
-                otp: otpValue
+                otpduplicated: otpValue
             };
             console.log("body:", body);
             const response = await api.post(`/auth/register`, body);
@@ -45,60 +46,88 @@ const otp = () => {
         }
     }
 
+    useEffect(() => {
+        if (otpValue.length === 6) {
+            Keyboard.dismiss();
+            hiddenInputRef?.current?.blur();
+        }
+    }, [otpValue]);
+
     return (
         <>
-        <SafeAreaView className='bg-secondary-400'>
+        <SafeAreaView className='bg-white'>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View className="h-full bg-secondary-400 flex flex-col items-center py-2 ">
-                <View className='flex flex-col gap-2 basis-[40vh] justify-center'>
-                    <Text className="text-4xl text-primary-500 font-fogsta text-center">Enter OTP</Text>
-                    <Text className="text-primary-500 font-brsegma-500 text-center">We have sent a One Time Password to your email</Text>
+            <View className="h-full bg-white flex flex-col px-6 pb-6">
+                {/* Back Button */}
+                <TouchableHighlight 
+                    className='w-10 h-10 mb-8'
+                    underlayColor="#f3f4f6"
+                    onPress={() => router.back()}
+                >
+                    <View className='w-10 h-10 items-center justify-center'>
+                        <Ionicons name="chevron-back" size={28} color="#000" />
+                    </View>
+                </TouchableHighlight>
+
+                {/* Header Section */}
+                <View className='flex flex-col gap-3 mb-8 justify-center items-center'>
+                    <Text className="text-3xl font-fogsta ">Verify Account</Text>
+                    <Text className="text-base text-gray-600 font-brsegma-600">
+                        Enter the one time code we sent to
+                    </Text>
                 </View>
-                <View className='bg-white basis-[60vh] w-full rounded-t-[20px] flex flex-col gap-4 px-4 py-6'>
+
+                {/* OTP Input Section */}
+                <View className='flex-1 flex-col relative w-full items-center'>
                     <TextInput
                         ref={hiddenInputRef}
                         value={otpValue}
                         onChangeText={handleOtpChange}
                         keyboardType="number-pad"
                         maxLength={6}
-                        className='absolute bg-slate-300 w-72 h-12 z-10 top-[40px] left-[75px] opacity-0'
+                        className='absolute z-10 h-16 opacity-0 w-full '
                         autoFocus
                     />
                     <Pressable onPress={focusInput}>
-                        <View className='flex flex-row justify-center gap-2 my-4'>
+                        <View className='flex flex-row justify-center gap-3 mb-6'>
                             {[0, 1, 2, 3, 4, 5].map((index) => (
                                 <View
                                     key={index}
-                                    className={`w-12 h-14 border-2 rounded-xl flex items-center justify-center ${
-                                        otpValue.length === index ? 'border-primary-500' : 'border-gray-300'
+                                    className={`w-14 h-16 border rounded-xl flex items-center justify-center ${
+                                        otpValue.length === index ? 'border-primary-500 bg-gray-50 border-[3px]' : 'border-gray-600'
                                     }`}
                                 >
-                                    <Text className='text-xl font-brsegma-600'>
+                                    <Text className='text-2xl font-brsegma-600 text-black'>
                                         {otpValue[index] || ''}
                                     </Text>
                                 </View>
                             ))}
                         </View>
                     </Pressable>
+                    
                     <TouchableHighlight 
-                        className='self-center'
-                        underlayColor="transparent"
                     >
-                        <Text className='text-gray-600 font-brsegma-500 text-sm'>
+                        <Text className='text-gray-800 font-brsegma-500 text-sm'>
                             Didn't get a code?
                         </Text>
                     </TouchableHighlight>
+
                     {message ? (
-                        <Text className="text-red-500 text-center text-sm font-brsegma-600">
+                        <Text className="text-red-500 text-center text-sm font-brsegma-600 mb-4">
                             {message}
                         </Text>
                     ) : null}
+                </View>
+
+                {/* Continue Button at Bottom */}
+                <View>
                     <TouchableHighlight 
-                        className={`bg-primary-500 rounded-[40px] p-5 mt-4 ${isLoading || otpValue.length < 6 ? 'opacity-70' : ''}`}
+                        className={`bg-black rounded-full py-5 ${isLoading || otpValue.length < 6 ? 'opacity-50' : ''}`}
                         onPress={handleContinue} 
                         disabled={isLoading || otpValue.length < 6}
+                        underlayColor="#1f1f1f"
                     >
-                        <Text className='text-white text-center font-brsegma-600'>
+                        <Text className='text-white text-center font-brsegma-600 text-base'>
                             {isLoading ? 'Verifying...' : 'Continue'}
                         </Text>
                     </TouchableHighlight>
@@ -110,4 +139,4 @@ const otp = () => {
     );
 }
 
-export default otp;
+export default otpduplicated;

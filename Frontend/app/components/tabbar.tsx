@@ -2,7 +2,6 @@ import { View,Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { BlurView } from "expo-blur";
 
 function MyTabBar({ state, descriptors, navigation }:any) {
 
@@ -21,7 +20,7 @@ function MyTabBar({ state, descriptors, navigation }:any) {
     }
 
   return (
-    <BlurView intensity={80} className="absolute flex flex-row justify-between bottom-[50px] w-[80%] self-center py-[10px] px-[20px]  rounded-[40px] overflow-hidden">
+    <View className="absolute flex flex-row justify-between bottom-[50px] w-[80%] self-center py-[10px] px-[20px]  rounded-[40px] overflow-hidden">
       {state.routes.map((route:any, index:any) => {
         const { options } = descriptors[route.key];
         const label =
@@ -64,7 +63,7 @@ function MyTabBar({ state, descriptors, navigation }:any) {
           </Pressable>
         );
       })}
-    </BlurView>
+    </View>
   );
 }
 
