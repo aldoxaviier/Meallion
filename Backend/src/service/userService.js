@@ -13,13 +13,14 @@ class userService {
             throw new Error("Email already exists");
         }
         const otp = randomstring.generate({ length: 6, charset: "numeric" });
-        redisClient.setEx("otptoken", 120, otp);
+        redisClient.setEx("otptoken", 130, otp);
         await mailer.sendOTP(email, otp);
         return otp;
     }
 
     static async register(email, name, password, otp) {
         const storedOtp = await redisClient.get("otptoken");
+        console.log("Stored OTP:", storedOtp, "Provided OTP:", otp);
         if (storedOtp !== otp) {
             return;
         }
@@ -30,6 +31,7 @@ class userService {
         const refreshToken = jwtGenerator.refreshToken(result.data[0].user_id);
         const accessToken = jwtGenerator.accessToken(result.data[0].user_id);
         await userRepository.updateRefreshToken(result.data[0].user_id, refreshToken);
+        console.log(accessToken, refreshToken);
         return { accessToken, refreshToken };
     }
 

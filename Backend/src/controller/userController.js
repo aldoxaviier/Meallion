@@ -13,9 +13,9 @@ class userController {
             res.status(500).json(ApiResponse.error(err.message, 500));
         }
     }
-
     static async login(req, res) {
         try {
+            console.log("login backend");
             const { email, password } = req.body;
             const result = await userService.login(email, password);
             res.status(200).json(ApiResponse.success("User logged in successfully", { refreshToken: result.refreshToken, accessToken: result.accessToken }, 200));

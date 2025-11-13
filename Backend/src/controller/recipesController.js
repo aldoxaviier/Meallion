@@ -34,10 +34,10 @@ class recipesController {
            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
        }
    }
-   static async getIngredients(req, res) {
+   static async getAllIngredients(req, res) {
     try {
-        const query = req.query.q;
-        const result = await recipesRepository.getIngredients(query);
+        const query = req.query.query;
+        const result = await recipesRepository.getAllIngredients(query);
         res.json(ApiResponse.success("Ingredients fetched successfully", result , 200));
     } catch (err) {
         console.error(err.message);

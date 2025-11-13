@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import RegisterProvider from "../store/registerContext";
+import { Modal } from "react-native";
 
 export default function RegisterLayout() {
   return (

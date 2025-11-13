@@ -26,28 +26,30 @@ const Login = () => {
   const authContext = useContext(AuthContext);
 
   const onPressLogin = async () => {
-  setMessage('');
-  setIsLoading(true);
-  try {
-    const body = { email, password };
-    const response = await api.post(`/auth/login`, body);
+    setMessage('');
+    setIsLoading(true);
+    console.log("attemp login");
+    try {
+      const body = { email, password };
+      console.log(body)
+      const response = await api.post(`/auth/login`, body);
 
-    console.log('Login response:', response);
+      console.log('Login response:', response);
 
-    if (response.status === 200) {
-      authContext?.login(
-        response.data.data.accessToken,
-        response.data.data.refreshToken
-      );
+      if (response.status === 200) {
+        authContext?.login(
+          response.data.data.accessToken,
+          response.data.data.refreshToken
+        );
+      }
+    } catch (error : any) {
+      if (error.response) {
+        console.error('Login error response:', error.response.data);
+        setMessage(error.response.data.message);
+      }
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error : any) {
-    if (error.response) {
-      console.error('Login error response:', error.response.data);
-      setMessage(error.response.data.message);
-    }
-  } finally {
-    setIsLoading(false);
-  }
 };
 
 

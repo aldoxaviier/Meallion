@@ -5,16 +5,15 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   Keyboard,
-  TouchableHighlight,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
-import api from '../utils/api';
 import { RegisterContext } from '../store/registerContext';
 import { useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import api from '../utils/api';
 
 const Credentials = () => {
   const [name, setName] = useState('');
@@ -28,7 +27,7 @@ const Credentials = () => {
   const handleContinue = async () => {
     setIsLoading(true);
     try {
-      registerContext?.setRegisterData({ name, email, password });
+      registerContext?.setRegisterData({ name: name, email: email, password: password });
       const body = { email };
       const response = await api.post(`/auth/sendOTP`, body);
       router.push('/register/otp');
@@ -41,63 +40,63 @@ const Credentials = () => {
     }
   };
 
+
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-secondary-400">
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 bg-secondary-400 flex-col items-center">
-            {/* Header Section */}
-            <View className="flex flex-col gap-2 flex-[2] px-6 py-6 items-center">
+          <View className="flex-1 bg-white px-6 pb-6">
+            <View className="pt-6">
               <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
                 <Feather name="arrow-left" size={24} color="black" />
-                </TouchableOpacity>
-                <Text className="text-4xl text-primary-500 font-fogsta">
-                    Let's get you started
-                </Text>
-                <Text className="text-primary-500 font-brsegma-500 text-center">
-                    Create account to personalized your recommendations
-                </Text>
+              </TouchableOpacity>
             </View>
-            <View className="bg-white flex-[3] w-full rounded-t-[20px] flex flex-col gap-4 px-4 py-6">
-              <TextInput
-                placeholder="Name"
-                className="border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500"
-                onChangeText={setName}
-              />
-              <TextInput
-                placeholder="Email"
-                className="border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500"
-                onChangeText={setEmail}
-              />
-              <View>
+
+            <View className="flex-1 pt-2 items-center">
+              <Text className="text-4xl font-fogsta text-primary-500 text-center">
+                What's your name?
+              </Text>
+              <Text className="text-sm text-gray-500 font-brsegma-300 mt-2 text-center">
+                Personalize your experience
+              </Text>
+
+              <View className="w-full mt-8 items-center">
+                <TextInput
+                  placeholder="First name"
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 bg-white"
+                  onChangeText={setName}
+                  value={name}
+                />
+
+                <TextInput
+                  placeholder="Email"
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 bg-white mt-4"
+                  onChangeText={setEmail}
+                  value={email}
+                />
+
                 <TextInput
                   placeholder="Password"
-                  className="border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500"
-                  secureTextEntry
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 bg-white mt-4"
                   onChangeText={setPassword}
+                  secureTextEntry={true}
+                  value={password}
                 />
-                <Text className="px-4 font-brsegma-300 text-sm text-gray-500">
-                  6 characters minimum
-                </Text>
               </View>
+            </View>
 
-              <TouchableHighlight
-                className="bg-primary-500 rounded-[40px] p-5"
+            <View className="pb-6 px-6">
+              <TouchableOpacity
+                className="bg-primary-500 rounded-[40px] p-4"
                 onPress={handleContinue}
-                underlayColor="#500902"
+                activeOpacity={0.8}
               >
                 <Text className="text-white text-center font-brsegma-600">
                   {isLoading ? 'Loading...' : 'Continue'}
                 </Text>
-              </TouchableHighlight>
-              {message ? <Text className="text-red-500 text-center text-sm font-brsegma-600">{message}</Text> : null}
+              </TouchableOpacity>
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
