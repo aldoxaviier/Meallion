@@ -42,9 +42,9 @@ const Credentials = () => {
 
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-secondary-200">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 bg-white px-6 pb-6">
+          <View className="flex-1 bg-secondary-200 px-6 pb-6">
             <View className="pt-6">
               <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
                 <Feather name="arrow-left" size={24} color="black" />
@@ -62,21 +62,21 @@ const Credentials = () => {
               <View className="w-full mt-8 items-center">
                 <TextInput
                   placeholder="First name"
-                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 bg-white"
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 "
                   onChangeText={setName}
                   value={name}
                 />
 
                 <TextInput
                   placeholder="Email"
-                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 bg-white mt-4"
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500  mt-4"
                   onChangeText={setEmail}
                   value={email}
                 />
 
                 <TextInput
                   placeholder="Password"
-                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 bg-white mt-4"
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 mt-4"
                   onChangeText={setPassword}
                   secureTextEntry={true}
                   value={password}
