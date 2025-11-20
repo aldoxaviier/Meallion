@@ -5,5 +5,5 @@ const authorization = require("../middleware/authorization");
 router.get("/getAll", recipesController.getAllRecipes);
 router.post("/addBookmark", authorization, recipesController.addBookmark);
 router.get("/getBookmarksByUserId", authorization,recipesController.getBookmarksByUserId);
-router.get("/getAllIngredients", recipesController.getAllIngredients);
+router.get("/getIngredients", recipesController.getIngredients);
 module.exports = router;

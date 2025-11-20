@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, TextInput,TouchableWithoutFeedback,Keyboard } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
+import  FontAwesome5  from "@expo/vector-icons/FontAwesome5";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import api from "../utils/api";
@@ -13,6 +14,7 @@ const Allergies = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<any>([]);
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
 
   // snap points like iOS modal style
   const snapPoints = useMemo(() => ["70%"], []);
@@ -37,16 +39,23 @@ const Allergies = () => {
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
-      if (searchTerm.length >= 2) {
-        const data = await api.get(`/recipes/getAllIngredients?query=${searchTerm}`);
-        setResults(data);
-      } else {
-        setResults([]);
-      }
+    if (searchTerm.length >= 2) {
+    const data = await api.get(`/recipes/getIngredients?query=${searchTerm}`);
+    console.log(data.data);
+    setResults(data.data.data);
+    } else {
+      setResults([]);
+    }
     }, 400);
 
     return () => clearTimeout(timeout);
   }, [searchTerm]);
+
+  const toggleSelect = (item: string) => {
+    setSelectedIngredients((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    );
+  };
 
   const commonDislikes = [
     "Black olives",
@@ -109,7 +118,6 @@ const Allergies = () => {
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
-        index={-1}
         enablePanDownToClose={true}
         enableDynamicSizing={false}
         backdropComponent={renderBackdrop}
@@ -139,14 +147,39 @@ const Allergies = () => {
           <Text className="text-sm font-brsegma-600 mb-2">Common dislikes</Text>
 
           <View className="flex-row flex-wrap gap-2">
-            {commonDislikes.map((item, index) => (
-              <View
-                key={index}
-                className="border border-red-300 rounded-full px-4 py-2 bg-red-50"
-              >
-                <Text className="text-red-500">{item}</Text>
-              </View>
-            ))}
+            {/* If there are search results show them first */}
+            {results && results.length > 0 && results.map((item: any, idx: number) => {
+              const selected = selectedIngredients.includes(item);
+              return (
+                <TouchableOpacity
+                  key={`res-${idx}`}
+                  onPress={() => toggleSelect(item)}
+                  className={`rounded-full px-3 py-2 flex-row items-center gap-2 border border-primary-400 ${selected ? 'bg-primary-500' : ''}`}
+                >
+                  <View className="w-5 items-center justify-center">
+                    <Text className={`text-${selected ? 'secondary-400' : 'primary-400'}`}><FontAwesome5 name={selected ? 'times' : 'plus'} size={16} /></Text>
+                  </View>
+                  <Text className={`${selected ? 'text-secondary-400' : 'text-primary-400'}`}>{item.Name}</Text>
+                </TouchableOpacity>
+              );
+            })}
+
+            {/* Common dislikes */}
+            {commonDislikes.map((item, index) => {
+              const selected = selectedIngredients.includes(item);
+              return (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => toggleSelect(item)}
+                  className={`rounded-full px-3 py-2 flex-row items-center gap-2 border border-primary-400 ${selected ? 'bg-primary-500' : ''}`}
+                >
+                  <View className="w-5 items-center justify-center">
+                    <Text className={`text-${selected ? 'secondary-400' : 'primary-400'}`}><FontAwesome5 name={selected ? 'times' : 'plus'} size={16} /></Text>
+                  </View>
+                  <Text className={`${selected ? 'text-secondary-400' : 'text-primary-400'}`}>{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {/* Done Button */}
