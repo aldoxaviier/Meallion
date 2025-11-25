@@ -18,7 +18,7 @@ class recipesRepository {
    }
 
    static async getIngredients(query) {
-        const result = await Database.from("ingredients").select("*").ilike("Name", `%${query}%`);
+        const result = await Database.from("ingredients_mapping").select("*").ilike("simplified_name", `%${query}%`);
         console.log("Ingredients result:", result)
         return result.data;
    }

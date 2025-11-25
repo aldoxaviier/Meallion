@@ -12,6 +12,7 @@ export default function RegisterLayout() {
         <Stack.Screen name="profileonboard"/>
         <Stack.Screen name="personal"/>
         <Stack.Screen name="allergies"/>
+        <Stack.Screen name="preference"/>
       </Stack>
     </RegisterProvider>
   );

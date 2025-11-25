@@ -16,7 +16,6 @@ const Allergies = () => {
   const [results, setResults] = useState<any>([]);
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
 
-  // snap points like iOS modal style
   const snapPoints = useMemo(() => ["70%"], []);
 
   const renderBackdrop = useCallback((props: any) => (
@@ -39,30 +38,63 @@ const Allergies = () => {
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
-    if (searchTerm.length >= 2) {
-    const data = await api.get(`/recipes/getIngredients?query=${searchTerm}`);
-    console.log(data.data);
-    setResults(data.data.data);
-    } else {
-      setResults([]);
-    }
+      if (searchTerm.length >= 2) {
+        const res = await api.get(`/recipes/getIngredients?query=${searchTerm}`);
+        const raw = res.data.data;
+
+        const grouped = raw.reduce((acc: any, item: any) => {
+          if (!acc[item.simplified_name]) {
+            acc[item.simplified_name] = [];
+          }
+          acc[item.simplified_name].push(item.original_name);
+          return acc;
+        }, {});
+
+        const simplifiedList = Object.keys(grouped).map((key) => ({
+          simplified_name: key,
+          originals: grouped[key],
+        }));
+
+        setResults(simplifiedList);
+      } else {
+        setResults([]);
+      }
     }, 400);
 
     return () => clearTimeout(timeout);
   }, [searchTerm]);
 
-  const toggleSelect = (item: string) => {
-    setSelectedIngredients((prev) =>
-      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
-    );
-  };
+  const toggleSelect = (group: any) => {
+  if (typeof group === "string") {
+    setSelectedIngredients((prev) => {
+      const exists = prev.includes(group);
+      return exists ? prev.filter((i) => i !== group) : [...prev, group];
+    });
+    return;
+  }
+  const { simplified_name, originals } = group;
+  setSelectedIngredients((prev) => {
+    const exists = prev.includes(simplified_name);
+
+    if (exists) {
+      const toRemove = new Set([simplified_name, ...originals]);
+      return prev.filter((i) => !toRemove.has(i));
+    } else {
+      return [...prev, simplified_name, ...originals];
+    }
+  });
+};
 
   const commonDislikes = [
-    "Black olives",
-    "Pitted green olives",
-    "Kalamata olives",
-    "Fresh coriander",
+    "Nuts",
+    "Spninach",
+    "Pickle",
+    "Eggplant",
   ];
+
+  useEffect(() => { 
+    console.log("Selected Ingredients:", selectedIngredients);
+  }, [selectedIngredients]);
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -104,7 +136,7 @@ const Allergies = () => {
 
             <TouchableOpacity
               className="py-4 px-10 self-center rounded-full bg-primary-500"
-              onPress={() => router.push("/register/personal")}
+              onPress={() => router.push("/register/preference")}
             >
               <Text className="text-center font-brsegma-600 text-secondary-400">
                 Next
@@ -147,25 +179,36 @@ const Allergies = () => {
           <Text className="text-sm font-brsegma-600 mb-2">Common dislikes</Text>
 
           <View className="flex-row flex-wrap gap-2">
-            {/* If there are search results show them first */}
-            {results && results.length > 0 && results.map((item: any, idx: number) => {
-              const selected = selectedIngredients.includes(item);
+            {results.length > 0 && results.map((group: any, idx: number) => {
+              const selected = selectedIngredients.includes(group.simplified_name);
+
               return (
                 <TouchableOpacity
                   key={`res-${idx}`}
-                  onPress={() => toggleSelect(item)}
-                  className={`rounded-full px-3 py-2 flex-row items-center gap-2 border border-primary-400 ${selected ? 'bg-primary-500' : ''}`}
+                  onPress={() => toggleSelect(group)}
+                  className={`rounded-full px-3 py-2 flex-row items-center gap-2 border border-primary-400 ${
+                    selected ? "bg-primary-500" : ""
+                  }`}
                 >
                   <View className="w-5 items-center justify-center">
-                    <Text className={`text-${selected ? 'secondary-400' : 'primary-400'}`}><FontAwesome5 name={selected ? 'times' : 'plus'} size={16} /></Text>
+                    <Text className={`text-${selected ? "secondary-400" : "primary-400"}`}>
+                    <FontAwesome5
+                      name={selected ? "times" : "plus"}
+                      size={16}
+                    />
+                    </Text>
                   </View>
-                  <Text className={`${selected ? 'text-secondary-400' : 'text-primary-400'}`}>{item.Name}</Text>
+
+                  <Text className={`${selected ? "text-secondary-400" : "text-primary-400"}`}>
+                    {group.simplified_name}
+                  </Text>
                 </TouchableOpacity>
               );
             })}
 
             {/* Common dislikes */}
-            {commonDislikes.map((item, index) => {
+            
+            {results.length === 0 && commonDislikes.map((item, index) => {
               const selected = selectedIngredients.includes(item);
               return (
                 <TouchableOpacity
