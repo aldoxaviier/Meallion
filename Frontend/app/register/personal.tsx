@@ -3,6 +3,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import api from "../utils/api";
 
 const Personal = () => {
   const router = useRouter();
@@ -55,6 +56,15 @@ const Personal = () => {
     );
   };
 
+  const next = () => {
+    try {
+      const response = api.post('/auth/register', selectedChoices)
+      router.push("/register/allergies");
+    } catch (err) {
+      console.error("Navigation error:", err);
+    }
+  }
+
   return (
     <SafeAreaView className="bg-secondary-200 flex-1">
       <View className="h-full w-full flex-col gap-4 px-6 py-6">
@@ -65,6 +75,7 @@ const Personal = () => {
           <Feather name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
         <View className="flex flex-row gap-1 mb-4">
+          <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
           <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
           <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
           <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>

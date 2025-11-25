@@ -18,13 +18,15 @@ const profileonboard = () => {
                     <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
                     <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
                     <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
                 </View>
                 <View className="flex flex-col justify-between flex-1">
                     <View className="flex flex-col gap-2">
                         <Text className="text-4xl font-fogsta text-primary-500 text-center">Enjoy planning your meal with Meallion</Text>
                         <Text className="text-center font-brsegma-500 text-base">We’re excited to have you here. Before we get started, we’ll ask a few quick questions about your preferences — like your favorite cuisines, allergies, and diet type. This helps us personalize your recommendations so you can get meals that truly fit your taste and lifestyle.</Text>
                     </View>
-                    <TouchableOpacity className="py-4 px-10 self-center rounded-full bg-primary-500" onPress={() => router.push('/register/personal')}>
+                    <TouchableOpacity className="py-4 px-10 self-center rounded-full bg-primary-500" onPress={() => router.push('/register/profile')}>
                         <Text className="text-center font-brsegma-600 text-secondary-400 ">Next</Text>
                     </TouchableOpacity>
                 </View>

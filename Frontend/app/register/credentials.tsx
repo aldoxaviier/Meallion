@@ -62,7 +62,7 @@ const Credentials = () => {
               <View className="w-full mt-8 items-center">
                 <TextInput
                   placeholder="First name"
-                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 "
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
                   onChangeText={setName}
                   value={name}
                 />

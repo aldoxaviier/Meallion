@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { GestureDetector, Gesture, GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import { snapPoint } from "react-native-redash";
+import api from "../utils/api";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.9;
@@ -15,6 +17,7 @@ const preference = () => {
     const router = useRouter();
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
+    const [recipes, setRecipes] = useState<any[]>([]);
 
     const gesture = Gesture.Pan()
     .onUpdate((e) => {
@@ -35,6 +38,21 @@ const preference = () => {
         ],
         };
     });
+
+    const getRecipes = async () => {
+      try {
+        const response = await api.get('/recipes/getRandomRecipes?number=5');
+        const data = response.data.data;
+        setRecipes(data);
+      } catch (err) {
+        console.error('Error fetching recipes:', err);
+      }
+    }
+
+    useEffect(() => {
+      getRecipes();
+    }, []);
+
     return (
         <>
         <SafeAreaView className="bg-secondary-200 flex-1">
@@ -47,6 +65,7 @@ const preference = () => {
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
                 </View>
                 <View className="flex flex-col justify-between flex-1">
                     <View className="flex flex-col gap-2">
@@ -56,7 +75,7 @@ const preference = () => {
                     <View style={styles.container}>
                     <GestureDetector gesture={gesture}>
                         <Animated.View style={[styles.card, animatedStyle]}>
-                        <Text style={styles.text}>🔥 Swipe Me</Text>
+                        <Text className="font-brsegma-600 text-4xl">Swipe Me</Text>
                         </Animated.View>
                     </GestureDetector>
                     </View>
@@ -89,12 +108,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
-  },
-  text: {
-    fontSize: 28,
-    color: "#fff",
-    fontWeight: "bold",
-  },
+  }
 });
 
 export default preference;
