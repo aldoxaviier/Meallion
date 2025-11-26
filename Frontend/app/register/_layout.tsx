@@ -1,9 +1,11 @@
 import { Stack } from "expo-router";
 import RegisterProvider from "../store/registerContext";
+import ProfileProvider from "../store/profileContext";
 import { Modal } from "react-native";
 
 export default function RegisterLayout() {
   return (
+    <ProfileProvider> 
     <RegisterProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="credentials"/>
@@ -15,6 +17,7 @@ export default function RegisterLayout() {
         <Stack.Screen name="preference"/>
       </Stack>
     </RegisterProvider>
+    </ProfileProvider>
   );
 }
 

@@ -2,31 +2,54 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from 
 import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Asset } from "expo-asset";
 import { Dropdown } from 'react-native-element-dropdown';
+import { ProfileContext } from "../store/profileContext";
+import { profileSchema } from "../utils/validation";
+
 const profile = () => {
     const router = useRouter();
-    const [height, setHeight] = useState('');
-    const [weight, setWeight] = useState('');
-    const [activity, setActivity] = useState(null);
-    const [goal, setGoal] = useState(null);
+    const [height, setHeight] = useState(undefined);
+    const [weight, setWeight] = useState(undefined);
+    const [activity, setActivity] = useState(undefined);
+    const [goal, setGoal] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState('');
+    const profileContext = useContext(ProfileContext);
 
     const activityOptions = [
-        { label: 'Sedentary (little/no exercise)', value: '1.2' },
-        { label: 'Lightly active (1-3 days/week)', value: '1.375' },
-        { label: 'Moderately active (3-5 days/week)', value: '1.55' },
-        { label: 'Very active (6-7 days/week)', value: '1.725' },
-        { label: 'Extra active (very hard exercise)', value: '1.9' },
+        { label: 'Sedentary (little/no exercise)', value: 1.2 },
+        { label: 'Lightly active (1-3 days/week)', value: 1.375 },
+        { label: 'Moderately active (3-5 days/week)', value: 1.55 },
+        { label: 'Very active (6-7 days/week)', value: 1.725 },
+        { label: 'Extra active (very hard exercise)', value: 1.9 },
     ];
 
     const goalOptions = [
-        { label: 'Lose weight', value: 'lose' },
-        { label: 'Maintain weight', value: 'maintain' },
-        { label: 'Gain weight', value: 'gain' },
+        { label: 'Lose weight', value: 'Lose weight' },
+        { label: 'Maintain weight', value: 'Maintain weight' },
+        { label: 'Gain weight', value: 'Gain weight' },
     ];
 
-    const canProceed = height.trim() !== '' && weight.trim() !== '' && activity && goal;
+    const next = async() => {
+        setIsLoading(true);
+        try {
+            const response = await profileSchema.validate({height: height, weight: weight, activity: activity, goal: goal},{abortEarly: false});
+            profileContext?.setProfileData({height: height, weight: weight, activity: activity, goal: goal});
+            router.push('/register/personal');
+        } catch (err:any) {
+            console.error('Error submitting profile:', err);
+            setMessage(err.errors[0]);
+        }
+    }
+
+    useEffect(() => {
+        console.log("height:", height);
+        console.log("weight:", weight);
+        console.log("activity:", activity);
+        console.log("goal:", goal);
+    }, [height, weight, activity, goal]);
 
     return (
         <>
@@ -55,7 +78,7 @@ const profile = () => {
                                 onChangeText={setHeight}
                                 placeholder="e.g. 170"
                                 keyboardType="numeric"
-                                className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
+                                className="w-full border text-lg border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
                             />
 
                             <Text className="text-lg font-brsegma-600">Weight (kg)</Text>
@@ -64,7 +87,7 @@ const profile = () => {
                                 onChangeText={setWeight}
                                 placeholder="e.g. 70"
                                 keyboardType="numeric"
-                                className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
+                                className="w-full border text-lg  border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
                             />
 
                             <Text className="text-lg font-brsegma-600">Activity Level</Text>
@@ -79,11 +102,13 @@ const profile = () => {
                                 style={styles.dropdown}
                                 placeholderStyle={styles.placeholderStyle}
                                 selectedTextStyle={styles.selectedTextStyle}
-                                
+                                itemContainerStyle={styles.containerItem}
+                                containerStyle={styles.dropdownStyle}
                                 iconStyle={styles.iconStyle}
+                                activeColor="#660B05"
                                 renderItem={(item) => (
-                                    <View style={styles.item}>
-                                        <Text style={styles.itemText}>{item.label}</Text>
+                                    <View className="py-6 px-4">
+                                        <Text style={{ color: item.value === activity ? '#F2E8C6' : '#111827', fontFamily: 'BRSegma-500' }}>{item.label}</Text>
                                     </View>
                                 )}
 
@@ -101,20 +126,26 @@ const profile = () => {
                                 style={styles.dropdown}
                                 placeholderStyle={styles.placeholderStyle}
                                 selectedTextStyle={styles.selectedTextStyle}
-                                
+                                itemContainerStyle={styles.containerItem}
+                                containerStyle={styles.dropdownStyle}
                                 iconStyle={styles.iconStyle}
+                                activeColor="#660B05"
                                 renderItem={(item) => (
-                                    <View style={styles.item}>
-                                        <Text style={styles.itemText}>{item.label}</Text>
+                                    <View className="py-6 px-4">
+                                        <Text style={{ color: item.value === goal ? '#F2E8C6' : '#111827', fontFamily: 'BRSegma-500' }}>{item.label}</Text>
                                     </View>
                                 )}
                             />
+                            {message ? (
+                                <Text className="text-red-500 text-center text-sm font-brsegma-600 mb-4">
+                                    {message}
+                                </Text>
+                            ) : null}
                         </ScrollView>
 
                     <TouchableOpacity
-                        className={`py-4 px-10 self-center rounded-full ${canProceed ? 'bg-primary-500' : 'bg-gray-300'}`}
-                        onPress={() => { if (canProceed) router.push('/register/personal'); }}
-                        disabled={!canProceed}
+                        className={`py-4 px-10 self-center rounded-full bg-primary-500 `}
+                        onPress={next}
                     >
                         <Text className="text-center font-brsegma-600 text-secondary-400">Next</Text>
                     </TouchableOpacity>
@@ -131,38 +162,42 @@ export default profile;
 
 const styles = StyleSheet.create({
     dropdown: {
-        height: 52,
-        borderRadius: 12,
-        paddingHorizontal: 12,
+        borderRadius: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 16,
         borderWidth: 1,
         borderColor: '#9ca3af',
     },
     placeholderStyle: {
         fontFamily: 'BRSegma-500',
         fontSize: 16,
-        color: '#6b7280',
+        color: '#6b7280'
     },
     selectedTextStyle: {
-        fontSize: 16,
-        color: '#111827'
+        color: '#111827',
+        fontFamily: 'BRSegma-500',
     },
     dropdownStyle: {
         backgroundColor: '#ffffff',
-        borderRadius: 12,
+        borderBottomStartRadius: 12,
+        borderBottomEndRadius: 12,
         borderWidth: 1,
-        borderColor: '#e5e7eb'
+        borderColor: '#e5e7eb',
     },
     item: {
-        paddingVertical: 12,
-        paddingHorizontal: 12,
+        paddingVertical: 16,
+        paddingHorizontal: 16,
     },
     itemText: {
-        fontSize: 15,
         color: '#111827'
     },
     iconStyle: {
         width: 20,
         height: 20,
         tintColor: '#6b7280'
+    },
+    containerItem: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#e5e7eb'
     }
 });
