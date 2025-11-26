@@ -41,7 +41,7 @@ const preference = () => {
 
     const getRecipes = async () => {
       try {
-        const response = await api.get('/recipes/getRandomRecipes?number=5');
+        const response = await api.get('/recipes/get10Recipes');
         const data = response.data.data;
         setRecipes(data);
       } catch (err) {

@@ -5,7 +5,9 @@ interface profileData {
   height?: number;
   weight?: number;
   activity?: number;
-  goal: string;
+  goal?: string;
+  dietaryRequirements?: string[];
+  dislikes?: string[];
 }
 
 interface ProfileContextType {
@@ -22,9 +24,11 @@ const ProfileProvider = ({ children }: { children: React.ReactNode }) => {
     weight: 0,
     activity: 0,
     goal: "",
+    dietaryRequirements: [],
+    dislikes: [],
   });
 
-  const resetProfileData = () => setProfileData({ height: 0, weight: 0, activity: 0, goal: "" });
+  const resetProfileData = () => setProfileData({ height: 0, weight: 0, activity: 0, goal: "", dietaryRequirements: [], dislikes: [] });
   return (
     <ProfileContext.Provider value={{ profileData, setProfileData, resetProfileData }}>
       {children}

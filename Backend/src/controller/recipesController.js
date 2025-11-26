@@ -35,15 +35,25 @@ class recipesController {
        }
    }
    static async getIngredients(req, res) {
-    try {
-        const query = req.query.query;
-        const result = await recipesRepository.getIngredients(query);
-        res.json(ApiResponse.success("Ingredients fetched successfully", result , 200));
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
-    }
+        try {
+            const query = req.query.query;
+            const result = await recipesRepository.getIngredients(query);
+            res.json(ApiResponse.success("Ingredients fetched successfully", result , 200));
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
    }
+
+   static async get10Recipes(req, res) {
+        try {
+            const allRecipes = await recipesRepository.get10Recipes();
+            res.json(ApiResponse.success("10 Recipes fetched successfully", { recipes: allRecipes }, 200));
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
 
 }
 

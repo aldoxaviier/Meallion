@@ -22,6 +22,11 @@ class recipesRepository {
         console.log("Ingredients result:", result)
         return result.data;
    }
+
+   static async get10Recipes() {
+        const result = await Database.from("recipes").select("*").in("RecipeId", [3233, 1832, 4009, 3369, 3317, 3413, 809, 468, 547, 1415]);
+        return result.data;
+   }
 }
 
 module.exports = recipesRepository;

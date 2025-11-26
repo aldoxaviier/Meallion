@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, TouchableWithoutFeedback, Keyboard } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -10,9 +10,9 @@ import { profileSchema } from "../utils/validation";
 
 const profile = () => {
     const router = useRouter();
-    const [height, setHeight] = useState(undefined);
-    const [weight, setWeight] = useState(undefined);
-    const [activity, setActivity] = useState(undefined);
+    const [height, setHeight] = useState<any>(undefined);
+    const [weight, setWeight] = useState<any>(undefined);
+    const [activity, setActivity] = useState<any>(undefined);
     const [goal, setGoal] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -53,6 +53,7 @@ const profile = () => {
 
     return (
         <>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <SafeAreaView className="bg-secondary-200 flex-1">
             <View className="h-full w-full flex flex-col gap-4 px-6 py-6">
                 <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
@@ -70,8 +71,8 @@ const profile = () => {
                         <Text className="text-4xl font-fogsta text-primary-500 text-center">Enjoy planning your meal with Meallion</Text>
                     </View>
                     <View className="flex flex-col justify-between flex-1">
-                        <ScrollView>
-
+                        <View className="flex flex-col gap-3">
+                            <View>
                             <Text className="text-lg font-brsegma-600">Height (cm)</Text>
                             <TextInput
                                 value={height}
@@ -80,7 +81,8 @@ const profile = () => {
                                 keyboardType="numeric"
                                 className="w-full border text-lg border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
                             />
-
+                            </View>
+                            <View>
                             <Text className="text-lg font-brsegma-600">Weight (kg)</Text>
                             <TextInput
                                 value={weight}
@@ -89,7 +91,8 @@ const profile = () => {
                                 keyboardType="numeric"
                                 className="w-full border text-lg  border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
                             />
-
+                            </View>
+                            <View>
                             <Text className="text-lg font-brsegma-600">Activity Level</Text>
                             <Dropdown
                                 data={activityOptions}
@@ -113,7 +116,8 @@ const profile = () => {
                                 )}
 
                             />
-
+                            </View>
+                            <View>
                             <Text className="text-lg font-brsegma-600 ">Goal Plan</Text>
                             <Dropdown
                                 data={goalOptions}
@@ -136,13 +140,13 @@ const profile = () => {
                                     </View>
                                 )}
                             />
+                            </View>
                             {message ? (
                                 <Text className="text-red-500 text-center text-sm font-brsegma-600 mb-4">
                                     {message}
                                 </Text>
                             ) : null}
-                        </ScrollView>
-
+                        </View>
                     <TouchableOpacity
                         className={`py-4 px-10 self-center rounded-full bg-primary-500 `}
                         onPress={next}
@@ -153,6 +157,7 @@ const profile = () => {
                 </View>
             </View>
         </SafeAreaView>
+        </TouchableWithoutFeedback>
         </>
     );
 }

@@ -2,9 +2,9 @@ import { View, Text, TouchableOpacity, FlatList,Image } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import api from "../utils/api";
-
+import { ProfileContext } from "../store/profileContext";
 const Personal = () => {
   const router = useRouter();
   const choices = [
@@ -16,6 +16,7 @@ const Personal = () => {
     "Pork-free",
   ];
   const [selectedChoices, setSelectedChoices] = useState<string[]>([]);
+  const profileContext = useContext(ProfileContext);
 
   const imageMap: { [key: string]: any } = {
     "Pescatarian": require("../../assets/images/pescatarian.png"),
@@ -58,12 +59,17 @@ const Personal = () => {
 
   const next = () => {
     try {
-      const response = api.post('/auth/register', selectedChoices)
+      profileContext?.setProfileData({
+        ...profileContext.profileData,
+        dietaryRequirements: selectedChoices,
+      });
       router.push("/register/allergies");
     } catch (err) {
       console.error("Navigation error:", err);
     }
   }
+
+  console.log("profileContext personal:", profileContext?.profileData);
 
   return (
     <SafeAreaView className="bg-secondary-200 flex-1">
@@ -105,7 +111,7 @@ const Personal = () => {
         />
         <TouchableOpacity
           className="bg-primary-500 rounded-full self-center py-4 px-10"
-          onPress={() => router.push("/register/allergies")}
+          onPress={next}
         >
           <Text className="text-white text-center font-brsegma-600 ">
             Next

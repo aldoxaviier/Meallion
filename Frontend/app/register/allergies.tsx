@@ -4,9 +4,11 @@ import  FontAwesome5  from "@expo/vector-icons/FontAwesome5";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import api from "../utils/api";
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, useContext } from "react";
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ProfileContext } from "../store/profileContext";
+
 
 const Allergies = () => {
   const router = useRouter();
@@ -15,7 +17,7 @@ const Allergies = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<any>([]);
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
-
+  const profileContext = useContext(ProfileContext);
   const snapPoints = useMemo(() => ["70%"], []);
 
   const renderBackdrop = useCallback((props: any) => (
@@ -96,6 +98,20 @@ const Allergies = () => {
     console.log("Selected Ingredients:", selectedIngredients);
   }, [selectedIngredients]);
 
+  const next = () => {
+    try {
+      profileContext?.setProfileData({
+        ...profileContext.profileData,
+        dislikes: selectedIngredients,
+      });
+      router.push("/register/preference");
+    } catch (err) {
+      console.error("Navigation error:", err);
+    }
+  }
+
+  console.log("ProfileContext allergies:", profileContext?.profileData);
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -136,7 +152,7 @@ const Allergies = () => {
 
             <TouchableOpacity
               className="py-4 px-10 self-center rounded-full bg-primary-500"
-              onPress={() => router.push("/register/preference")}
+              onPress={next}
             >
               <Text className="text-center font-brsegma-600 text-secondary-400">
                 Next
