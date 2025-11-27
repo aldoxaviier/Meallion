@@ -8,18 +8,18 @@ const profileonboard = () => {
     const router = useRouter();
     return (
         <>
-        <SafeAreaView className="bg-secondary-200 flex-1">
+        <SafeAreaView className="bg-secondary-400 flex-1">
             <View className="h-full w-full flex flex-col gap-4 px-6 py-6">
                 <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
                 <Feather name="arrow-left" size={24} color="black" />
                 </TouchableOpacity>
                 <View className="flex flex-row gap-1 mb-4">
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
-                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
-                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
-                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
-                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
-                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
                 </View>
                 <View className="flex flex-col justify-between flex-1">
                     <View className="flex flex-col gap-2">

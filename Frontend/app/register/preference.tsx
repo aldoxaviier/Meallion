@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useState, useEffect } from "react";
 import { GestureDetector, Gesture, GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
+import PreferenceCard from "../components/PreferenceCard";
 import { snapPoint } from "react-native-redash";
 import api from "../utils/api";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
@@ -15,34 +16,15 @@ const CARD_HEIGHT = 450;
 const SNAP_POINTS = [-width - 150, 0, width + 150];
 const preference = () => {
     const router = useRouter();
-    const translateX = useSharedValue(0);
-    const translateY = useSharedValue(0);
+      // Gesture and animation moved into PreferenceCard component
     const [recipes, setRecipes] = useState<any[]>([]);
 
-    const gesture = Gesture.Pan()
-    .onUpdate((e) => {
-      translateX.value = e.translationX;
-    })
-    .onEnd((e) => {
-      const dest = snapPoint(translateX.value, e.velocityX, SNAP_POINTS);
-      translateX.value = withSpring(dest, { damping: 100 });
-      translateY.value = withSpring(0);
-    });
-
-    const animatedStyle = useAnimatedStyle(() => {
-        const rotateZ = `${translateX.value / 50}deg`;
-        return {
-        transform: [
-            { translateX: translateX.value },
-            { rotateZ },
-        ],
-        };
-    });
+    // Removed gesture logic
 
     const getRecipes = async () => {
       try {
         const response = await api.get('/recipes/get10Recipes');
-        const data = response.data.data;
+        const data = response.data.data.recipes;
         setRecipes(data);
       } catch (err) {
         console.error('Error fetching recipes:', err);
@@ -53,9 +35,11 @@ const preference = () => {
       getRecipes();
     }, []);
 
+    console.log("recipes:", recipes[1]);
+
     return (
         <>
-        <SafeAreaView className="bg-secondary-200 flex-1">
+        <SafeAreaView className="bg-secondary-400 flex-1">
             <View className="h-full w-full flex flex-col gap-4 px-6 py-6">
                 <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
                 <Feather name="arrow-left" size={24} color="black" />
@@ -65,21 +49,13 @@ const preference = () => {
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
-                    <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
                 </View>
                 <View className="flex flex-col justify-between flex-1">
-                    <View className="flex flex-col gap-2">
-                        <Text className="text-4xl font-fogsta text-primary-500 text-center">Enjoy planning your meal with Meallion</Text>
-                    </View>
-                    <GestureHandlerRootView>
-                    <View style={styles.container}>
-                    <GestureDetector gesture={gesture}>
-                        <Animated.View style={[styles.card, animatedStyle]}>
-                        <Text className="font-brsegma-600 text-4xl">Swipe Me</Text>
-                        </Animated.View>
-                    </GestureDetector>
-                    </View>
-                    </GestureHandlerRootView>
+                    <Text className="text-4xl font-fogsta text-primary-500 text-center">Enjoy planning your meal with Meallion</Text>
+                    <PreferenceCard>
+                      <Text className="font-brsegma-600 text-4xl">Swipe Me</Text>
+                    </PreferenceCard>
                     <TouchableOpacity className="py-4 px-10 self-center rounded-full bg-primary-500" onPress={() => router.push('/register/personal')}>
                         <Text className="text-center font-brsegma-600 text-secondary-400 ">Next</Text>
                     </TouchableOpacity>
@@ -89,7 +65,6 @@ const preference = () => {
         </>
     );
 }
-
 
 const styles = StyleSheet.create({
   container: {

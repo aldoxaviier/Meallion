@@ -42,7 +42,7 @@ const Credentials = () => {
 
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-secondary-200">
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-secondary-400">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 bg-secondary-200 px-6 pb-6">
             <View className="pt-6">

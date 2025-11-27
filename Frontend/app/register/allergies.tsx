@@ -9,7 +9,6 @@ import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/botto
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ProfileContext } from "../store/profileContext";
 
-
 const Allergies = () => {
   const router = useRouter();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -94,6 +93,42 @@ const Allergies = () => {
     "Eggplant",
   ];
 
+  const selectedSimplifiedNames = useMemo(() => {
+    const sel = new Set(selectedIngredients);
+    const simplifiedSet = new Set<string>();
+
+    // Add any simplified groups that have either their simplified_name
+    // or any of their originals selected.
+    results.forEach((group: any) => {
+      if (
+        sel.has(group.simplified_name) ||
+        group.originals.some((o: string) => sel.has(o))
+      ) {
+        simplifiedSet.add(group.simplified_name);
+      }
+    });
+
+    // Include selected items that don't belong to any fetched group
+    // (e.g. commonDislikes or standalone original names) as-is.
+    selectedIngredients.forEach((item) => {
+      const inAnyGroup = results.some((g: any) => g.simplified_name === item || g.originals.includes(item));
+      if (!inAnyGroup) simplifiedSet.add(item);
+    });
+
+    return Array.from(simplifiedSet);
+  }, [selectedIngredients, results]);
+
+  const removeSelectedName = (name: string) => {
+    const group = results.find((g: any) => g.simplified_name === name);
+
+    if (group) {
+      const toRemove = new Set([group.simplified_name, ...group.originals]);
+      setSelectedIngredients((prev) => prev.filter((i) => !toRemove.has(i)));
+    } else {
+      setSelectedIngredients((prev) => prev.filter((i) => i !== name));
+    }
+  };
+
   useEffect(() => { 
     console.log("Selected Ingredients:", selectedIngredients);
   }, [selectedIngredients]);
@@ -115,7 +150,7 @@ const Allergies = () => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView className="bg-secondary-200 flex-1" >
+      <SafeAreaView className="bg-secondary-400 flex-1" >
         <View className="h-full w-full flex flex-col gap-4 px-6 py-6">
           <TouchableOpacity
             className="self-start pr-2 py-2 rounded-lg"
@@ -132,7 +167,7 @@ const Allergies = () => {
             <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
           </View>
 
-          <View className="flex flex-col justify-between flex-1">
+          <View className="flex flex-col gap-44 flex-1">
             <View className="flex flex-col gap-2">
               <Text className="text-4xl font-fogsta text-primary-500 text-center">
                 Any dislikes or allergies?
@@ -141,15 +176,43 @@ const Allergies = () => {
                 We’re excited to have you here. Before we get started...
               </Text>
             </View>
+            <View className="flex flex-col justify-between flex-1">
+            <View className="flex flex-col gap-4">
+              <TouchableOpacity
+                className="border border-primary-400 rounded-full py-6 px-4 flex-row items-center justify-center gap-2"
+                onPress={openBottomSheet}
+              >
+                <Feather name="search" size={28} color="black" className="absolute left-4" />
+                <Text className="font-brsegma-600">Add ingredients</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              className="border border-primary-400 rounded-full py-6 px-4 flex-row items-center justify-center gap-2"
-              onPress={openBottomSheet}
-            >
-              <Feather name="search" size={28} color="black" className="absolute left-4" />
-              <Text className="font-brsegma-600">Add ingredients</Text>
-            </TouchableOpacity>
+              {selectedSimplifiedNames.length > 0 && (
+                <View className="mt-3">
+                  <View className="flex-row flex-wrap gap-2 justify-center">
+                    {selectedSimplifiedNames.map((name, i) => (
+                      <TouchableOpacity
+                        key={i}
+                        onPress={() => removeSelectedName(name)}
+                        className={`rounded-full px-3 py-2 flex-row items-center gap-2 border border-primary-400 bg-primary-500`}
+                      >
+                        <View className="w-5 items-center justify-center">
+                          <Text className={`text-secondary-400`}>
+                          <FontAwesome5
+                            name="times"
+                            size={16}
+                          />
+                          </Text>
+                        </View>
 
+                        <Text className={`text-secondary-400`}>
+                          {name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
             <TouchableOpacity
               className="py-4 px-10 self-center rounded-full bg-primary-500"
               onPress={next}
@@ -158,6 +221,7 @@ const Allergies = () => {
                 Next
               </Text>
             </TouchableOpacity>
+            </View>
           </View>
         </View>
       </SafeAreaView>

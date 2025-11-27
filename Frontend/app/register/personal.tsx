@@ -42,7 +42,7 @@ const Personal = () => {
         onPress={() => toggleChoice(item)}
         activeOpacity={1}
         style={{ flex: 1 }}
-        className={`py-7 items-center rounded-2xl border-2 bg-secondary-400 ${
+        className={`py-7 items-center rounded-2xl border-2 bg-secondary-500 ${
           isSelected ? "border-primary-500" : "border-transparent"
         }`}
       >
@@ -72,7 +72,7 @@ const Personal = () => {
   console.log("profileContext personal:", profileContext?.profileData);
 
   return (
-    <SafeAreaView className="bg-secondary-200 flex-1">
+    <SafeAreaView className="bg-secondary-400 flex-1">
       <View className="h-full w-full flex-col gap-4 px-6 py-6">
         <TouchableOpacity
           className="self-start pr-2 py-2 rounded-lg"
@@ -84,8 +84,8 @@ const Personal = () => {
           <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
           <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
           <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
-          <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
-          <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
+          <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
+          <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
         </View>
         <View className="items-center mb-2">
           <Text className="text-3xl text-primary-500 font-fogsta text-center">
