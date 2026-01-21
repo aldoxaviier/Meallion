@@ -2,116 +2,44 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-nati
 import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import PreferenceCard, { RecipeData } from "../components/PreferenceCard";
+import PreferenceCard from "../components/PreferenceCard";
+import api from "../utils/api";
 
 const { width } = Dimensions.get("window");
 
-// Dummy data - 10 resep makanan
-const DUMMY_RECIPES: RecipeData[] = [
-  {
-    id: 1,
-    name: "Nasi Goreng Spesial",
-    image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800",
-    calories: 450,
-    cookTime: "20 min",
-    category: "Indonesian",
-  },
-  {
-    id: 2,
-    name: "Chicken Caesar Salad",
-    image: "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=800",
-    calories: 320,
-    cookTime: "15 min",
-    category: "Salad",
-  },
-  {
-    id: 3,
-    name: "Spaghetti Carbonara",
-    image: "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=800",
-    calories: 580,
-    cookTime: "25 min",
-    category: "Italian",
-  },
-  {
-    id: 4,
-    name: "Sushi Roll Platter",
-    image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800",
-    calories: 380,
-    cookTime: "40 min",
-    category: "Japanese",
-  },
-  {
-    id: 5,
-    name: "Beef Burger Deluxe",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800",
-    calories: 720,
-    cookTime: "30 min",
-    category: "American",
-  },
-  {
-    id: 6,
-    name: "Pad Thai",
-    image: "https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800",
-    calories: 490,
-    cookTime: "25 min",
-    category: "Thai",
-  },
-  {
-    id: 7,
-    name: "Rendang Daging",
-    image: "https://images.unsplash.com/photo-1606755456206-b25206cde27e?w=800",
-    calories: 550,
-    cookTime: "120 min",
-    category: "Indonesian",
-  },
-  {
-    id: 8,
-    name: "Grilled Salmon",
-    image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800",
-    calories: 420,
-    cookTime: "20 min",
-    category: "Seafood",
-  },
-  {
-    id: 9,
-    name: "Tacos al Pastor",
-    image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800",
-    calories: 380,
-    cookTime: "35 min",
-    category: "Mexican",
-  },
-  {
-    id: 10,
-    name: "Avocado Toast",
-    image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=800",
-    calories: 280,
-    cookTime: "10 min",
-    category: "Breakfast",
-  },
-];
-
 const Preference = () => {
   const router = useRouter();
-  const [recipes, setRecipes] = useState<RecipeData[]>(DUMMY_RECIPES);
+  const [recipes, setRecipes] = useState<any[]>([]);
   const [likedRecipes, setLikedRecipes] = useState<number[]>([]);
   const [dislikedRecipes, setDislikedRecipes] = useState<number[]>([]);
 
   const handleSwipeRight = useCallback((id: number) => {
     setLikedRecipes((prev) => [...prev, id]);
-    setRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
+    // setRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
     console.log("Liked recipe:", id);
   }, []);
 
   const handleSwipeLeft = useCallback((id: number) => {
     setDislikedRecipes((prev) => [...prev, id]);
-    setRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
+    // setRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
     console.log("Disliked recipe:", id);
   }, []);
 
-  const remainingCards = recipes.length;
-  const progress = ((DUMMY_RECIPES.length - remainingCards) / DUMMY_RECIPES.length) * 100;
+  const fetch10recipes = async () => {
+    try {
+      const response = await api.get('/recipes/get10recipes');
+      console.log("Fetched recipes:", response.data.data.recipes[0]);
+      setRecipes(response.data.data.recipes);
+    } catch (err) {
+      console.error("Error fetching recipes:", err);
+    }
+  }
+
+  useEffect(() => {
+    fetch10recipes();
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -145,9 +73,9 @@ const Preference = () => {
           <View style={styles.cardsContainer}>
             {recipes.length > 0 ? (
               // Render cards in reverse order so first card is on top
-              [...recipes].reverse().map((recipe, index) => (
+              recipes.map((recipe, index) => (
                 <PreferenceCard
-                  key={recipe.id}
+                  key={recipe.recipe_id}
                   data={recipe}
                   index={recipes.length - 1 - index}
                   totalCards={recipes.length}

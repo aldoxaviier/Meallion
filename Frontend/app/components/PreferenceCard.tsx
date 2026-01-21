@@ -15,17 +15,9 @@ const CARD_WIDTH = width * 0.85;
 const CARD_HEIGHT = height * 0.5;
 const SWIPE_THRESHOLD = width * 0.35;
 
-export type RecipeData = {
-  id: number;
-  name: string;
-  image: string;
-  calories: number;
-  cookTime: string;
-  category: string;
-};
 
 type Props = {
-  data: RecipeData;
+  data: any;
   index: number;
   totalCards: number;
   onSwipeLeft: (id: number) => void;
@@ -51,12 +43,12 @@ export default function PreferenceCard({
       if (translateX.value > SWIPE_THRESHOLD) {
         // Swipe Right - Like
         translateX.value = withSpring(width + 200, { damping: 15 }, () => {
-          runOnJS(onSwipeRight)(data.id);
+          runOnJS(onSwipeRight)(data.recipe_id);
         });
       } else if (translateX.value < -SWIPE_THRESHOLD) {
         // Swipe Left - Dislike
         translateX.value = withSpring(-width - 200, { damping: 15 }, () => {
-          runOnJS(onSwipeLeft)(data.id);
+          runOnJS(onSwipeLeft)(data.recipe_id);
         });
       } else {
         // Return to center
@@ -86,17 +78,17 @@ export default function PreferenceCard({
   return (
     <GestureDetector gesture={gesture}>
       <Animated.View style={[styles.card, animatedCardStyle]}>
-        <Image source={{ uri: data.image }} style={styles.image} />
+        <Image source={{ uri: data.Images }} style={styles.image} />
 
         {/* Card Info */}
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{data.name}</Text>
           <View style={styles.detailsRow}>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>{data.category}</Text>
+              <Text style={styles.badgeText}>{data.tags}</Text>
             </View>
-            <Text style={styles.details}>🔥 {data.calories} kcal</Text>
-            <Text style={styles.details}>⏱️ {data.cookTime}</Text>
+            <Text style={styles.details}>🔥 {data.Calories} kcal</Text>
+            <Text style={styles.details}>⏱️ {data.CookTime}</Text>
           </View>
         </View>
       </Animated.View>

@@ -24,7 +24,8 @@ class recipesRepository {
    }
 
    static async get10Recipes() {
-        const result = await Database.from("recipes").select("*").in("RecipeId", [3233, 1832, 4009, 3369, 3317, 3413, 809, 468, 547, 1415]);
+        const result = await Database.from("recipes").select("*").in("recipe_id", [3233, 1832, 4009, 3369, 3317, 3413, 809, 468, 547, 1415]);
+        console.log("10 Recipes result:", result)
         return result.data;
    }
 }
