@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Dimensions, View, Text, Image } from 'react-native';
+import React, { useEffect,useState } from 'react';
+import { Dimensions, View, Text, Image } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -12,7 +12,7 @@ import Animated, {
 
 const { width, height } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.85;
-const CARD_HEIGHT = height * 0.5;
+const CARD_HEIGHT = height * 0.6;
 const SWIPE_THRESHOLD = width * 0.35;
 
 
@@ -33,6 +33,7 @@ export default function PreferenceCard({
 }: Props) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const [tagsArray, setTagsArray] = useState<string[]>([]);
 
   const gesture = Gesture.Pan()
     .onUpdate((e) => {
@@ -75,70 +76,31 @@ export default function PreferenceCard({
     };
   });
 
+  useEffect(() => {
+      const mapped = data.tags ? data.tags.split('|').map((tag: string) => tag.trim()) : [];
+      setTagsArray(mapped);
+  }, []);
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.View style={[styles.card, animatedCardStyle]}>
-        <Image source={{ uri: data.Images }} style={styles.image} />
-
+      <Animated.View 
+        style={[animatedCardStyle, { width: CARD_WIDTH, height: CARD_HEIGHT }]}
+        className="absolute rounded-3xl bg-white overflow-hidden"
+      >
+        <Image source={{ uri: data.Images }} className="w-full h-[70%]" resizeMode="cover" />
         {/* Card Info */}
-        <View style={styles.infoContainer}>
-          <Text style={styles.name}>{data.name}</Text>
-          <View style={styles.detailsRow}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{data.tags}</Text>
-            </View>
-            <Text style={styles.details}>🔥 {data.Calories} kcal</Text>
-            <Text style={styles.details}>⏱️ {data.CookTime}</Text>
+        <View className="p-4">
+          <Text className="text-2xl font-fogsta mb-2 text-primary-600">{data.name}</Text>
+          <View className="flex-row flex-wrap gap-2 mb-2">
+            {tagsArray.map((tag: string, idx: number) => (
+              <View key={idx} className="bg-primary-500 px-2.5 py-1 rounded-xl">
+                <Text className="text-secondary-400 text-xs font-brsegma-600">{tag}</Text>
+              </View>
+            ))}
           </View>
+          <Text className="text-sm text-[#666] font-brsegma-500">🔥 {data.Calories} kcal</Text>
+          <Text className="text-sm text-[#666] font-brsegma-500">⏱️ {data.CookTime}</Text>
         </View>
       </Animated.View>
     </GestureDetector>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    position: 'absolute',
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    borderRadius: 24,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-  },
-  image: {
-    width: '100%',
-    height: '70%',
-    resizeMode: 'cover',
-  },
-  infoContainer: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'center',
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  detailsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  badge: {
-    backgroundColor: '#FF6B35',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  details: {
-    fontSize: 14,
-    color: '#666',
-  },
-});
