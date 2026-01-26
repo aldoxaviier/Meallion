@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { Dimensions, View, Text, Image } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -13,8 +13,12 @@ import Animated, {
 const { width, height } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.85;
 const CARD_HEIGHT = height * 0.6;
-const SWIPE_THRESHOLD = width * 0.35;
+const SWIPE_THRESHOLD = width * 0.45;
 
+export type PreferenceCardRef = {
+  swipeLeft: () => void;
+  swipeRight: () => void;
+};
 
 type Props = {
   data: any;
@@ -24,16 +28,30 @@ type Props = {
   onSwipeRight: (id: number) => void;
 };
 
-export default function PreferenceCard({
+const PreferenceCard = forwardRef<PreferenceCardRef, Props>(({
   data,
   index,
   totalCards,
   onSwipeLeft,
   onSwipeRight,
-}: Props) {
+}, ref) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const [tagsArray, setTagsArray] = useState<string[]>([]);
+
+  // Expose swipe methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    swipeLeft: () => {
+      translateX.value = withSpring(-width - 50, { damping: 150 }, () => {
+        runOnJS(onSwipeLeft)(data.recipe_id);
+      });
+    },
+    swipeRight: () => {
+      translateX.value = withSpring(width + 50, { damping: 150 }, () => {
+        runOnJS(onSwipeRight)(data.recipe_id);
+      });
+    },
+  }));
 
   const gesture = Gesture.Pan()
     .onUpdate((e) => {
@@ -43,12 +61,12 @@ export default function PreferenceCard({
     .onEnd((e) => {
       if (translateX.value > SWIPE_THRESHOLD) {
         // Swipe Right - Like
-        translateX.value = withSpring(width + 200, { damping: 15 }, () => {
+        translateX.value = withSpring(width + 50, { damping: 200 }, () => {
           runOnJS(onSwipeRight)(data.recipe_id);
         });
       } else if (translateX.value < -SWIPE_THRESHOLD) {
         // Swipe Left - Dislike
-        translateX.value = withSpring(-width - 200, { damping: 15 }, () => {
+        translateX.value = withSpring(-width - 50, { damping: 200 }, () => {
           runOnJS(onSwipeLeft)(data.recipe_id);
         });
       } else {
@@ -84,11 +102,11 @@ export default function PreferenceCard({
     <GestureDetector gesture={gesture}>
       <Animated.View 
         style={[animatedCardStyle, { width: CARD_WIDTH, height: CARD_HEIGHT }]}
-        className="absolute rounded-3xl bg-white overflow-hidden"
+        className="absolute rounded-3xl bg-secondary-200 overflow-hidden"
       >
         <Image source={{ uri: data.Images }} className="w-full h-[70%]" resizeMode="cover" />
         {/* Card Info */}
-        <View className="p-4">
+        <View className="p-4 bg-secondary-200">
           <Text className="text-2xl font-fogsta mb-2 text-primary-600">{data.name}</Text>
           <View className="flex-row flex-wrap gap-2 mb-2">
             {tagsArray.map((tag: string, idx: number) => (
@@ -103,4 +121,6 @@ export default function PreferenceCard({
       </Animated.View>
     </GestureDetector>
   );
-}
+});
+
+export default PreferenceCard;

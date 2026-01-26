@@ -34,10 +34,10 @@ def get_recommendations_service(user_id):
         .max()
     )
 
-    response_ratings = supabase_client.table("bookmarks").select("*").eq("user_id", user_id).execute()
+    response_ratings = supabase_client.table("user_recipe_interactions").select("*").eq("user_id", user_id).execute()
     response_ratings = response_ratings.model_dump()
     ratings_df = pd.DataFrame(response_ratings["data"])
-    ratings_df = ratings_df.drop(["bookmark_id","created_at"], axis=1)
+    ratings_df = ratings_df.drop(["id"], axis=1)
     user_tags_df = recipes_with_tags[recipes_with_tags.recipe_id.isin(ratings_df.recipe_id)]
     user_tags_df.reset_index(drop=True, inplace=True)
     user_tags_df = user_tags_df.drop(
@@ -50,7 +50,7 @@ def get_recommendations_service(user_id):
          "RecipeServings","RecipeInstructions","nan"
          ], axis=1)
     
-    user_profile = user_tags_df.T.dot(ratings_df.rating)
+    user_profile = user_tags_df.T.dot(ratings_df.score)
 
     recipes_with_tags = recipes_with_tags.set_index(recipes_with_tags.recipe_id)
     recipes_with_tags = recipes_with_tags.drop(["recipe_id","name","AuthorId","AuthorName","CookTime","PrepTime","TotalTime","DatePublished","Description","Images","RecipeIngredientQuantities","RecipeIngredientParts","Calories","FatContent","SaturatedFatContent","CholesterolContent","SodiumContent","CarbohydrateContent","FiberContent","SugarContent","ProteinContent","RecipeServings","RecipeInstructions","nan"], axis=1)

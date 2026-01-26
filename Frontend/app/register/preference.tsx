@@ -2,10 +2,11 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-nati
 import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef,useContext } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import PreferenceCard from "../components/PreferenceCard";
+import PreferenceCard, { PreferenceCardRef } from "../components/PreferenceCard";
 import api from "../utils/api";
+import { ProfileContext } from "../store/profileContext";
 
 const { width } = Dimensions.get("window");
 
@@ -14,23 +15,39 @@ const Preference = () => {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [likedRecipes, setLikedRecipes] = useState<number[]>([]);
   const [dislikedRecipes, setDislikedRecipes] = useState<number[]>([]);
+  const cardRefs = useRef<Map<number, PreferenceCardRef>>(new Map());
 
-  const handleSwipeRight = useCallback((id: number) => {
+  const handleSwipeRight = (id: number) => {
     setLikedRecipes((prev) => [...prev, id]);
-    // setRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
+    setRecipes((prev) => prev.filter((recipe) => recipe.recipe_id !== id));
     console.log("Liked recipe:", id);
-  }, []);
+  }
 
-  const handleSwipeLeft = useCallback((id: number) => {
+  const handleSwipeLeft = (id: number) => {
     setDislikedRecipes((prev) => [...prev, id]);
-    // setRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
+    setRecipes((prev) => prev.filter((recipe) => recipe.recipe_id !== id));
     console.log("Disliked recipe:", id);
-  }, []);
+  }
+
+  const handleButtonSwipeLeft = () => {
+    if (recipes.length > 0) {
+      const topCard = recipes[recipes.length - 1];
+      const cardRef = cardRefs.current.get(topCard.recipe_id);
+      cardRef?.swipeLeft();
+    }
+  }
+
+  const handleButtonSwipeRight = () => {
+    if (recipes.length > 0) {
+      const topCard = recipes[recipes.length - 1];
+      const cardRef = cardRefs.current.get(topCard.recipe_id);
+      cardRef?.swipeRight();
+    }
+  }
 
   const fetch10recipes = async () => {
     try {
       const response = await api.get('/recipes/get10recipes');
-      console.log("Fetched recipes:", response.data.data.recipes[0]);
       setRecipes(response.data.data.recipes);
     } catch (err) {
       console.error("Error fetching recipes:", err);
@@ -72,10 +89,16 @@ const Preference = () => {
           {/* Cards Container */}
           <View style={styles.cardsContainer}>
             {recipes.length > 0 ? (
-              // Render cards in reverse order so first card is on top
               recipes.map((recipe, index) => (
                 <PreferenceCard
                   key={recipe.recipe_id}
+                  ref={(ref) => {
+                    if (ref) {
+                      cardRefs.current.set(recipe.recipe_id, ref);
+                    } else {
+                      cardRefs.current.delete(recipe.recipe_id);
+                    }
+                  }}
                   data={recipe}
                   index={recipes.length - 1 - index}
                   totalCards={recipes.length}
@@ -100,18 +123,22 @@ const Preference = () => {
 
           {/* Swipe Instructions */}
           <View className="flex-row justify-center items-center gap-8 mb-4">
-            <View className="items-center">
-              <View className="w-20 h-20 rounded-full bg-red-100 items-center justify-center">
-                <Feather name="x" size={28} color="#F44336" />
+            <TouchableOpacity onPress={handleButtonSwipeLeft}>
+              <View className="items-center">
+                <View className="w-20 h-20 rounded-full bg-red-100 items-center justify-center">
+                  <Feather name="x" size={28} color="#F44336" />
+                </View>
+                <Text className="text-xs text-gray-500 mt-1">Swipe Left</Text>
               </View>
-              <Text className="text-xs text-gray-500 mt-1">Swipe Left</Text>
-            </View>
-            <View className="items-center">
-              <View className="w-20 h-20 rounded-full bg-green-100 items-center justify-center">
-                <Feather name="heart" size={28} color="#4CAF50" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleButtonSwipeRight}>
+              <View className="items-center">
+                <View className="w-20 h-20 rounded-full bg-green-100 items-center justify-center">
+                  <Feather name="heart" size={28} color="#4CAF50" />
+                </View>
+                <Text className="text-xs text-gray-500 mt-1">Swipe Right</Text>
               </View>
-              <Text className="text-xs text-gray-500 mt-1">Swipe Right</Text>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
       </SafeAreaView>
