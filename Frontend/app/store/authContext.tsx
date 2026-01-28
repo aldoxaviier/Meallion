@@ -1,6 +1,6 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useRef } from "react";
 import * as SecureStore from "expo-secure-store";
-import { attachTokenInterceptor, registerAuthHandlers } from "../utils/api";
+import { setTokenGetter, registerAuthHandlers } from "../utils/api";
 
 interface AuthContextType {
   accessToken: string;
@@ -13,12 +13,16 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string>("");
+  const accessTokenRef = useRef<string>(accessToken);
 
   useEffect(() => {
-    // Register handlers for the interceptor
-    registerAuthHandlers(login, logout);
-    attachTokenInterceptor(() => accessToken);
+    accessTokenRef.current = accessToken;
   }, [accessToken]);
+
+  useEffect(() => {
+    registerAuthHandlers(login, logout);
+    setTokenGetter(() => accessTokenRef.current);
+  }, []);
 
   
 

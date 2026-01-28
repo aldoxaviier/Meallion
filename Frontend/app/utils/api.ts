@@ -15,19 +15,25 @@ export const registerAuthHandlers = (login: any, logout: any) => {
   refreshHandler = { login, logout };
 };
 
-// Attach token interceptor
-export const attachTokenInterceptor = (getToken: () => string | null) => {
-  api.interceptors.request.use(
-    (config) => {
-      const token = getToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
+// Token getter function - will be set by AuthProvider
+let tokenGetter: (() => string | null) | null = null;
+
+// Set token getter (called once by AuthProvider)
+export const setTokenGetter = (getter: () => string | null) => {
+  tokenGetter = getter;
 };
+
+// Request interceptor - attached once, always uses current token
+api.interceptors.request.use(
+  (config) => {
+    const token = tokenGetter?.();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Refresh token logic
 api.interceptors.response.use(
