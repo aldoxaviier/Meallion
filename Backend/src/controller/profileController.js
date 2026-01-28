@@ -25,6 +25,23 @@ class profileController {
             res.status(500).json(ApiResponse.error(err.message, 500));
         }
     }
+
+    static async getProfile(req, res) {
+        try {
+            const userId = req.user;
+            const profile = await profileRepository.getProfile(userId);
+            if (!profile) {
+                return res.status(404).json(ApiResponse.error("Profile not found", 404));
+            }
+
+            res.status(201).json(
+                ApiResponse.success("Profile found", profile)
+            )
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+  }
 }
 
 module.exports = {profileController}

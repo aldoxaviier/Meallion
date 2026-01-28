@@ -2,7 +2,7 @@ import {View, Text, TouchableHighlight} from 'react-native';
 import {Link} from 'expo-router';
 import api from '../utils/api';
 import { AuthContext } from '../store/authContext';
-import { useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import * as SecureStore from "expo-secure-store";
 
 const Profile = () => {
@@ -30,6 +30,18 @@ const Profile = () => {
     }
   }
 
+  useEffect (() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await api.get('/profile/getProfile')
+                console.log(response.data.data)
+            } catch (err : any) {
+                console.log("get profile error:", err.response?.data || err.message);
+            }
+        }
+
+        fetchProfile();
+    }, [])
 
   return (
     <>
