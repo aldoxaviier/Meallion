@@ -6,8 +6,8 @@ class profileController {
     static async addProfile(req, res) {
         try {
             const userId = req.user;
-            const {height, weight, activity_level, goal_plan, allergies, diet_preferences, updated_at} = req.body;
-            const response = await profileRepository.addProfile({userId, height, weight, activity_level, goal_plan, allergies, diet_preferences, updated_at});
+            const {height, weight, activity_level, goal_plan, dislikes, dietaryRequirements: diet_preferences} = req.body;
+            const response = await profileRepository.addProfile({userId, height, weight, activity_level, goal_plan, dislikes, diet_preferences});
             res.status(201).json(ApiResponse.success("Profile added successfully", response, 201));
         } catch (err) {
             console.error(err.message);

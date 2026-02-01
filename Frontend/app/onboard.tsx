@@ -53,6 +53,14 @@ const Onboard = () => {
             OTP
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => router.push("/(tabs)/profile")}
+          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
+        >
+          <Text className="text-center text-secondary-400 font-semibold text-lg">
+            test break
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

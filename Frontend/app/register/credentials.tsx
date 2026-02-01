@@ -44,7 +44,7 @@ const Credentials = () => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-secondary-400">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 bg-secondary-200 px-6 pb-6">
+          <View className="flex-1 bg-secondary-400 px-6 pb-6">
             <View className="pt-6">
               <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
                 <Feather name="arrow-left" size={24} color="black" />

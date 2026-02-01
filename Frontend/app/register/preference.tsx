@@ -16,6 +16,7 @@ const Preference = () => {
   const [likedRecipes, setLikedRecipes] = useState<number[]>([]);
   const [dislikedRecipes, setDislikedRecipes] = useState<number[]>([]);
   const cardRefs = useRef<Map<number, PreferenceCardRef>>(new Map());
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSwipeRight = (id: number) => {
     setLikedRecipes((prev) => [...prev, id]);
@@ -46,17 +47,40 @@ const Preference = () => {
   }
 
   const fetch10recipes = async () => {
+    setIsLoading(true);
     try {
       const response = await api.get('/recipes/get10recipes');
       setRecipes(response.data.data.recipes);
+      setIsLoading(false);
     } catch (err) {
       console.error("Error fetching recipes:", err);
+      setIsLoading(false);
+    }
+  }
+
+  const submitinteractions = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.post('/user/submitRecipeInteractions', {
+        likedRecipes: likedRecipes,
+        dislikedRecipes: dislikedRecipes
+      });
+      setIsLoading(false);
+    } catch (err) {
+      
     }
   }
 
   useEffect(() => {
     fetch10recipes();
   }, []);
+
+  useEffect(() => {
+    if(recipes.length === 0 && !isLoading){
+      
+    } 
+    console.log("Recipes left:", recipes.length);
+  },[recipes]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
