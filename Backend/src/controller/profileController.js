@@ -35,7 +35,7 @@ class profileController {
             }
 
             res.status(201).json(
-                ApiResponse.success("Profile found", profile)
+                ApiResponse.success("Profile found", profile, 201)
             )
     } catch (err) {
         console.error(err.message);

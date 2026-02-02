@@ -31,14 +31,11 @@ class profileRepository {
     static async getProfile(userId) {
         const result = await Database
                             .from('user_profiles')
-                            .select(`
-                                *,
+                            .select(`*,
                                 users(
                                  name,
                                  email
-                                )
-                                `)
-                            .eq("user_id", userId)
+                                )`).eq("user_id", userId)
         return result
     }
 }

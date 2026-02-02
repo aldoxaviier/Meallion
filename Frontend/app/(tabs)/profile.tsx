@@ -30,19 +30,6 @@ const Profile = () => {
     }
   }
 
-  useEffect (() => {
-        const fetchProfile = async () => {
-            try {
-                const response = await api.get('/profile/getProfile')
-                console.log(response.data.data)
-            } catch (err : any) {
-                console.log("get profile error:", err.response?.data || err.message);
-            }
-        }
-
-        fetchProfile();
-    }, [])
-
   return (
     <>
       <View className="flex-1 items-center justify-center">
