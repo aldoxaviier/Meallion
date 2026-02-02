@@ -133,12 +133,13 @@ const Allergies = () => {
     console.log("Selected Ingredients:", selectedIngredients);
   }, [selectedIngredients]);
 
-  const next = () => {
+  const next = async () => {
     try {
-      profileContext?.setProfileData({
+      await profileContext?.setProfileData({
         ...profileContext.profileData,
         dislikes: selectedIngredients,
       });
+      await api.post("/profile/addProfile", profileContext?.profileData);
       router.push("/register/preference");
     } catch (err) {
       console.error("Navigation error:", err);
