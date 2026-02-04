@@ -18,20 +18,50 @@ const Preference = () => {
   const [likedRecipes, setLikedRecipes] = useState<number[]>([]);
   const [dislikedRecipes, setDislikedRecipes] = useState<number[]>([]);
   const cardRefs = useRef<Map<number, PreferenceCardRef>>(new Map());
+  const [interaction, setInteraction] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const registerContext = useContext(RegisterContext);
   const authContext = useContext(AuthContext);
 
+  const postAllInteractions = async () => {
+    try {
+      const response = await api.post("/profile/addIntractions", {
+        interaction
+      })
+      if (response.status === 200){
+        authContext?.login(
+          registerContext?.accessToken || "",
+          registerContext?.refreshToken || ""
+        )
+      }
+    } catch (err) {
+      console.error("Error posting interactions:", err);
+    }
+  }
+
   const handleSwipeRight = (id: number) => {
     setLikedRecipes((prev) => [...prev, id]);
-    setRecipes((prev) => prev.filter((recipe) => recipe.recipe_id !== id));
+    const newRecipes = recipes.filter((recipe) => recipe.recipe_id !== id);
+    setRecipes(newRecipes);
+    setInteraction((prev) => [...prev, {recipe_id: id, interaction: 'like'}]);
     console.log("Liked recipe:", id);
+    
+    if (newRecipes.length === 0) {
+      console.log("All recipes swiped!");
+      setTimeout(() => postAllInteractions(), 100);
+    }
   }
 
   const handleSwipeLeft = (id: number) => {
     setDislikedRecipes((prev) => [...prev, id]);
-    setRecipes((prev) => prev.filter((recipe) => recipe.recipe_id !== id));
+    const newRecipes = recipes.filter((recipe) => recipe.recipe_id !== id);
+    setRecipes(newRecipes);
+    setInteraction((prev) => [...prev, {recipe_id: id, interaction: 'dislike'}]);
     console.log("Disliked recipe:", id);
+    if (newRecipes.length === 0) {
+      console.log("All recipes swiped!");
+      setTimeout(() => postAllInteractions(), 100);
+    }
   }
 
   const handleButtonSwipeLeft = () => {
@@ -62,29 +92,9 @@ const Preference = () => {
     }
   }
 
-  const submitinteractions = async () => {
-    setIsLoading(true);
-    try {
-      const response = await api.post('/user/submitRecipeInteractions', {
-        likedRecipes: likedRecipes,
-        dislikedRecipes: dislikedRecipes
-      });
-      setIsLoading(false);
-    } catch (err) {
-      
-    }
-  }
-
   useEffect(() => {
     fetch10recipes();
   }, []);
-
-  useEffect(() => {
-    if(recipes.length === 0 && !isLoading){
-      
-    } 
-    console.log("Recipes left:", recipes.length);
-  },[recipes]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

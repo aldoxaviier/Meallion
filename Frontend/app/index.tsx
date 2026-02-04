@@ -36,7 +36,7 @@ const Onboard = () => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          onPress={() => router.push("/register/profileonboard")}
+          onPress={() => router.push("/register/preference")}
           className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
         >
           <Text className="text-center text-secondary-400 font-semibold text-lg">

@@ -7,6 +7,7 @@ class profileRepository {
             weight: data.weight, activity_level: data.activity_level, 
             goal_plan: data.goal_plan, allergies: data.dislikes, 
             diet_preferences: data.diet_preferences, updated_at: data.updated_at});
+        console.log(data);
         return result.data;
     }
     static async getInteractionByUserAndRecipe({ userId, recipeId}) {
@@ -30,12 +31,12 @@ class profileRepository {
     }
     static async getProfile(userId) {
         const result = await Database
-                            .from('user_profiles')
-                            .select(`*,
-                                users(
-                                 name,
-                                 email
-                                )`).eq("user_id", userId)
+            .from('user_profiles')
+            .select(`*,
+                users(
+                    name,
+                    email
+                )`).eq("user_id", userId)
         return result
     }
 }
