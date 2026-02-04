@@ -10,20 +10,16 @@ let refreshHandler: {
   logout: () => void;
 } | null = null;
 
-// Register auth handlers (set by AuthProvider)
 export const registerAuthHandlers = (login: any, logout: any) => {
   refreshHandler = { login, logout };
 };
 
-// Token getter function - will be set by AuthProvider
 let tokenGetter: (() => string | null) | null = null;
 
-// Set token getter (called once by AuthProvider)
 export const setTokenGetter = (getter: () => string | null) => {
   tokenGetter = getter;
 };
 
-// Request interceptor - attached once, always uses current token
 api.interceptors.request.use(
   (config) => {
     const token = tokenGetter?.();
@@ -35,13 +31,11 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Refresh token logic
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // If access token expired
     if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -57,11 +51,9 @@ api.interceptors.response.use(
           const newAccess = res.data.accessToken;
           const newRefresh = res.data.refreshToken;
 
-          // Update context + SecureStore
           refreshHandler.login(newAccess, newRefresh);
           await SecureStore.setItemAsync("refreshToken", newRefresh);
 
-          // Retry request with new token
           originalRequest.headers.Authorization = `Bearer ${newAccess}`;
           return api(originalRequest);
         } catch (err) {

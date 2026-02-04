@@ -7,6 +7,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import PreferenceCard, { PreferenceCardRef } from "../components/PreferenceCard";
 import api from "../utils/api";
 import { ProfileContext } from "../store/profileContext";
+import { RegisterContext } from "../store/registerContext";
+import { AuthContext } from "../store/authContext";
 
 const { width } = Dimensions.get("window");
 
@@ -17,6 +19,8 @@ const Preference = () => {
   const [dislikedRecipes, setDislikedRecipes] = useState<number[]>([]);
   const cardRefs = useRef<Map<number, PreferenceCardRef>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
+  const registerContext = useContext(RegisterContext);
+  const authContext = useContext(AuthContext);
 
   const handleSwipeRight = (id: number) => {
     setLikedRecipes((prev) => [...prev, id]);

@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState, useCallback, useContext } from "r
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ProfileContext } from "../store/profileContext";
+import { RegisterContext } from "../store/registerContext";
 
 const Allergies = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ const Allergies = () => {
   const [results, setResults] = useState<any>([]);
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const profileContext = useContext(ProfileContext);
+  const registerContext = useContext(RegisterContext);
   const snapPoints = useMemo(() => ["70%"], []);
 
   const renderBackdrop = useCallback((props: any) => (
@@ -96,9 +98,6 @@ const Allergies = () => {
   const selectedSimplifiedNames = useMemo(() => {
     const sel = new Set(selectedIngredients);
     const simplifiedSet = new Set<string>();
-
-    // Add any simplified groups that have either their simplified_name
-    // or any of their originals selected.
     results.forEach((group: any) => {
       if (
         sel.has(group.simplified_name) ||
@@ -107,9 +106,6 @@ const Allergies = () => {
         simplifiedSet.add(group.simplified_name);
       }
     });
-
-    // Include selected items that don't belong to any fetched group
-    // (e.g. commonDislikes or standalone original names) as-is.
     selectedIngredients.forEach((item) => {
       const inAnyGroup = results.some((g: any) => g.simplified_name === item || g.originals.includes(item));
       if (!inAnyGroup) simplifiedSet.add(item);
@@ -139,7 +135,11 @@ const Allergies = () => {
         ...profileContext.profileData,
         dislikes: selectedIngredients,
       });
-      await api.post("/profile/addProfile", profileContext?.profileData);
+      await api.post("/profile/addProfile", profileContext?.profileData, {
+        headers: {
+          Authorization: `Bearer ${registerContext?.accessToken}`,
+        },
+      });
       router.push("/register/preference");
     } catch (err) {
       console.error("Navigation error:", err);
