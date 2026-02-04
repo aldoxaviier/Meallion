@@ -13,7 +13,7 @@ const _Layout = () => {
         <ProfileDataProvider>
             <Tabs>
                 <Tabs.Screen 
-                    name="index"
+                    name="home"
                     options={{ title: "Home",
                         headerShown:false,
                     }} 
@@ -25,7 +25,7 @@ const _Layout = () => {
                     }} 
                 />
                 <Tabs.Screen 
-                    name="saved"
+                    name="mealplan"
                     options={{ title: "Saved",
                         headerShown:false,
                     }} 
