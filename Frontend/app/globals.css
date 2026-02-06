@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.btn-default{
+    align-items: center;
+    padding: 2px;
+    border-radius: 10px;
+    background-color: #8C1007;
+}
+

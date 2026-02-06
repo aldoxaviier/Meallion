@@ -1,11 +1,12 @@
 import api from "../../utils/api";
-import { Text, View, Image, TextInput, ScrollView, Pressable } from "react-native";
+import { Text, View, Image, TextInput, ScrollView, Pressable, Button, TouchableHighlight } from "react-native";
 import { useEffect, useState, useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileDataContext } from "../../store/profileDataContext";
 import Feather from "@expo/vector-icons/Feather";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { router } from "expo-router";
+import "../../globals.css"
 
 
 export default function Index() {
@@ -48,6 +49,10 @@ export default function Index() {
         get10Recipe()
         fetchProfile()
   }, [])
+
+  useEffect(() => {
+    console.log(TenRecipe);
+  }, [TenRecipe])
 
   const handleCategories = (category : string) => {
     const selectedCategories = categories.find(item => item.url === category);
@@ -114,18 +119,23 @@ export default function Index() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ gap: 16 }}
           >
-            {TenRecipe.length > 0 &&
+            {TenRecipe &&
               TenRecipe.map((recipe : any) => (
-                <View key={recipe.recipe_id} className="w-36 p-2 bg-white rounded-xl overflow-hidden">
+                <View key={recipe.recipe_id} className="w-44 p-2 gap-2 bg-white rounded-xl overflow-hidden">
                   <Image
                     source={{uri: recipe.Images}}
                     className="w-full h-24 rounded-lg"
                   />
-                  <View className="">
-                    <Text className="font-brsegma-600 text-sm">
-                      {recipe.name}
-                    </Text>
+                  <View className="h-12">
+                    <Text className="font-brsegma-600 text-sm">{recipe.name}</Text>
                   </View>
+                  <View className="flex flex-row items-center gap-1">
+                    <FontAwesome5 name="star" size={9} color="black" />
+                    <Text className="font-brsegma-600 text-[10px] text-gray-700">{recipe.rating_score ?? "No Rate"} · {recipe.TotalTime}</Text>
+                  </View>
+                  <TouchableHighlight className="bg-primary-400 btn-default mt-auto">
+                    <Text className="text-white font-brsegma-600">Add To Meal Plan</Text>
+                  </TouchableHighlight>
                 </View>
               ))
             }
