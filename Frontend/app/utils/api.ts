@@ -22,9 +22,11 @@ export const setTokenGetter = (getter: () => string | null) => {
 
 api.interceptors.request.use(
   (config) => {
-    const token = tokenGetter?.();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (!config.headers.Authorization) {
+      const token = tokenGetter?.();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -38,7 +40,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
-
+      console.log("here");
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
 
       if (refreshToken && refreshHandler) {
@@ -48,13 +50,12 @@ api.interceptors.response.use(
             { refreshToken }
           );
 
-          const newAccess = res.data.accessToken;
-          const newRefresh = res.data.refreshToken;
+          const newAccess = res.data.data.accessToken;
 
-          refreshHandler.login(newAccess, newRefresh);
-          await SecureStore.setItemAsync("refreshToken", newRefresh);
+          refreshHandler.login(newAccess, refreshToken);
 
           originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+          console.log("Retrying original request with new access token");
           return api(originalRequest);
         } catch (err) {
           refreshHandler.logout();

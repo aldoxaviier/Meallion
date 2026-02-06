@@ -131,15 +131,17 @@ const Allergies = () => {
 
   const next = async () => {
     try {
-      await profileContext?.setProfileData({
-        ...profileContext.profileData,
+      const updatedProfileData = {
+        ...profileContext?.profileData,
         dislikes: selectedIngredients,
-      });
-      await api.post("/profile/addProfile", profileContext?.profileData, {
+      };
+      profileContext?.setProfileData(updatedProfileData);
+      await api.post("/profile/addProfile", updatedProfileData, {
         headers: {
           Authorization: `Bearer ${registerContext?.accessToken}`,
         },
       });
+      
       router.push("/register/preference");
     } catch (err) {
       console.error("Navigation error:", err);

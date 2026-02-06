@@ -57,9 +57,9 @@ const Personal = () => {
     );
   };
 
-  const next = () => {
+  const next = async() => {
     try {
-      profileContext?.setProfileData({
+      await profileContext?.setProfileData({
         ...profileContext.profileData,
         dietaryRequirements: selectedChoices,
       });

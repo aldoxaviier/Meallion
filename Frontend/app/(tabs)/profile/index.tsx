@@ -30,6 +30,15 @@ const Profile = () => {
     }
   }
 
+  const handleTest = async () => {
+    try {
+      const response = await api.get('/profile/test');
+      console.log("Test response:", response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <>
       <View className="flex-1 items-center justify-center">
@@ -39,6 +48,9 @@ const Profile = () => {
         </TouchableHighlight>
         <TouchableHighlight onPress={handleRefresh} className='border p-3 rounded-md'>
           <Text className="text-lg">refresh</Text>
+        </TouchableHighlight>
+        <TouchableHighlight onPress={handleTest} className='border p-3 rounded-md'>
+          <Text className="text-lg">test</Text>
         </TouchableHighlight>
       </View>
     </>

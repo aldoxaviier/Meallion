@@ -6,5 +6,7 @@ const authorization = require("../middleware/authorization");
 router.post("/addProfile", authorization, profileController.addProfile);
 router.post("/addInteraction", authorization, profileController.addInteraction);
 router.get("/getProfile", authorization, profileController.getProfile);
-
+router.get("/test", authorization, (req, res) => {
+    res.status(200).json({message: "Profile route working"});
+});
 module.exports = router;
