@@ -11,19 +11,19 @@ class profileRepository {
         return result.data;
     }
     static async getInteractionByUserAndRecipe({ userId, recipeId}) {
-        const result = await Database.from("user_interactions")
+        const result = await Database.from("user_recipe_interactions")
             .select("*")
             .eq("user_id", userId)
             .eq("recipe_id", recipeId)
         return result.data;
     }
     static async addInteraction({ userId, recipeId, score }) {
-        const result = await Database.from("user_interactions")
+        const result = await Database.from("user_recipe_interactions")
             .insert({ user_id: userId, recipe_id: recipeId, score: score });
         return result.data;
     }
     static async updateInteraction({ userId, recipeId, score }) {
-        const result = await Database.from("user_interactions")
+        const result = await Database.from("user_recipe_interactions")
             .update({ score: score })
             .eq("user_id", userId)
             .eq("recipe_id", recipeId);

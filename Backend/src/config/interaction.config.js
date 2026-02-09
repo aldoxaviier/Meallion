@@ -10,4 +10,4 @@ const interactionValueConfig = {
     RATE5 : 5,
 }
 
-module.exports = { interactionValueConfig, interactionConfig };
+module.exports = { interactionValueConfig };

@@ -17,7 +17,8 @@ class profileController {
     static async addInteraction(req, res) {
         try {
             const userId = req.user;
-            const interactions = req.body;
+            const {interactions} = req.body;
+            console.log("pppppp");
             const response = await profileService.addInteraction(userId,interactions);
             res.status(201).json(ApiResponse.success("Interaction added successfully", response, 201));
         } catch (err) {
@@ -25,7 +26,6 @@ class profileController {
             res.status(500).json(ApiResponse.error(err.message, 500));
         }
     }
-
     static async getProfile(req, res) {
         try {
             const userId = req.user;

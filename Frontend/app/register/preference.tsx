@@ -18,17 +18,18 @@ const Preference = () => {
   const [likedRecipes, setLikedRecipes] = useState<number[]>([]);
   const [dislikedRecipes, setDislikedRecipes] = useState<number[]>([]);
   const cardRefs = useRef<Map<number, PreferenceCardRef>>(new Map());
-  const [interaction, setInteraction] = useState<any[]>([]);
+  const [interactions, setInteractions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const registerContext = useContext(RegisterContext);
   const authContext = useContext(AuthContext);
 
   const postAllInteractions = async () => {
     try {
-      const response = await api.post("/profile/addIntractions", {
-        interaction
+      const response = await api.post("/profile/addInteraction", {
+        interactions
       })
-      if (response.status === 200){
+      console.log("response", response);
+      if (response.status === 201){
         authContext?.login(
           registerContext?.accessToken || "",
           registerContext?.refreshToken || ""
@@ -43,7 +44,7 @@ const Preference = () => {
     setLikedRecipes((prev) => [...prev, id]);
     const newRecipes = recipes.filter((recipe) => recipe.recipe_id !== id);
     setRecipes(newRecipes);
-    setInteraction((prev) => [...prev, {recipe_id: id, interaction: 'like'}]);
+    setInteractions((prev) => [...prev, {recipe_id: id, interaction: 'LIKE'}]);
     console.log("Liked recipe:", id);
     
     if (newRecipes.length === 0) {
@@ -56,7 +57,7 @@ const Preference = () => {
     setDislikedRecipes((prev) => [...prev, id]);
     const newRecipes = recipes.filter((recipe) => recipe.recipe_id !== id);
     setRecipes(newRecipes);
-    setInteraction((prev) => [...prev, {recipe_id: id, interaction: 'dislike'}]);
+    setInteractions((prev) => [...prev, {recipe_id: id, interaction: 'DISLIKE'}]);
     console.log("Disliked recipe:", id);
     if (newRecipes.length === 0) {
       console.log("All recipes swiped!");

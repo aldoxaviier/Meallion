@@ -4,17 +4,19 @@ const { profileRepository } = require("../repositories/profileRepository");
 class profileService {
     static async addInteraction(userId, interactions) {
         const results = [];
-        for (const item of interactions) {
-            const { recipeId, interactionType } = item;
-            const score = interactionValueConfig[interactionType];
+        console.log("service", interactions);
+        for (let item of interactions) {
+            const { recipe_id : recipeId, interaction } = item;
+            const score = interactionValueConfig[interaction];
 
             const existingInteraction =
                 await profileRepository.getInteractionByUserAndRecipe({
                     userId,
                     recipeId,
                 });
-
-            if (existingInteraction) {
+            console.log("existing", existingInteraction);
+            if (existingInteraction.length > 0) {
+                console.log("updating existing interaction");
                 const updated =
                     await profileRepository.updateInteraction({
                         userId,
@@ -23,6 +25,8 @@ class profileService {
                     });
                 results.push(updated);
             } else {
+                console.log("creating new interaction");
+                console.log("userId:", userId, "recipeId:", recipeId, "score:", score);
                 const created =
                     await profileRepository.addInteraction({
                         userId,
