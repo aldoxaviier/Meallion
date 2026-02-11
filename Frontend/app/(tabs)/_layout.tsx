@@ -5,11 +5,13 @@ import MyTabBar from "../components/tabbar";
 import api from '../utils/api';
 import { AuthContext } from "../store/authContext";
 import ProfileDataProvider from "../store/profileDataContext";
+import TenRecipeProvider from "../store/tenRecipeContext";
 
 
 const _Layout = () => {
     
     return (
+        <TenRecipeProvider>
         <ProfileDataProvider>
             <Tabs>
                 <Tabs.Screen 
@@ -38,7 +40,7 @@ const _Layout = () => {
                 />
             </Tabs>
         </ProfileDataProvider>
-        
+        </TenRecipeProvider>
     );
 }
 
