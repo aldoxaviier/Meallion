@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileDataContext } from "../../store/profileDataContext";
 import Feather from "@expo/vector-icons/Feather";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
 import { router } from "expo-router";
 import "../../globals.css"
 import { TenRecipeContext } from "@/app/store/tenRecipeContext";
@@ -85,7 +86,13 @@ export default function Index() {
         {/* Search Bar */}
         <View className="flex gap-4">
           <Text className="text-primary-500 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
-          <TextInput className="bg-white rounded-full" placeholder="Find Your Meal..."></TextInput>
+          <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
+            <FontAwesome5 name="search" size={24} color="gray" />
+              <TextInput 
+                className="flex-1 ml-3 text-base text-gray-700" 
+                placeholder="Find your meaandl..." 
+              />
+          </View>
         </View>
 
         {/* Categories */}

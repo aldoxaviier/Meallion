@@ -23,6 +23,20 @@ class recipesRepository {
         return result.data;
    }
 
+   static async getRecipesByName(query, page = 1, limit = 10) {
+     try {
+          const firstPage = (page - 1) * limit;
+          const nextPage = firstPage + limit - 1; 
+          const { data, count} = await Database.from("recipes").select("*", { count: "exact" }).ilike("name", `%${query}%`).range(firstPage, nextPage);
+          return {
+               data: data,
+               total: count
+          };
+     } catch (error) {
+          console.error(error)
+     }
+   }
+
    static async get10Recipes() {
         const result = await Database.from("recipes").select("*").in("recipe_id", [3233, 1832, 4009, 3369, 3317, 3413, 809, 468, 547, 1415]);
         console.log("10 Recipes result:", result)

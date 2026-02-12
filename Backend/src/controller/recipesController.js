@@ -45,6 +45,28 @@ class recipesController {
         }
    }
 
+   static async getRecipesByName(req, res) {
+    try {
+        const query = req.query.query;
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+        const result = await recipesRepository.getRecipesByName(query, page, limit);
+        const totalPage = Math.ceil(result.total/limit);
+        res.json(ApiResponse.success("Recipe fetched successfully", {
+            data: result.data,
+            info: {
+                page: page,
+                limit: limit,
+                totalData: result.total,
+                totalPage: totalPage
+            }
+        }, 200));
+    } catch (err) {
+        console.error("Error in contoler getRecipesByName:", err.message);
+        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+    }
+   }
+
    static async get10Recipes(req, res) {
         try {
             const allRecipes = await recipesRepository.get10Recipes();

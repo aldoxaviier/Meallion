@@ -1,13 +1,65 @@
-import { View, Text, TextInput, ScrollView, FlatList, Image, TouchableHighlight } from "react-native";
-import { useContext, useEffect } from "react";
+import { View, Text, TextInput, ScrollView, FlatList, Image, TouchableHighlight, ActivityIndicator } from "react-native";
+import { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5 } from "@expo/vector-icons";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { TenRecipeContext } from "@/app/store/tenRecipeContext";
+import api from "@/app/utils/api";
 
 export default function Search() {
   const tenRecipe = useContext(TenRecipeContext)
+  const [recipeData, setRecipeData] = useState<any>([])
+  const [searchRec, setSearchRec] = useState("")
+  const [page, setPage] = useState(1)
+  const [totalPage, setTotalPage] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
   const categories = ["All", "Vegan", "Low Sugar", "Low Cholesterol", "High Protein", "Low Protein", "Europian"];
+
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (searchRec.length >= 2) {
+        const res = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=1&limit=10`)
+        setRecipeData(res.data.data.data)
+        setTotalPage(res.data.data.info)
+      }
+      else {
+        setRecipeData(tenRecipe?.TenRecipe)
+      }
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchRec])
+
+  const handleLoadMore = async () => {
+    if(isLoading || page >= totalPage) {
+      return;
+    }
+
+    setIsLoading(true)
+    const nextPage = page + 1;
+    
+    try {
+      if(searchRec.length >= 2) {
+        const response = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=${nextPage}&limit=10`)
+        const newRecipes = response.data.data.data
+        if(newRecipes?.length > 0){
+          setRecipeData((prevData: any[]) => {
+              return [...prevData, ...newRecipes];
+          })
+
+          setPage(nextPage)
+        }
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    // console.log(recipeData.length);
+  }, [recipeData])
 
   return (
     <SafeAreaView className="bg-secondary-400">
@@ -27,8 +79,10 @@ export default function Search() {
         <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
           <FontAwesome5 name="search" size={24} color="gray" />
           <TextInput 
-            className="flex-1 ml-3 text-base text-gray-700" 
-            placeholder="Find your meal..." 
+            className="flex-1 ml-3 text-base text-gray-700"
+            value={searchRec}
+            onChangeText={setSearchRec}
+            placeholder="Find your meal..."
           />
           <TouchableHighlight>
             <FontAwesome6 name="sliders" size={24} color="#4a2c2a" />
@@ -61,15 +115,14 @@ export default function Search() {
 
         {/* Card Resep */}
         <FlatList
-          data={tenRecipe?.TenRecipe}
+          data={recipeData}
           showsVerticalScrollIndicator={false}
           numColumns={2}
           columnWrapperStyle={{ justifyContent: 'space-between' }}
           contentContainerStyle={{ gap: 14 }}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
           renderItem={({ item }) => {
-            const tagArray = item.tags ? item.tags.split(" | ").map(tag => tag.trim()) : []
-            let isHighProtein = tagArray.includes("High Protein")
-            let isVegan = tagArray.includes("Vegan")
             return (
               <View key={item.recipe_id} className="w-[48%] p-3 gap-2 bg-white rounded-xl shadow-sm">
                 <View className="relative mb-3">
@@ -98,7 +151,17 @@ export default function Search() {
                 </TouchableHighlight>
               </View>
             );
-          }}>
+          }}
+
+          // Belom Kelar
+          ListFooterComponent={() => {
+            return(
+              <View>
+                {isLoading && <ActivityIndicator/>}
+              </View>
+            )
+          }}
+          >
         </FlatList>
       </View>
     </SafeAreaView>
