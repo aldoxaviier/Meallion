@@ -115,7 +115,8 @@ const Preference = () => {
             <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
             <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
             <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
-            <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
+            <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
+            <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
           </View>
 
           {/* Title & Stats */}

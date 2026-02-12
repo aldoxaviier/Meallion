@@ -14,6 +14,7 @@ const profile = () => {
     const [weight, setWeight] = useState<any>(undefined);
     const [activity, setActivity] = useState<any>(undefined);
     const [goal, setGoal] = useState('');
+    const [gender, setGender] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
     const profileContext = useContext(ProfileContext);
@@ -32,11 +33,19 @@ const profile = () => {
         { label: 'Gain weight', value: 'Gain weight' },
     ];
 
+    const genderOptions = [
+        { label: 'Male', value: 'Male' },
+        { label: 'Female', value: 'Female' },
+    ];
+
     const next = async() => {
         setIsLoading(true);
         try {
-            const response = await profileSchema.validate({height: height, weight: weight, activity: activity, goal: goal},{abortEarly: false});
-            profileContext?.setProfileData({height: height, weight: weight, activity: activity, goal: goal});
+            const response = await profileSchema.validate({height: height, weight: weight, activity: activity, goal: goal, gender: gender},{abortEarly: false});
+            profileContext?.setProfileData({
+                ...profileContext?.profileData,
+                height: height, weight: weight, activity: activity, goal: goal, gender: gender
+            });
             router.push('/register/personal');
         } catch (err:any) {
             console.error('Error submitting profile:', err);
@@ -62,13 +71,15 @@ const profile = () => {
                 <View className="flex flex-row gap-1 mb-4">
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
                     <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
+                    <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
                     <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
                     <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
                     <View className="h-1 flex-1 bg-gray-400 rounded-full"></View>
                 </View>
                 <View className="flex flex-col flex-1 gap-10">
                     <View className="flex flex-col gap-2">
-                        <Text className="text-4xl font-fogsta text-primary-500 text-center">Enjoy planning your meal with Meallion</Text>
+                        <Text className="text-4xl font-fogsta text-primary-500 text-center">Let’s Get to Know You</Text>
                     </View>
                     <View className="flex flex-col justify-between flex-1">
                         <View className="flex flex-col gap-3">
@@ -137,6 +148,30 @@ const profile = () => {
                                 renderItem={(item) => (
                                     <View className="py-6 px-4">
                                         <Text style={{ color: item.value === goal ? '#F2E8C6' : '#111827', fontFamily: 'BRSegma-500' }}>{item.label}</Text>
+                                    </View>
+                                )}
+                            />
+                            </View>
+                            <View>
+                            <Text className="text-lg font-brsegma-600 ">Gender</Text>
+                            <Dropdown
+                                data={genderOptions}
+                                maxHeight={200}
+                                labelField="label"
+                                valueField="value"
+                                placeholder="Select gender"
+                                value={gender}
+                                onChange={item => setGender(item.value)}
+                                style={styles.dropdown}
+                                placeholderStyle={styles.placeholderStyle}
+                                selectedTextStyle={styles.selectedTextStyle}
+                                itemContainerStyle={styles.containerItem}
+                                containerStyle={styles.dropdownStyle}
+                                iconStyle={styles.iconStyle}
+                                activeColor="#660B05"
+                                renderItem={(item) => (
+                                    <View className="py-6 px-4">
+                                        <Text style={{ color: item.value === gender ? '#F2E8C6' : '#111827', fontFamily: 'BRSegma-500' }}>{item.label}</Text>
                                     </View>
                                 )}
                             />

@@ -5,6 +5,7 @@ const profileSchema = Yup.object({
     weight: Yup.number().required("Weight required").min(20, "Min 20 kg").max(500, "Max 500 kg"),
     activity: Yup.number().required("Activity level required").min(1, "Select activity level").max(2, "Select activity level"),
     goal: Yup.string().required("Goal required").oneOf(['Lose weight', 'Maintain weight', 'Gain weight'], "Select a valid goal"),
+    gender: Yup.string().required("Gender required").oneOf(['Male', 'Female'], "Select a valid gender"),
 });
 
 

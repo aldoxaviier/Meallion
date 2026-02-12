@@ -6,7 +6,7 @@ class profileRepository {
             {user_id: data.userId, height: data.height, 
             weight: data.weight, activity_level: data.activity_level, 
             goal_plan: data.goal_plan, allergies: data.dislikes, 
-            diet_preferences: data.diet_preferences, updated_at: data.updated_at});
+            diet_preferences: data.diet_preferences,birthdate: data.birthdate, gender: data.gender,health_condition: data.healthCondition, updated_at: data.updated_at});
         console.log(data);
         return result.data;
     }

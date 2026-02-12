@@ -167,6 +167,8 @@ const Allergies = () => {
             <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
             <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
             <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
+            <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
+            <View className="h-1 flex-1 bg-primary-500 rounded-full"></View>
             <View className="h-1 flex-1 bg-gray-300 rounded-full"></View>
           </View>
 
