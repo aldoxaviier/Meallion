@@ -1,6 +1,6 @@
 import {View, Text, TouchableHighlight} from 'react-native';
 import {Link} from 'expo-router';
-import api from '../../utils/api';
+import {api} from '../../utils/api';
 import { AuthContext } from '../../store/authContext';
 import { useEffect, useState, useContext } from 'react';
 import * as SecureStore from "expo-secure-store";

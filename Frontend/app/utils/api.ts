@@ -5,6 +5,10 @@ const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
 });
 
+const apiFastApi = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_FASTAPI_URL,
+});
+
 let refreshHandler: {
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
@@ -69,4 +73,20 @@ api.interceptors.response.use(
 
 api.defaults.headers.common["Content-Type"] = "application/json";
 
-export default api;
+// Add auth interceptor for FastAPI instance
+apiFastApi.interceptors.request.use(
+  (config) => {
+    if (!config.headers.Authorization) {
+      const token = tokenGetter?.();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+apiFastApi.defaults.headers.common["Content-Type"] = "application/json";
+
+export { apiFastApi, api };

@@ -1,4 +1,4 @@
-import api from "../../utils/api";
+import { apiFastApi,api } from "../../utils/api";
 import { Text, View, Image, TextInput, ScrollView, Pressable, Button, TouchableHighlight, FlatList } from "react-native";
 import { useEffect, useState, useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -40,7 +40,7 @@ export default function Index() {
 
         const get10Recipe = async () => {
           try {
-            const RecipeRes = await api.get('/recipes/get10Recipes')
+            const RecipeRes = await apiFastApi.get('/recommendation/')
             if(RecipeRes){
               tenRecipe?.setTenRecipe(RecipeRes.data.data.recipes)
             }

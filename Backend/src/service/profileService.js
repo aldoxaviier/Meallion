@@ -39,33 +39,34 @@ class profileService {
         return results; 
     }
 
-    static async calculateUserRequirements(userId, height, weight, activity_level, goal_plan, dislikes, diet_preferences, birthdate, healthCondition,) {
+    static async calculateUserRequirements(userId, height, weight, activity_level, goal_plan, dislikes, diet_preferences, birthdate,gender, healthCondition,) {
         const tdee = this.tdeeCalculator(height, weight, activity_level, birthdate, gender);
         let caloricIntake;
         if (goal_plan === "Lose Weight") {
-            caloricIntake = tdee - 500;
+            caloricIntake = Math.round(tdee - 500);
         } else if (goal_plan === "Gain Weight") {
-            caloricIntake = tdee + 500;
+            caloricIntake = Math.round(tdee + 500);
         } else {
-            caloricIntake = tdee;
+            caloricIntake = Math.round(tdee);
         }
         const macros = this.dietaryGroupsCalculator(caloricIntake, healthCondition);
-        const profileData = profileRepository.addProfile({userId, height, weight, activity_level, goal_plan, dislikes, diet_preferences, birthdate, healthCondition, target_calories: caloricIntake, target_carbs: macros.carbohydrates, target_proteins: macros.proteins, target_fats: macros.fats});
+        console.log("here calculator");
+        const profileData = await profileRepository.addProfile({userId, height, weight, activity_level, goal_plan, dislikes, diet_preferences, birthdate, gender, healthCondition, target_calories: caloricIntake, target_carbs: macros.carbohydrates, target_proteins: macros.proteins, target_fats: macros.fats, updated_at: new Date()});
         return profileData;
     }
 
     static dietaryGroupsCalculator(caloricIntake, healthCondition) {
         if (healthCondition === "diabetes") {
             return {
-                carbohydrates: caloricIntake * 0.30 / 4,
-                proteins: caloricIntake * 0.25 / 4,
-                fats: caloricIntake * 0.45 / 9,
+                carbohydrates: Math.round(caloricIntake * 0.30 / 4),
+                proteins: Math.round(caloricIntake * 0.25 / 4),
+                fats: Math.round(caloricIntake * 0.45 / 9),
             }
         } else {
             return {
-                carbohydrates: caloricIntake * 0.30 / 4,
-                proteins: caloricIntake * 0.35 / 4,
-                fats: caloricIntake * 0.35 / 9,
+                carbohydrates: Math.round(caloricIntake * 0.30 / 4),
+                proteins: Math.round(caloricIntake * 0.35 / 4),
+                fats: Math.round(caloricIntake * 0.35 / 9),
             }
         }
     }
@@ -73,12 +74,12 @@ class profileService {
     static tdeeCalculator(height, weight, activity_level, birthdate, gender) {
         const age = Math.floor((new Date() - new Date(birthdate).getTime()) / 3.15576e+10);
         let bmr;
-        if(gender === 'male'){
+        if(gender === 'Male'){
             bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
         }else {
             bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
         }
-        const tdee = bmr * activity_level;
+        const tdee = Math.round(bmr * activity_level);
         return tdee;
     }
 

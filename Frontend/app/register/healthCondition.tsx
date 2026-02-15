@@ -6,7 +6,6 @@ import { useRouter } from "expo-router";
 import { useState, useContext } from "react";
 import { ProfileContext } from "../store/profileContext";
 import { RegisterContext } from "../store/registerContext";
-import api from "../utils/api";
 
 const healthConditions = () => {
     const router = useRouter();

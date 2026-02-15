@@ -2,7 +2,6 @@ import { View,Text, ImageBackground, Image } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Tabs } from "expo-router";
 import MyTabBar from "../components/tabbar";
-import api from '../utils/api';
 import { AuthContext } from "../store/authContext";
 import ProfileDataProvider from "../store/profileDataContext";
 import TenRecipeProvider from "../store/tenRecipeContext";

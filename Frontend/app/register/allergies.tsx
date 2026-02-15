@@ -3,7 +3,7 @@ import Feather from "@expo/vector-icons/Feather";
 import  FontAwesome5  from "@expo/vector-icons/FontAwesome5";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import api from "../utils/api";
+import {api} from "../utils/api";
 import { useEffect, useMemo, useRef, useState, useCallback, useContext } from "react";
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";

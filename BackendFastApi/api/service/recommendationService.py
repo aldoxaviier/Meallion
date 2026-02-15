@@ -41,19 +41,19 @@ def get_recommendations_service(user_id):
     user_tags_df = recipes_with_tags[recipes_with_tags.recipe_id.isin(ratings_df.recipe_id)]
     user_tags_df.reset_index(drop=True, inplace=True)
     user_tags_df = user_tags_df.drop(
-        ["recipe_id","name","AuthorId","AuthorName",
+        ["recipe_id","name","AuthorId","AuthorName","author_name",
          "CookTime","PrepTime","TotalTime","DatePublished",
          "Description","Images","RecipeIngredientQuantities",
          "RecipeIngredientParts","Calories","FatContent",
          "SaturatedFatContent","CholesterolContent","SodiumContent",
          "CarbohydrateContent","FiberContent","SugarContent","ProteinContent",
-         "RecipeServings","RecipeInstructions","nan"
+         "RecipeServings","RecipeInstructions","rating_score","nan"
          ], axis=1)
     
     user_profile = user_tags_df.T.dot(ratings_df.score)
 
     recipes_with_tags = recipes_with_tags.set_index(recipes_with_tags.recipe_id)
-    recipes_with_tags = recipes_with_tags.drop(["recipe_id","name","AuthorId","AuthorName","CookTime","PrepTime","TotalTime","DatePublished","Description","Images","RecipeIngredientQuantities","RecipeIngredientParts","Calories","FatContent","SaturatedFatContent","CholesterolContent","SodiumContent","CarbohydrateContent","FiberContent","SugarContent","ProteinContent","RecipeServings","RecipeInstructions","nan"], axis=1)
+    recipes_with_tags = recipes_with_tags.drop(["recipe_id","name","AuthorId","AuthorName","author_name","CookTime","PrepTime","TotalTime","DatePublished","Description","Images","RecipeIngredientQuantities","RecipeIngredientParts","Calories","FatContent","SaturatedFatContent","CholesterolContent","SodiumContent","CarbohydrateContent","FiberContent","SugarContent","ProteinContent","RecipeServings","RecipeInstructions","rating_score","nan"], axis=1)
     
 
     recommendation_table_df = (recipes_with_tags.dot(user_profile)) / user_profile.sum()

@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { useState, useCallback, useEffect, useRef,useContext } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import PreferenceCard, { PreferenceCardRef } from "../components/PreferenceCard";
-import api from "../utils/api";
+import {api} from "../utils/api";
 import { ProfileContext } from "../store/profileContext";
 import { RegisterContext } from "../store/registerContext";
 import { AuthContext } from "../store/authContext";

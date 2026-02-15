@@ -6,8 +6,11 @@ class profileRepository {
             {user_id: data.userId, height: data.height, 
             weight: data.weight, activity_level: data.activity_level, 
             goal_plan: data.goal_plan, allergies: data.dislikes, 
-            diet_preferences: data.diet_preferences,birthdate: data.birthdate, gender: data.gender,health_condition: data.healthCondition, updated_at: data.updated_at});
-        console.log(data);
+            diet_preferences: data.diet_preferences,birthdate: data.birthdate,
+            gender: data.gender,health_condition: data.healthCondition,target_calories: data.target_calories, 
+            target_carbs: data.target_carbs, target_proteins: data.target_proteins, 
+            target_fats: data.target_fats, updated_at: data.updated_at});
+        console.log("addProfile result:", result);
         return result.data;
     }
     static async getInteractionByUserAndRecipe({ userId, recipeId}) {

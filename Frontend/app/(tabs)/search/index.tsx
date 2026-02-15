@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5 } from "@expo/vector-icons";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { TenRecipeContext } from "@/app/store/tenRecipeContext";
-import api from "@/app/utils/api";
+import {api} from "@/app/utils/api";
 
 export default function Search() {
   const tenRecipe = useContext(TenRecipeContext)
@@ -121,7 +121,7 @@ export default function Search() {
           columnWrapperStyle={{ justifyContent: 'space-between' }}
           contentContainerStyle={{ gap: 14 }}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.3}
           renderItem={({ item }) => {
             return (
               <View key={item.recipe_id} className="w-[48%] p-3 gap-2 bg-white rounded-xl shadow-sm">
@@ -156,7 +156,7 @@ export default function Search() {
           // Belom Kelar
           ListFooterComponent={() => {
             return(
-              <View>
+              <View className="h-[30px]">
                 {isLoading && <ActivityIndicator/>}
               </View>
             )
