@@ -3,7 +3,6 @@ import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useState, useContext } from "react";
-import api from "../utils/api";
 import { ProfileContext } from "../store/profileContext";
 const Personal = () => {
   const router = useRouter();

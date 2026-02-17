@@ -26,7 +26,14 @@ export default function Index() {
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
-  const searchCategories = ["All", "Vegan", "Low Sugar", "Low Cholesterol", "High Protein", "Low Protein", "European"];
+  const [searchCategories, setSearchCategory] = useState([
+    { name: 'Vegan', isActive: false },
+    { name: 'Low Sugar', isActive: false },
+    { name: 'Low Cholesterol', isActive: false },
+    { name: 'High Protein', isActive: false },
+    { name: 'Low Protein', isActive: false },
+    { name: 'Europian', isActive: false },
+  ])
   
   // Animation values
   const homeContentOpacity = useRef(new Animated.Value(1)).current;
@@ -75,8 +82,10 @@ export default function Index() {
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
-      if (searchRec.length >= 2) {
-        const res = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=1&limit=10`)
+      const activeCategories = searchCategories.filter(c => c.isActive);
+      if (searchRec.length >= 2 || activeCategories.length > 0) {
+        const catParam = activeCategories.map(c => c.name).join(',');
+        const res = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=1&limit=10&category=${catParam}`)
         setRecipeData(res.data.data.data)
         setTotalPage(res.data.data.info)
         setPage(1)
@@ -86,7 +95,7 @@ export default function Index() {
     }, 400);
 
     return () => clearTimeout(timeout);
-  }, [searchRec, tenRecipe?.TenRecipe])
+  }, [searchRec, tenRecipe?.TenRecipe, searchCategories])
 
   const enterSearchMode = () => {
     setIsSearchMode(true);
@@ -178,8 +187,10 @@ export default function Index() {
     const nextPage = page + 1;
 
     try {
-      if (searchRec.length >= 2) {
-        const response = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=${nextPage}&limit=10`)
+      const activeCategories = searchCategories.filter(c => c.isActive);
+      if (searchRec.length >= 2 || activeCategories.length > 0) {
+        const catParam = activeCategories.map(c => c.name).join(',');
+        const response = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=${nextPage}&limit=10&category=${catParam}`)
         const newRecipes = response.data.data.data
         if (newRecipes?.length > 0) {
           setRecipeData((prevData: any[]) => [...prevData, ...newRecipes]);
@@ -205,6 +216,13 @@ export default function Index() {
         title: selectedCategories.label
       }
     });
+  }
+
+  const handleSearchCategory = (index: number) => {
+    const newCategory = [...searchCategories];
+    newCategory[index].isActive = !newCategory[index].isActive;
+    newCategory.sort((a, b) => Number(b.isActive) - Number(a.isActive));
+    setSearchCategory(newCategory);
   }
 
   return (
@@ -373,16 +391,18 @@ export default function Index() {
                 contentContainerStyle={{ gap: 10 }}
               >
                 {searchCategories.map((cat, index) => {
-                  const isActive = index === 0;
                   return (
                     <TouchableHighlight
                       key={index} 
-                      underlayColor="transparent"
-                      className={`px-5 py-2 rounded-full justify-center ${isActive ? 'bg-red-900' : 'bg-white'}`}
+                      className={`px-5 py-2 rounded-full justify-center ${cat.isActive ? 'bg-primary-400' : 'bg-white'}`}
+                      onPress={() => handleSearchCategory(index)}
                     >
-                      <Text className={`font-semibold ${isActive ? 'text-white' : 'text-red-900'}`}>
-                        {cat}
-                      </Text>
+                      <View className="flex flex-row items-center">
+                        <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400'}`}>
+                          {cat.name}
+                        </Text>
+                        {cat.isActive && <FontAwesome6 name="x" className="ml-3" size={15} color="white"></FontAwesome6>}
+                      </View>
                     </TouchableHighlight>
                   );
                 })}

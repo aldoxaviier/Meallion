@@ -1,5 +1,6 @@
-const recipesRepository = require("../repositories/recipesRepository");
-const ApiResponse = require("../utils/apiResponse");
+const recipesRepository = require("../repositories/recipesRepository")
+const recipesService = require("../service/recipesService")
+const ApiResponse = require("../utils/apiResponse")
 
 class recipesController {
    static async getAllRecipes(req, res) {
@@ -48,9 +49,10 @@ class recipesController {
    static async getRecipesByName(req, res) {
     try {
         const query = req.query.query;
+        const category = req.query.category;
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);
-        const result = await recipesRepository.getRecipesByName(query, page, limit);
+        const result = await recipesService.getRecipesByNameCategory(query, category, page, limit)
         const totalPage = Math.ceil(result.total/limit);
         res.json(ApiResponse.success("Recipe fetched successfully", {
             data: result.data,

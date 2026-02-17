@@ -1,20 +1,24 @@
+const recipesRepository = require('../repositories/recipesRepository')
 class recipesService {
-    static async getRecipesByNameCategory(query, category, page, limit) {
+    static async getRecipesByNameCategory(query, category, page = 1, limit = 10) {
         const firstPage = (page - 1) * limit;
-        const nextPage = firstPage + limit - 1; 
+        const nextPage = firstPage + limit - 1;
+        
         if (query && !category) {
-            console.log("query");
-            return null
+            const result = await recipesRepository.getRecipesByName(query, firstPage, nextPage)
+            return result
         }
         else if (!query && category) {
-            console.log("category");
-            return null
+            const categories = category.split(',')
+            const result = await recipesRepository.getRecipesByCategory(categories, firstPage, nextPage)
+            return result
         }
         else {
-            console.log("dua duanya");
-            return null
+            const categories = category.split(',')
+            const result = await recipesRepository.getRecipesByNameCategory(query, categories, firstPage, nextPage)
+            return result
         }
     }
 }
 
-module.exports = { recipesService };
+module.exports = recipesService

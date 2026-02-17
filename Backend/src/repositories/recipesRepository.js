@@ -23,18 +23,38 @@ class recipesRepository {
         return result.data;
    }
 
-   static async getRecipesByName(query, page = 1, limit = 10) {
-     try {
-          const firstPage = (page - 1) * limit;
-          const nextPage = firstPage + limit - 1; 
-          const { data, count} = await Database.from("recipes").select("*", { count: "exact" }).ilike("name", `%${query}%`).range(firstPage, nextPage);
-          return {
-               data: data,
-               total: count
-          };
-     } catch (error) {
-          console.error(error)
-     }
+   static async getRecipesByName(query, firstPage, nextPage) {
+        const { data, count } = await Database.from("recipes").select("*", { count: "exact" }).ilike("name", `%${query}%`).range(firstPage, nextPage);
+        return {
+          data: data,
+          total: count
+        };
+   }
+
+   static async getRecipesByCategory(categories, firstPage, nextPage) {
+     let dbQuery = Database.from("recipes").select("*", { count: "exact" })
+     categories.forEach(tags => {
+          dbQuery = dbQuery.ilike("tags", `%${tags}%`)
+     });
+
+     const { data, count } = await dbQuery.range(firstPage, nextPage);
+     return {
+          data: data,
+          total: count
+     };
+   }
+
+   static async getRecipesByNameCategory(query, categories, firstPage, nextPage) {
+     let dbQuery = Database.from("recipes").select("*", { count: "exact" })
+     dbQuery = dbQuery.ilike("name", `%${query}%`)
+     categories.forEach(tags => {
+          dbQuery = dbQuery.ilike("tags", `%${tags}%`)
+     });
+     const { data, count } = await dbQuery.range(firstPage, nextPage);
+     return {
+          data: data,
+          total: count
+     };
    }
 
    static async get10Recipes() {

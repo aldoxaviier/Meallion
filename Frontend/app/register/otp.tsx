@@ -2,7 +2,7 @@ import { View,Text,TextInput,TouchableWithoutFeedback,Keyboard,TouchableHighligh
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState,useContext,useRef,useEffect } from 'react';
 import { RegisterContext } from '../store/registerContext';
-import api from '../utils/api';
+import {api} from '../utils/api';
 import { useRouter } from 'expo-router';
 import { AuthContext } from '../store/authContext';
 import { Ionicons } from '@expo/vector-icons';

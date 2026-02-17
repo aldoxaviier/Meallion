@@ -13,7 +13,7 @@ import { RegisterContext } from '../store/registerContext';
 import { useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import api from '../utils/api';
+import {api} from '../utils/api';
 
 const Credentials = () => {
   const [name, setName] = useState('');
