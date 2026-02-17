@@ -13,7 +13,7 @@ import {
 import Feather from '@expo/vector-icons/Feather';
 import { Link } from 'expo-router';
 import { AuthContext } from './store/authContext';
-import api from './utils/api';
+import {api} from './utils/api';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

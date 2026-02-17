@@ -1,11 +1,13 @@
-import { apiFastApi,api } from "../../utils/api";
-import { Text, View, Image, TextInput, ScrollView, Pressable, Button, TouchableHighlight, FlatList } from "react-native";
-import { useEffect, useState, useContext } from "react";
+import { apiFastApi, api } from "../../utils/api";
+import { Text, View, Image, TextInput, ScrollView, Pressable, Button, TouchableHighlight, FlatList, Animated, Keyboard, ActivityIndicator } from "react-native";
+import { useEffect, useState, useContext, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileDataContext } from "../../store/profileDataContext";
 import Feather from "@expo/vector-icons/Feather";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { FontAwesome6 } from "@expo/vector-icons";
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from "expo-router";
 import "../../globals.css"
 import { TenRecipeContext } from "@/app/store/tenRecipeContext";
@@ -16,6 +18,24 @@ export default function Index() {
   const profileData = useContext(ProfileDataContext)
   const tenRecipe = useContext(TenRecipeContext)
   const [TenRecipe, setTenRecipe] = useState<any>([]);
+
+  // Search state
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [searchRec, setSearchRec] = useState("");
+  const [recipeData, setRecipeData] = useState<any>([]);
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
+  const searchCategories = ["All", "Vegan", "Low Sugar", "Low Cholesterol", "High Protein", "Low Protein", "European"];
+  
+  // Animation values
+  const homeContentOpacity = useRef(new Animated.Value(1)).current;
+  const searchContentOpacity = useRef(new Animated.Value(0)).current;
+  const searchBarTranslateY = useRef(new Animated.Value(0)).current;
+  const backArrowOpacity = useRef(new Animated.Value(0)).current;
+  const backArrowTranslateX = useRef(new Animated.Value(-20)).current;
+  const filterIconOpacity = useRef(new Animated.Value(0)).current;
+  const searchInputRef = useRef<TextInput>(null);
 
   const categories = [
     { label: "Vegan", url:'vegan', icon: "leaf", bg: "bg-green-400" },
@@ -42,7 +62,7 @@ export default function Index() {
           try {
             const RecipeRes = await apiFastApi.get('/recommendation/')
             if(RecipeRes){
-              tenRecipe?.setTenRecipe(RecipeRes.data.data.recipes)
+              tenRecipe?.setTenRecipe(RecipeRes.data)
             }
           } catch (err: any) {
             console.log(err)
@@ -52,6 +72,126 @@ export default function Index() {
         get10Recipe()
         fetchProfile()
   }, [])
+
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (searchRec.length >= 2) {
+        const res = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=1&limit=10`)
+        setRecipeData(res.data.data.data)
+        setTotalPage(res.data.data.info)
+        setPage(1)
+      } else {
+        setRecipeData(tenRecipe?.TenRecipe || [])
+      }
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchRec, tenRecipe?.TenRecipe])
+
+  const enterSearchMode = () => {
+    setIsSearchMode(true);
+    Animated.parallel([
+      Animated.timing(homeContentOpacity, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(searchContentOpacity, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.spring(searchBarTranslateY, {
+        toValue: -150,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 12,
+      }),
+      Animated.timing(backArrowOpacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.spring(backArrowTranslateX, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 120,
+        friction: 10,
+      }),
+      Animated.timing(filterIconOpacity, {
+        toValue: 1,
+        duration: 300,
+        delay: 100,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      searchInputRef.current?.focus();
+    });
+  };
+
+  const exitSearchMode = () => {
+    Keyboard.dismiss();
+    setSearchRec("");
+    Animated.parallel([
+      Animated.timing(homeContentOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(searchContentOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(searchBarTranslateY, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 12,
+      }),
+      Animated.timing(backArrowOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(backArrowTranslateX, {
+        toValue: -20,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(filterIconOpacity, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsSearchMode(false);
+    });
+  };
+
+  const handleLoadMore = async () => {
+    if (isLoadingSearch || page >= totalPage) {
+      return;
+    }
+
+    setIsLoadingSearch(true);
+    const nextPage = page + 1;
+
+    try {
+      if (searchRec.length >= 2) {
+        const response = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=${nextPage}&limit=10`)
+        const newRecipes = response.data.data.data
+        if (newRecipes?.length > 0) {
+          setRecipeData((prevData: any[]) => [...prevData, ...newRecipes]);
+          setPage(nextPage);
+        }
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoadingSearch(false);
+    }
+  };
 
   const handleCategories = (category : string) => {
     const selectedCategories = categories.find(item => item.url === category);
@@ -68,84 +208,205 @@ export default function Index() {
   }
 
   return (
-    <SafeAreaView className="bg-green-200">
-    <View className=" bg-secondary-400 h-full w-full flex items-center">
-      <View className="w-full px-6 mt-8 flex gap-7">
+    <SafeAreaView className="bg-secondary-400 flex-1">
+      <View className="bg-secondary-400 h-full w-full pt-8 flex flex-col gap-5">
 
-        {/* Profile */}
-        <View className="flex flex-row items-center gap-3">
-          <Image className="w-16 h-16 rounded-full"
-                source={require('../../../assets/images/android-icon-background.png')}>
-          </Image>
-          <View>
-            <Text className="text-primary-500 text-2xl font-fogsta">Hey,{profileData?.profileData?.users.name}</Text>
-            <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
+        <Animated.View 
+          style={{ 
+            opacity: homeContentOpacity,
+            height: isSearchMode ? 0 : 'auto',
+            overflow: 'hidden'
+          }}
+          className="gap-7"
+        >
+          <View className="flex flex-row items-center justify-between px-6">
+            <View className="flex flex-row gap-3 items-center">
+              <Image 
+                className="w-16 h-16 rounded-full"
+                source={require('../../../assets/images/android-icon-background.png')}
+              />
+              <View>
+                <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
+                <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
+              </View>
+            </View>
+            <TouchableHighlight onPress={() => router.push('/profile')} className="rounded-full">
+              <AntDesign name="bell" size={24} color="black" />
+            </TouchableHighlight>
           </View>
-        </View>
 
-        {/* Search Bar */}
-        <View className="flex gap-4">
-          <Text className="text-primary-500 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
-          <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
-            <FontAwesome5 name="search" size={24} color="gray" />
+          <View className="px-6">
+            <Text className="text-primary-500 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
+          </View>
+        </Animated.View>
+
+        {/* Invisible placeholder to maintain layout spacing */}
+        <View className="px-6" style={{ opacity: 0 }}>
+          <View className="flex-row items-center gap-3">
+            <View className="flex-1 flex-row items-center bg-blue-200 rounded-full px-4 py-2">
+              <FontAwesome5 name="search" size={20} color="gray" />
               <TextInput 
                 className="flex-1 ml-3 text-base text-gray-700" 
-                placeholder="Find your meaandl..." 
+                placeholder="Find your meal..." 
+                editable={false}
               />
+            </View>
           </View>
         </View>
 
-        {/* Categories */}
-        <View className="gap-3">
-          <Text className="text-xl font-fogsta">Categories</Text>
-          <FlatList
-            data={categories}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 16 }}
-            renderItem={({ item }) => {
-              return(
-                <TouchableHighlight onPress={() => handleCategories(item.url)}>
-                  <View key={item.label} className="items-center">
-                    <View
-                      className={`size-20 rounded-full items-center justify-center ${item.bg}`}
-                    >
-                      <FontAwesome5 name={item.icon} size={28} color="black" />
-                    </View>
-                    <Text className="text-center font-brsegma-600 w-24">
-                      {item.label}
-                    </Text>
-                  </View>
-                </TouchableHighlight>
-              )
-            }}
-          >
-          </FlatList>
-        </View>
+        {/* Absolute positioned search bar for animation */}
+        <Animated.View 
+          className="w-full absolute px-6 right-3 "
+          style={{ 
+            transform: [{ translateY: searchBarTranslateY }],
+            top: 182,
+            zIndex: 10,
+          }}
+        >
+          <View className="flex-row items-center gap-3">
+            <Animated.View 
+              style={{ 
+                opacity: backArrowOpacity,
+                transform: [{ translateX: backArrowTranslateX }],
+                width: isSearchMode ? 'auto' : 0,
+                overflow: 'hidden'
+              }}
+            >
+              <TouchableHighlight 
+                onPress={exitSearchMode}
+                underlayColor="transparent"
+              >
+                <Ionicons name="arrow-back" size={24} color="#4a2c2a" />
+              </TouchableHighlight>
+            </Animated.View>
+            <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
+              <FontAwesome5 name="search" size={20} color="gray" />
+              <TextInput 
+                ref={searchInputRef}
+                className="flex-1 ml-3 text-base text-gray-700" 
+                placeholder="Find yourpppp meal..." 
+                value={searchRec}
+                onChangeText={setSearchRec}
+                onFocus={enterSearchMode}
+              />
+              <Animated.View style={{ opacity: filterIconOpacity }}>
+                {isSearchMode && (
+                  <TouchableHighlight underlayColor="transparent">
+                    <FontAwesome6 name="sliders" size={20} color="#4a2c2a" />
+                  </TouchableHighlight>
+                )}
+              </Animated.View>
+            </View>
+          </View>
+        </Animated.View>
 
-        {/* 10 recipe */}
-        <View className="gap-3">
-          <Text className="text-xl font-fogsta">For You</Text>
-          <FlatList
-            data={tenRecipe?.TenRecipe}
-            showsHorizontalScrollIndicator={false}
-            horizontal={true}
-            contentContainerStyle={{ gap: 16 }}
-            renderItem={({ item }) => {
-              return (
-                <View key={item.recipe_id} className="w-56 p-3 gap-2 bg-white rounded-xl shadow-sm">
+        {!isSearchMode && (
+          <Animated.View 
+            style={{ opacity: homeContentOpacity, flex: 1 }}
+            className=""
+          >
+            {/* Categories */}
+            <View className="flex gap-3">
+              <Text className="text-xl font-fogsta px-6">Categories</Text>
+              <FlatList
+                data={categories}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
+                renderItem={({ item }) => (
+                  <TouchableHighlight onPress={() => handleCategories(item.url)} underlayColor="transparent">
+                    <View key={item.label} className="items-center">
+                      <View className={`size-20 rounded-full items-center justify-center ${item.bg}`}>
+                        <FontAwesome5 name={item.icon} size={28} color="black" />
+                      </View>
+                      <Text className="text-center font-brsegma-600 w-24">{item.label}</Text>
+                    </View>
+                  </TouchableHighlight>
+                )}
+              />
+            </View>
+
+            {/* 10 recipe */}
+            <View className="gap-3">
+              <Text className="text-xl font-fogsta px-6">For You</Text>
+              <FlatList
+                data={tenRecipe?.TenRecipe}
+                showsHorizontalScrollIndicator={false}
+                horizontal={true}
+                contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
+                renderItem={({ item }) => (
+                  <View key={item.recipe_id} className="w-56 p-3 gap-2 bg-white rounded-xl shadow-sm">
+                    <View className="relative mb-3">
+                      <Image source={{ uri: item.Images }} className="w-full h-32 rounded-lg" />
+                      <View className="absolute top-24 -ml-1 w-10 h-10 bg-white rounded-full items-center justify-center">
+                        <Image className="w-8 h-8 rounded-full" source={require('../../../assets/images/android-icon-background.png')} />
+                      </View>
+                    </View>
+                    <Text className="text-[10px] text-gray-500 font-medium">By {item.author_name || "Chef"}</Text>
+                    <View className="h-12">
+                      <Text className="font-fogsta text-l">{item.name}</Text>
+                    </View>
+                    <View className="flex flex-row items-center gap-1">
+                      <FontAwesome5 name="star" size={9} color="black" />
+                      <Text className="font-brsegma-600 text-[10px] text-gray-700">{item.rating_score ?? "No Rate"} · {item.TotalTime}</Text>
+                    </View>
+                    <TouchableHighlight className="bg-primary-400 btn-default mt-auto">
+                      <Text className="text-secondary-400 font-fogsta">Add To Plan</Text>
+                    </TouchableHighlight>
+                  </View>
+                )}
+              />
+            </View>
+          </Animated.View>
+        )}
+
+        {isSearchMode && (
+          <Animated.View 
+            style={{ opacity: searchContentOpacity, flex: 1 }}
+            className="px-6"
+          >
+            {/* Search Category Pills */}
+            <View className="h-12 mb-4">
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 10 }}
+              >
+                {searchCategories.map((cat, index) => {
+                  const isActive = index === 0;
+                  return (
+                    <TouchableHighlight
+                      key={index} 
+                      underlayColor="transparent"
+                      className={`px-5 py-2 rounded-full justify-center ${isActive ? 'bg-red-900' : 'bg-white'}`}
+                    >
+                      <Text className={`font-semibold ${isActive ? 'text-white' : 'text-red-900'}`}>
+                        {cat}
+                      </Text>
+                    </TouchableHighlight>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
+            <FlatList
+              data={recipeData}
+              showsVerticalScrollIndicator={false}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: 'space-between' }}
+              contentContainerStyle={{ gap: 14, paddingBottom: 100 }}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.3}
+              keyExtractor={(item) => item.recipe_id?.toString()}
+              renderItem={({ item }) => (
+                <View key={item.recipe_id} className="w-[48%] p-3 gap-2 bg-white rounded-xl shadow-sm">
                   <View className="relative mb-3">
-                    <Image
-                      source={{uri: item.Images}}
-                      className="w-full h-32 rounded-lg"
-                    />
+                    <Image source={{ uri: item.Images }} className="w-full h-32 rounded-lg" />
                     <View className="absolute top-24 -ml-1 w-10 h-10 bg-white rounded-full items-center justify-center">
-                        <Image className="w-8 h-8 rounded-full" source={require('../../../assets/images/android-icon-background.png')}></Image>
+                      <Image className="w-8 h-8 rounded-full" source={require('../../../assets/images/android-icon-background.png')} />
                     </View>
                   </View>
-                  <Text className="text-[10px] text-gray-500 font-medium">
-                    By {item.author_name || "Chef"}
-                  </Text>
+                  <Text className="text-[10px] text-gray-500 font-medium">By {item.author_name || "Chef"}</Text>
                   <View className="h-12">
                     <Text className="font-fogsta text-l">{item.name}</Text>
                   </View>
@@ -157,13 +418,17 @@ export default function Index() {
                     <Text className="text-secondary-400 font-fogsta">Add To Plan</Text>
                   </TouchableHighlight>
                 </View>
-              );
-            }}>
-          </FlatList>
-        </View>
+              )}
+              ListFooterComponent={() => (
+                <View className="h-[30px]">
+                  {isLoadingSearch && <ActivityIndicator />}
+                </View>
+              )}
+            />
+          </Animated.View>
+        )}
+
       </View>
-    </View>
     </SafeAreaView>
-    
   );
 }
