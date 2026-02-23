@@ -8,4 +8,6 @@ router.get("/getBookmarksByUserId", authorization,recipesController.getBookmarks
 router.get("/getIngredients", recipesController.getIngredients);
 router.get("/get10Recipes", recipesController.get10Recipes);
 router.get("/getRecipesByName", recipesController.getRecipesByName);
+router.get("/getRecipesByID", recipesController.getRecipeByID)
+
 module.exports = router;

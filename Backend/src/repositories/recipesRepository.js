@@ -61,6 +61,11 @@ class recipesRepository {
         const result = await Database.from("recipes").select("*").in("recipe_id", [3233, 1832, 4009, 3369, 3317, 3413, 809, 468, 547, 1415]);
         return result.data;
    }
+
+   static async getRecipeByID(id) {
+        const result = await Database.from("recipes").select("*").eq("recipe_id", id)
+        return result.data
+   }
 }
 
 module.exports = recipesRepository;

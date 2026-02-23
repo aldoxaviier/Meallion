@@ -1,5 +1,6 @@
 import { View, Text, Image, TouchableHighlight } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { router } from "expo-router";
 
 interface RecipeCardProps {
   recipe: {
@@ -31,6 +32,7 @@ export const RecipeCard = ({ recipe, onAddToPlan, width = 'w-56' }: RecipeCardPr
   const firstTag = getFirstTag(recipe.tags);
 
   return (
+    <TouchableHighlight onPress={() => router.push(`../recipes/${recipe.recipe_id}`)}>
     <View className={`${width} p-3 gap-2 bg-white rounded-xl shadow-sm`}>
       <View className="relative mb-3">
         <Image source={{ uri: recipe.Images }} className="w-full h-32 rounded-lg" />
@@ -66,5 +68,6 @@ export const RecipeCard = ({ recipe, onAddToPlan, width = 'w-56' }: RecipeCardPr
         <Text className="text-secondary-400 font-fogsta">Add to plan</Text>
       </TouchableHighlight>
     </View>
+    </TouchableHighlight>
   );
 };

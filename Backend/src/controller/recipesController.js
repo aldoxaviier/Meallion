@@ -47,26 +47,26 @@ class recipesController {
    }
 
    static async getRecipesByName(req, res) {
-    try {
-        const query = req.query.query;
-        const category = req.query.category;
-        const page = parseInt(req.query.page);
-        const limit = parseInt(req.query.limit);
-        const result = await recipesService.getRecipesByNameCategory(query, category, page, limit)
-        const totalPage = Math.ceil(result.total/limit);
-        res.json(ApiResponse.success("Recipe fetched successfully", {
-            data: result.data,
-            info: {
-                page: page,
-                limit: limit,
-                totalData: result.total,
-                totalPage: totalPage
-            }
-        }, 200));
-    } catch (err) {
-        console.error("Error in contoler getRecipesByName:", err.message);
-        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
-    }
+        try {
+            const query = req.query.query;
+            const category = req.query.category;
+            const page = parseInt(req.query.page);
+            const limit = parseInt(req.query.limit);
+            const result = await recipesService.getRecipesByNameCategory(query, category, page, limit)
+            const totalPage = Math.ceil(result.total/limit);
+            res.json(ApiResponse.success("Recipe fetched successfully", {
+                data: result.data,
+                info: {
+                    page: page,
+                    limit: limit,
+                    totalData: result.total,
+                    totalPage: totalPage
+                }
+            }, 200));
+        } catch (err) {
+            console.error("Error in contoler getRecipesByName:", err.message);
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
    }
 
    static async get10Recipes(req, res) {
@@ -75,6 +75,17 @@ class recipesController {
             res.json(ApiResponse.success("10 Recipes fetched successfully", { recipes: allRecipes }, 200));
         } catch (err) {
             console.error(err.message);
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
+
+    static async getRecipeByID(req, res) {
+        try {
+            const id = parseInt(req.query.id)
+            const recipeData = await recipesRepository.getRecipeByID(id)
+            res.json(ApiResponse.success("Ingredients fetched successfully", recipeData , 200));
+        } catch (err) {
+            comsole.error(err.message)
             res.status(500).json(ApiResponse.error("Internal Server Error", 500));
         }
     }
