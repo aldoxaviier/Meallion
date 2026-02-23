@@ -11,6 +11,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from "expo-router";
 import "../../globals.css"
 import { TenRecipeContext } from "@/app/store/tenRecipeContext";
+import { RecipeCard } from "../../components/RecipeCard";
 
 
 export default function Index() {
@@ -41,6 +42,8 @@ export default function Index() {
   const searchBarTranslateY = useRef(new Animated.Value(0)).current;
   const backArrowOpacity = useRef(new Animated.Value(0)).current;
   const backArrowTranslateX = useRef(new Animated.Value(-20)).current;
+  const searchBarLeftMargin = useRef(new Animated.Value(0)).current;
+  const searchBarScale = useRef(new Animated.Value(1)).current;
   const filterIconOpacity = useRef(new Animated.Value(0)).current;
   const searchInputRef = useRef<TextInput>(null);
 
@@ -57,7 +60,8 @@ export default function Index() {
         const fetchProfile = async () => {
             try {
               const response = await api.get('/profile/getProfile')
-              profileData?.setProfileData(response.data.data.data[0])
+              console.log("Profile response:", response.data);
+              profileData?.setProfileData(response.data[0])
             } catch (err: any) {
                 console.log(err)
             } finally {
@@ -86,8 +90,9 @@ export default function Index() {
       if (searchRec.length >= 2 || activeCategories.length > 0) {
         const catParam = activeCategories.map(c => c.name).join(',');
         const res = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=1&limit=10&category=${catParam}`)
-        setRecipeData(res.data.data.data)
-        setTotalPage(res.data.data.info)
+        console.log(res)
+        setRecipeData(res.data.data)
+        setTotalPage(res.data.info)
         setPage(1)
       } else {
         setRecipeData(tenRecipe?.TenRecipe || [])
@@ -100,57 +105,92 @@ export default function Index() {
   const enterSearchMode = () => {
     setIsSearchMode(true);
     Animated.parallel([
+      Animated.spring(searchBarTranslateY, {
+        toValue: -150,
+        useNativeDriver: true,
+        tension: 90,
+        friction: 14,
+      }),
+      Animated.spring(searchBarScale, {
+        toValue: 0.90,
+        useNativeDriver: true,
+        tension: 90,
+        friction: 14,
+      }),
+      Animated.spring(searchBarLeftMargin, {
+        toValue: 20,
+        useNativeDriver: true,
+        tension: 90,
+        friction: 14,
+      }),
       Animated.timing(homeContentOpacity, {
         toValue: 0,
-        duration: 250,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+      Animated.timing(backArrowOpacity, {
+        toValue: 1,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+      Animated.spring(backArrowTranslateX, {
+        toValue: 0,
+        tension: 90,
+        friction: 14,
         useNativeDriver: true,
       }),
       Animated.timing(searchContentOpacity, {
         toValue: 1,
-        duration: 350,
+        duration: 220,
         useNativeDriver: true,
       }),
-      Animated.spring(searchBarTranslateY, {
-        toValue: -150,
-        useNativeDriver: true,
-        tension: 100,
-        friction: 12,
-      }),
-      Animated.timing(backArrowOpacity, {
+      Animated.timing(filterIconOpacity, {
         toValue: 1,
-        duration: 250,
+        duration: 200,
         useNativeDriver: true,
       }),
-      Animated.spring(backArrowTranslateX, {
+    ]).start(() => {
+        searchInputRef.current?.focus();
+    });
+  };
+
+  const exitSearchMode = () => {
+    setIsSearchMode(false);
+    Keyboard.dismiss();
+    setSearchRec("");
+    Animated.parallel([
+      Animated.timing(searchContentOpacity, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(filterIconOpacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(searchBarScale, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 120,
+        friction: 10,
+      }),
+      Animated.spring(searchBarLeftMargin, {
         toValue: 0,
         useNativeDriver: true,
         tension: 120,
         friction: 10,
       }),
-      Animated.timing(filterIconOpacity, {
-        toValue: 1,
-        duration: 300,
-        delay: 100,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      searchInputRef.current?.focus();
-    });
-  };
-
-  const exitSearchMode = () => {
-    Keyboard.dismiss();
-    setSearchRec("");
-    Animated.parallel([
-      Animated.timing(homeContentOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(searchContentOpacity, {
+      Animated.timing(backArrowOpacity, {
         toValue: 0,
-        duration: 200,
+        duration: 150,
         useNativeDriver: true,
+      }),
+      Animated.spring(backArrowTranslateX, {
+        toValue: -20,
+        useNativeDriver: true,
+        tension: 120,
+        friction: 10,
       }),
       Animated.spring(searchBarTranslateY, {
         toValue: 0,
@@ -158,23 +198,13 @@ export default function Index() {
         tension: 100,
         friction: 12,
       }),
-      Animated.timing(backArrowOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(backArrowTranslateX, {
-        toValue: -20,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(filterIconOpacity, {
-        toValue: 0,
-        duration: 150,
+      Animated.timing(homeContentOpacity, {
+        toValue: 1,
+        duration: 250,
         useNativeDriver: true,
       }),
     ]).start(() => {
-      setIsSearchMode(false);
+
     });
   };
 
@@ -191,7 +221,7 @@ export default function Index() {
       if (searchRec.length >= 2 || activeCategories.length > 0) {
         const catParam = activeCategories.map(c => c.name).join(',');
         const response = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=${nextPage}&limit=10&category=${catParam}`)
-        const newRecipes = response.data.data.data
+        const newRecipes = response.data.data
         if (newRecipes?.length > 0) {
           setRecipeData((prevData: any[]) => [...prevData, ...newRecipes]);
           setPage(nextPage);
@@ -217,6 +247,10 @@ export default function Index() {
       }
     });
   }
+
+  useEffect(() => {
+    console.log(isSearchMode)
+  },[isSearchMode])
 
   const handleSearchCategory = (index: number) => {
     const newCategory = [...searchCategories];
@@ -261,7 +295,7 @@ export default function Index() {
         {/* Invisible placeholder to maintain layout spacing */}
         <View className="px-6" style={{ opacity: 0 }}>
           <View className="flex-row items-center gap-3">
-            <View className="flex-1 flex-row items-center bg-blue-200 rounded-full px-4 py-2">
+            <View className="flex-1 flex-row items-center rounded-full px-4 py-2">
               <FontAwesome5 name="search" size={20} color="gray" />
               <TextInput 
                 className="flex-1 ml-3 text-base text-gray-700" 
@@ -272,56 +306,74 @@ export default function Index() {
           </View>
         </View>
 
+        {/* Back arrow - absolutely positioned and independent from search bar */}
+        <Animated.View 
+          className="absolute"
+          style={{ 
+            transform: [
+              { translateY: searchBarTranslateY },
+              { translateX: backArrowTranslateX }
+            ],
+            opacity: backArrowOpacity,
+            top: 198,
+            left: 24,
+            zIndex: isSearchMode ? 11 : -1,
+          }}
+          pointerEvents={isSearchMode ? 'auto' : 'none'}
+        >
+          <TouchableHighlight 
+            onPress={exitSearchMode}
+            underlayColor="transparent"
+          >
+            <Ionicons name="arrow-back" size={24} color="#4a2c2a" />
+          </TouchableHighlight>
+        </Animated.View>
+
         {/* Absolute positioned search bar for animation */}
         <Animated.View 
-          className="w-full absolute px-6 right-3 "
+          className="w-full absolute px-6"
           style={{ 
-            transform: [{ translateY: searchBarTranslateY }],
+            transform: [
+              { translateY: searchBarTranslateY },
+              { translateX: searchBarLeftMargin },
+              { scaleX: searchBarScale }
+            ],
             top: 182,
+            left: 0,
+            right: 0,
             zIndex: 10,
           }}
         >
-          <View className="flex-row items-center gap-3">
-            <Animated.View 
-              style={{ 
-                opacity: backArrowOpacity,
-                transform: [{ translateX: backArrowTranslateX }],
-                width: isSearchMode ? 'auto' : 0,
-                overflow: 'hidden'
-              }}
-            >
-              <TouchableHighlight 
-                onPress={exitSearchMode}
-                underlayColor="transparent"
-              >
-                <Ionicons name="arrow-back" size={24} color="#4a2c2a" />
-              </TouchableHighlight>
+          <Pressable
+          onPress={() => {
+            if (!isSearchMode) {
+              enterSearchMode();
+            }
+          }}>
+          <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
+            <FontAwesome5 name="search" size={20} color="gray" />
+            <TextInput 
+              ref={searchInputRef}
+              className="flex-1 ml-3 text-base text-gray-700" 
+              placeholder="Find your meal..." 
+              value={searchRec}
+              onChangeText={setSearchRec}
+              editable={isSearchMode}
+            />
+            <Animated.View style={{ opacity: filterIconOpacity }}>
+              {isSearchMode && (
+                <TouchableHighlight underlayColor="transparent">
+                  <FontAwesome6 name="sliders" size={20} color="#4a2c2a" />
+                </TouchableHighlight>
+              )}
             </Animated.View>
-            <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
-              <FontAwesome5 name="search" size={20} color="gray" />
-              <TextInput 
-                ref={searchInputRef}
-                className="flex-1 ml-3 text-base text-gray-700" 
-                placeholder="Find yourpppp meal..." 
-                value={searchRec}
-                onChangeText={setSearchRec}
-                onFocus={enterSearchMode}
-              />
-              <Animated.View style={{ opacity: filterIconOpacity }}>
-                {isSearchMode && (
-                  <TouchableHighlight underlayColor="transparent">
-                    <FontAwesome6 name="sliders" size={20} color="#4a2c2a" />
-                  </TouchableHighlight>
-                )}
-              </Animated.View>
-            </View>
           </View>
+          </Pressable>
         </Animated.View>
 
         {!isSearchMode && (
           <Animated.View 
             style={{ opacity: homeContentOpacity, flex: 1 }}
-            className=""
           >
             {/* Categories */}
             <View className="flex gap-3">
@@ -353,25 +405,11 @@ export default function Index() {
                 horizontal={true}
                 contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
                 renderItem={({ item }) => (
-                  <View key={item.recipe_id} className="w-56 p-3 gap-2 bg-white rounded-xl shadow-sm">
-                    <View className="relative mb-3">
-                      <Image source={{ uri: item.Images }} className="w-full h-32 rounded-lg" />
-                      <View className="absolute top-24 -ml-1 w-10 h-10 bg-white rounded-full items-center justify-center">
-                        <Image className="w-8 h-8 rounded-full" source={require('../../../assets/images/android-icon-background.png')} />
-                      </View>
-                    </View>
-                    <Text className="text-[10px] text-gray-500 font-medium">By {item.author_name || "Chef"}</Text>
-                    <View className="h-12">
-                      <Text className="font-fogsta text-l">{item.name}</Text>
-                    </View>
-                    <View className="flex flex-row items-center gap-1">
-                      <FontAwesome5 name="star" size={9} color="black" />
-                      <Text className="font-brsegma-600 text-[10px] text-gray-700">{item.rating_score ?? "No Rate"} · {item.TotalTime}</Text>
-                    </View>
-                    <TouchableHighlight className="bg-primary-400 btn-default mt-auto">
-                      <Text className="text-secondary-400 font-fogsta">Add To Plan</Text>
-                    </TouchableHighlight>
-                  </View>
+                  <RecipeCard 
+                    recipe={item} 
+                    width="w-56"
+                    onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
+                  />
                 )}
               />
             </View>
@@ -379,73 +417,60 @@ export default function Index() {
         )}
 
         {isSearchMode && (
-          <Animated.View 
-            style={{ opacity: searchContentOpacity, flex: 1 }}
-            className="px-6"
-          >
-            {/* Search Category Pills */}
-            <View className="h-12 mb-4">
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 10 }}
-              >
-                {searchCategories.map((cat, index) => {
-                  return (
-                    <TouchableHighlight
-                      key={index} 
-                      className={`px-5 py-2 rounded-full justify-center ${cat.isActive ? 'bg-primary-400' : 'bg-white'}`}
-                      onPress={() => handleSearchCategory(index)}
-                    >
-                      <View className="flex flex-row items-center">
-                        <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400'}`}>
-                          {cat.name}
-                        </Text>
-                        {cat.isActive && <FontAwesome6 name="x" className="ml-3" size={15} color="white"></FontAwesome6>}
-                      </View>
-                    </TouchableHighlight>
-                  );
-                })}
-              </ScrollView>
-            </View>
-
-            <FlatList
-              data={recipeData}
-              showsVerticalScrollIndicator={false}
-              numColumns={2}
-              columnWrapperStyle={{ justifyContent: 'space-between' }}
-              contentContainerStyle={{ gap: 14, paddingBottom: 100 }}
-              onEndReached={handleLoadMore}
-              onEndReachedThreshold={0.3}
-              keyExtractor={(item) => item.recipe_id?.toString()}
-              renderItem={({ item }) => (
-                <View key={item.recipe_id} className="w-[48%] p-3 gap-2 bg-white rounded-xl shadow-sm">
-                  <View className="relative mb-3">
-                    <Image source={{ uri: item.Images }} className="w-full h-32 rounded-lg" />
-                    <View className="absolute top-24 -ml-1 w-10 h-10 bg-white rounded-full items-center justify-center">
-                      <Image className="w-8 h-8 rounded-full" source={require('../../../assets/images/android-icon-background.png')} />
+        <Animated.View 
+          style={{ opacity: searchContentOpacity, flex: 1 }}
+          className="px-6 z-20"
+          pointerEvents={isSearchMode ? 'auto' : 'none'}
+        >
+          {/* Search Category Pills */}
+          <View className="h-12 mb-4">
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 10 }}
+            >
+              {searchCategories.map((cat, index) => {
+                return (
+                  <TouchableHighlight
+                    key={index} 
+                    className={`px-5 py-2 rounded-full justify-center ${cat.isActive ? 'bg-primary-400' : 'bg-white'}`}
+                    onPress={() => handleSearchCategory(index)}
+                  >
+                    <View className="flex flex-row items-center">
+                      <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400'}`}>
+                        {cat.name}
+                      </Text>
+                      {cat.isActive && <FontAwesome6 name="x" className="ml-3" size={15} color="white"></FontAwesome6>}
                     </View>
-                  </View>
-                  <Text className="text-[10px] text-gray-500 font-medium">By {item.author_name || "Chef"}</Text>
-                  <View className="h-12">
-                    <Text className="font-fogsta text-l">{item.name}</Text>
-                  </View>
-                  <View className="flex flex-row items-center gap-1">
-                    <FontAwesome5 name="star" size={9} color="black" />
-                    <Text className="font-brsegma-600 text-[10px] text-gray-700">{item.rating_score ?? "No Rate"} · {item.TotalTime}</Text>
-                  </View>
-                  <TouchableHighlight className="bg-primary-400 btn-default mt-auto">
-                    <Text className="text-secondary-400 font-fogsta">Add To Plan</Text>
                   </TouchableHighlight>
-                </View>
-              )}
-              ListFooterComponent={() => (
-                <View className="h-[30px]">
-                  {isLoadingSearch && <ActivityIndicator />}
-                </View>
-              )}
-            />
-          </Animated.View>
+                );
+              })}
+            </ScrollView>
+          </View>
+
+          <FlatList
+            data={recipeData}
+            showsVerticalScrollIndicator={false}
+            numColumns={2}
+            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            contentContainerStyle={{ gap: 14, paddingBottom: 100 }}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.3}
+            keyExtractor={(item) => item.recipe_id?.toString()}
+            renderItem={({ item }) => (
+              <RecipeCard 
+                recipe={item} 
+                width="w-[48%]"
+                onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
+              />
+            )}
+            ListFooterComponent={() => (
+              <View className="h-[30px]">
+                {isLoadingSearch && <ActivityIndicator />}
+              </View>
+            )}
+          />
+        </Animated.View>
         )}
 
       </View>

@@ -1,10 +1,58 @@
-import { View, Text } from "react-native";
+import {View, Text, TouchableHighlight} from 'react-native';
+import {Link} from 'expo-router';
+import {api} from '../../utils/api';
+import { AuthContext } from '../../store/authContext';
+import { useEffect, useState, useContext } from 'react';
+import * as SecureStore from "expo-secure-store";
 
 const Saved = () => {
+  const authContext = useContext(AuthContext);
+  const onPressLogout = async () => {
+    try {
+      const response = await api.get('/auth/logout',);
+      console.log("Logout response:", response.data);
+      if (response.status === 200) {
+        authContext?.logout();
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleRefresh = async () => {
+    try {
+      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      const response = await api.post('/auth/refresh',{ refreshToken });
+      console.log("Profile response:", response.data);
+      authContext?.setAccessToken(response.data.data.accessToken);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleTest = async () => {
+    try {
+      const response = await api.get('/profile/test');
+      console.log("Test response:", response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-5xl">Saved Items</Text>
-    </View>
+      <View className="flex-1 items-center justify-center">
+        <Text className="text-5xl">Meal Plan</Text>
+        <TouchableHighlight onPress={onPressLogout} className='border p-3 rounded-md'>
+          <Text className="text-lg">Logout</Text>
+        </TouchableHighlight>
+        <TouchableHighlight onPress={handleRefresh} className='border p-3 rounded-md'>
+          <Text className="text-lg">refresh</Text>
+        </TouchableHighlight>
+        <TouchableHighlight onPress={handleTest} className='border p-3 rounded-md'>
+          <Text className="text-lg">test</Text>
+        </TouchableHighlight>
+      </View>
   );
 };
 

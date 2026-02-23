@@ -40,7 +40,7 @@ class profileRepository {
                     name,
                     email
                 )`).eq("user_id", userId)
-        return result
+        return result.data
     }
 }
 

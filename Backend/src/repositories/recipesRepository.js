@@ -9,7 +9,7 @@ class recipesRepository {
 
    static async addBookmark(userId, recipeId) {
         const result = await Database.from("bookmarks").insert({ user_id: userId, recipe_id: recipeId, rating:1 });
-        return result;
+        return result.data;
    }
 
    static async getBookmarksByUserId(userId) {

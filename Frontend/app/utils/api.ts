@@ -52,7 +52,7 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   async (error) => {
     const originalRequest = error.config;
 
@@ -86,7 +86,7 @@ api.interceptors.response.use(
 );
 
 apiFastApi.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   async (error) => {
     const originalRequest = error.config;
 
