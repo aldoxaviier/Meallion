@@ -6,7 +6,7 @@ const Onboard = () => {
 
   const handleSignUp = () => {
     // Navigate to sign up screen
-    router.push("/register/credentials");
+    router.push("/register/" as any);
   };
 
   const handleSignIn = () => {

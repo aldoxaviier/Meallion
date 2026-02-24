@@ -32,14 +32,12 @@ const Login = () => {
     try {
       const body = { email, password };
       console.log(body)
-      const response = await api.post(`/auth/login`, body);
+      const response: any = await api.post(`/auth/login`, body);
 
-      console.log('Login response:', response);
-
-      if (response.status === 200) {
+      if (response.statusCode == 200) {
         authContext?.login(
-          response.data.data.accessToken,
-          response.data.data.refreshToken
+          response.data.accessToken,
+          response.data.refreshToken
         );
       }
     } catch (error : any) {
@@ -50,7 +48,7 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
-};
+  };
 
 
   return (

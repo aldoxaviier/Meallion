@@ -5,13 +5,13 @@ import { AuthContext } from '../../store/authContext';
 import { useEffect, useState, useContext } from 'react';
 import * as SecureStore from "expo-secure-store";
 
-const Saved = () => {
+const Index = () => {
   const authContext = useContext(AuthContext);
   const onPressLogout = async () => {
     try {
-      const response = await api.get('/auth/logout',);
+      const response:any = await api.get('/auth/logout',);
       console.log("Logout response:", response.data);
-      if (response.status === 200) {
+      if (response.statusCode === 200) {
         authContext?.logout();
       }
     } catch (err) {
@@ -24,7 +24,7 @@ const Saved = () => {
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
       const response = await api.post('/auth/refresh',{ refreshToken });
       console.log("Profile response:", response.data);
-      authContext?.setAccessToken(response.data.data.accessToken);
+      authContext?.setAccessToken(response.data.accessToken);
     } catch (error) {
       console.error(error);
     }
@@ -56,4 +56,4 @@ const Saved = () => {
   );
 };
 
-export default Saved;
+export default Index;

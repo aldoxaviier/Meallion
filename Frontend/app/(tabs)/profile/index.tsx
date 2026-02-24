@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Image, ScrollView, FlatList } from 'react-native';
-import { Link, router } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { api } from '../../utils/api';
 import { AuthContext } from '../../store/authContext';
 import { ProfileDataContext } from '../../store/profileDataContext';
@@ -9,13 +9,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { RecipeCard } from '../../components/RecipeCard';
 
-const Profile = () => {
+const Index = () => {
   const authContext = useContext(AuthContext);
   const profileData = useContext(ProfileDataContext);
   const tenRecipe = useContext(TenRecipeContext);
   const [activeTab, setActiveTab] = useState<'grid' | 'favorites'>('grid');
   const [recipes, setRecipes] = useState<any[]>([]);
-
+  const router = useRouter();
   useEffect(() => {
     if (tenRecipe?.TenRecipe) {
       setRecipes(tenRecipe.TenRecipe);
@@ -42,7 +42,7 @@ const Profile = () => {
         <View className="bg-primary-600 h-28 relative">
           <TouchableOpacity
             className="absolute top-2 right-4 w-10 h-10 rounded-full bg-secondary-400/20 items-center justify-center"
-            onPress={() => router.push('/(tabs)/profile/settings')}
+            onPress={() => router.push("/settings/" as any)}
           >
             <Ionicons name="settings-outline" size={22} color="#F2E8C6" />
           </TouchableOpacity>
@@ -146,4 +146,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Index;

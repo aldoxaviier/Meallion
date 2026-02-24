@@ -15,7 +15,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {api} from '../utils/api';
 
-const Credentials = () => {
+const Index = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -101,4 +101,4 @@ const Credentials = () => {
   );
 };
 
-export default Credentials;
+export default Index;
