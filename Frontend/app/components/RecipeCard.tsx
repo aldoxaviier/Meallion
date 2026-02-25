@@ -32,8 +32,8 @@ export const RecipeCard = ({ recipe, onAddToPlan, width = 'w-56' }: RecipeCardPr
   const firstTag = getFirstTag(recipe.tags);
 
   return (
-    <TouchableHighlight onPress={() => router.push(`../recipes/${recipe.recipe_id}`)}>
-    <View className={`${width} p-3 gap-2 bg-white rounded-xl shadow-sm`}>
+    <TouchableHighlight className={`${width} p-3 gap-2 bg-white rounded-xl shadow-sm`} onPress={() => router.push(`../recipes/${recipe.recipe_id}`)}>
+    <View >
       <View className="relative mb-3">
         <Image source={{ uri: recipe.Images }} className="w-full h-32 rounded-lg" />
         <View className="absolute top-24 -ml-1 w-10 h-10 bg-white rounded-full items-center justify-center">
