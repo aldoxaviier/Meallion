@@ -13,7 +13,7 @@ app.use(express.json());
 app.use("/auth", require("./src/routes/userRouter"));
 app.use("/recipes", require("./src/routes/recipesRouter"));
 app.use("/profile", require("./src/routes/profileRouter"));
-//app.use("/profile",require("./src/api/profile/router"));
+app.use("/assets", express.static("assets"));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

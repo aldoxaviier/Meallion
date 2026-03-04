@@ -29,6 +29,10 @@ class userRepository {
         const result = await Database.from("users").select("*").eq("refresh_token", refreshToken);
         return result;
     }
+    static async updateUser(user_id, user) {
+        const result = await Database.from("users").update(user).eq("user_id", user_id).select();
+        return result.data;
+    }
 }
 
 module.exports = userRepository;

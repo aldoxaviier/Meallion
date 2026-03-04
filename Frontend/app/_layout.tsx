@@ -1,6 +1,8 @@
 // app/_layout.tsx
 import { Stack } from "expo-router";
 import AuthProvider, { AuthContext } from "./store/authContext";
+import ProfileDataProvider from "./store/profileDataContext";
+import TenRecipeProvider from "./store/tenRecipeContext";
 import "./globals.css";
 import { useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
@@ -92,7 +94,11 @@ function LayoutContent() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <LayoutContent />
+      <TenRecipeProvider>
+        <ProfileDataProvider>
+          <LayoutContent />
+        </ProfileDataProvider>
+      </TenRecipeProvider>
     </AuthProvider>
   );
 }

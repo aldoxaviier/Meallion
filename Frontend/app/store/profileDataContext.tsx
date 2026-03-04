@@ -10,7 +10,8 @@ interface ProfileData {
   height: number
   weight: number
   activity_level: number | null
-  goal_plan: string | null
+  bio: string
+  goal_plan: string
   allergies: string[]
   diet_preferences: string[]
   updated_at: string
@@ -18,6 +19,7 @@ interface ProfileData {
   target_protein: number | null
   target_carbs: number | null
   target_fats: number | null
+  profile_image: string | null
   users: UserInfo
 }
 

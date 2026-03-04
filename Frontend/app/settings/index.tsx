@@ -1,14 +1,30 @@
 import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { AuthContext } from '../store/authContext';
+import { api } from '../utils/api';
 
 const Index = () => {
     const [themeEnabled, setThemeEnabled] = useState(true);
     const [pushNotifications, setPushNotifications] = useState(true);
     const [emailNotifications, setEmailNotifications] = useState(true);
+    const authContext = useContext(AuthContext);
     const router = useRouter();
+
+    const onPressLogout = async () => {
+        try {
+        const response:any = await api.get('/auth/logout',);
+        console.log("Logout response:", response.data);
+        if (response.statusCode === 200) {
+            authContext?.logout();
+        }
+        } catch (err) {
+        console.error(err)
+        }
+    }
+
     return (
         <View className="h-full bg-secondary-400 px-6">
             <ScrollView className="flex-1">
@@ -119,7 +135,7 @@ const Index = () => {
                     
                     <View className="bg-white rounded-lg mb-4">
                         <TouchableOpacity className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100"
-                        onPress={() => router.push('/profile/settings/profile')}
+                        onPress={() => router.push('/settings/profile')}
                         >
                             <View className="flex-row items-center">
                                 <Ionicons name="person-circle" size={20} color="#3E0703" />
@@ -128,7 +144,7 @@ const Index = () => {
                             <Ionicons name="chevron-forward" size={20} color="#999" />
                         </TouchableOpacity>
                         
-                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3">
+                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3" onPress={onPressLogout}>
                             <View className="flex-row items-center">
                                 <Ionicons name="log-out" size={20} color="#3E0703" />
                                 <Text className="ml-3 text-base font-brsegma-500">Sign out</Text>

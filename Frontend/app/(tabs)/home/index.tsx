@@ -57,31 +57,31 @@ export default function Index() {
   ];
 
   useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-              const response = await api.get('/profile/getProfile')
-              console.log("Profile response:", response.data);
-              profileData?.setProfileData(response.data[0])
-            } catch (err: any) {
-                console.log(err)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        const get10Recipe = async () => {
-          try {
-            const RecipeRes = await apiFastApi.get('/recommendation/')
-            if(RecipeRes){
-              tenRecipe?.setTenRecipe(RecipeRes.data)
-            }
-          } catch (err: any) {
+    const fetchProfile = async () => {
+        try {
+          const response = await api.get('/profile/getProfile')
+          console.log("Profile response:", response.data);
+          profileData?.setProfileData(response.data[0])
+        } catch (err: any) {
             console.log(err)
-          }
+        } finally {
+            setLoading(false)
         }
+    }
 
-        get10Recipe()
-        fetchProfile()
+    const get10Recipe = async () => {
+      try {
+        const RecipeRes = await apiFastApi.get('/recommendation/')
+        if(RecipeRes){
+          tenRecipe?.setTenRecipe(RecipeRes.data)
+        }
+      } catch (err: any) {
+        console.log(err)
+      }
+    }
+
+    get10Recipe()
+    fetchProfile()
   }, [])
 
   useEffect(() => {
@@ -275,7 +275,7 @@ export default function Index() {
             <View className="flex flex-row gap-3 items-center">
               <Image 
                 className="w-16 h-16 rounded-full"
-                source={require('../../../assets/images/android-icon-background.png')}
+                source={profileData?.profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profileData.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
               />
               <View>
                 <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>

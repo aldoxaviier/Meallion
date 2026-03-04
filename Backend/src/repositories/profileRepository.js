@@ -42,6 +42,16 @@ class profileRepository {
                 )`).eq("user_id", userId)
         return result.data
     }
+    static async updateProfile(userId, updateData) {
+        console.log("masuk", updateData);
+        const result = await Database
+            .from('user_profiles')
+            .update(updateData)
+            .eq("user_id", userId)
+            .select();
+        console.log("updateProfile result:", result);
+        return result.data;
+    }
 }
 
-module.exports = { profileRepository };
+module.exports =  profileRepository;

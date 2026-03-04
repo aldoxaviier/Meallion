@@ -1,5 +1,8 @@
 const { interactionValueConfig } = require("../config/interaction.config");
-const { profileRepository } = require("../repositories/profileRepository");
+const profileRepository  = require("../repositories/profileRepository");
+const fs = require('fs');
+const path = require('path');
+const userRepository = require("../repositories/userRepository");
 
 class profileService {
     static async addInteraction(userId, interactions) {
@@ -81,6 +84,37 @@ class profileService {
         }
         const tdee = Math.round(bmr * activity_level);
         return tdee;
+    }
+
+    static async updateProfile(userId, profile, req) {
+        if(req.file){
+            profile.profile_image = `assets/avatar/${req.file.filename}`;
+            const existingProfile = await profileRepository.getProfile(userId);
+            console.log("existing profile:", existingProfile);
+            if(existingProfile[0].profile_image){
+                console.log("ada lama");
+                const oldpath = path.join(__dirname,"../../",existingProfile[0].profile_image);
+                console.log("oldpath:", oldpath);
+                if (fs.existsSync(oldpath)) {
+                    fs.unlinkSync(oldpath);
+                }
+            }
+        }
+
+        const updateData = {};
+        for(const [key, value] of Object.entries(profile)){
+            if(value !== undefined && value !== null){
+                updateData[key] = value;
+            }
+        }
+
+        updateData.updated_at = new Date();
+        const { name, ...updateDataPrev } = updateData;
+        const userUpdateData = {name};
+        await userRepository.updateUser(userId, userUpdateData);
+        await profileRepository.updateProfile(userId, updateDataPrev);
+        const fullProfile = await profileRepository.getProfile(userId);
+        return fullProfile;
     }
 
 }

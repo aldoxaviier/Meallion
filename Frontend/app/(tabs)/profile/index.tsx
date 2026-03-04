@@ -53,7 +53,7 @@ const Index = () => {
             <View className="w-24 h-24 rounded-full border-4 border-secondary-400 overflow-hidden bg-secondary-300">
               <Image
                 className="w-full h-full"
-                source={require('../../../assets/images/android-icon-background.png')}
+                source={profileData?.profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profileData.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
               />
             </View>
           </View>

@@ -107,7 +107,7 @@ const Login = () => {
               {/* Sign Up Link */}
               <View className="flex-row justify-center">
                 <Text className="text-gray-600 font-brsegma-500">Don't have an account? </Text>
-                <Link href="/register/credentials" replace>
+                <Link href="/register" replace>
                   <Text className="text-primary-400 font-brsegma-600">Sign Up</Text>
                 </Link>
               </View>

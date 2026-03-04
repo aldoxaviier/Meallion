@@ -1,5 +1,5 @@
 const ApiResponse = require("../utils/apiResponse");
-const { profileRepository } = require("../repositories/profileRepository");
+const  profileRepository  = require("../repositories/profileRepository");
 const { profileService } = require("../service/profileService");
 
 class profileController {
@@ -34,14 +34,27 @@ class profileController {
                 return res.status(404).json(ApiResponse.error("Profile not found", 404));
             }
 
-            res.status(201).json(
-                ApiResponse.success("Profile found", profile, 201)
+            res.status(200).json(
+                ApiResponse.success("Profile found", profile, 200)
             )
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json(ApiResponse.error(err.message, 500));
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json(ApiResponse.error(err.message, 500));
+        }
     }
-  }
+    static async editProfile(req, res) {
+        try {
+            const userId = req.user;
+            const profile = req.body;
+            console.log("file", req.file);
+            console.log("body", req.body);
+            const editedProfile = await profileService.updateProfile(userId, profile, req);
+            res.status(200).json(ApiResponse.success("Profile updated successfully", editedProfile, 200));
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json(ApiResponse.error(err.message, 500));
+        }
+    }
 }
 
 module.exports = {profileController}
