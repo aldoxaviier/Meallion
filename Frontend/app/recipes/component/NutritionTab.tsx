@@ -15,7 +15,7 @@ export default function NutritionTab({ recipeData }: { recipeData: any} ) {
 
   return (
     <View>
-      <View className="flex flex-row bg-primary-500 rounded-2xl py-6 px-9 justify-between items-center shadow-lg shadow-black/10">
+      <View className="flex flex-row bg-primary-500 rounded-2xl py-6 px-9 justify-between items-center shadow-lg">
         <View>
           <Text className="text-white font-bold">Total Calories</Text>
           <View className="flex flex-row items-baseline">

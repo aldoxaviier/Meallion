@@ -1,5 +1,5 @@
 import { useLocalSearchParams, Stack, router } from "expo-router";
-import { Animated, View, Text, TouchableOpacity, Pressable, ImageBackground } from "react-native";
+import { Animated, View, Text, TouchableOpacity, ImageBackground } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState, useRef } from "react";
@@ -7,6 +7,8 @@ import { api } from "../utils/api";
 import { ScrollView } from "react-native";
 import NutritionTab from "./component/NutritionTab";
 import InstructionsTab from "./component/InstructionTab";
+import ReviewsTab from "./component/ReviewsTab";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const HEADER_HEIGHT_NARROWED = 150;
 const HEADER_HEIGHT_EXPANDED = 35;
@@ -18,33 +20,32 @@ export default function dynamicRecipe() {
   console.log(id)
   const [recipeData, setRecipeData] = useState<any>([])
   
+  const fetchRecipeData = async () => {
+    try {
+      const response = await api.get(`/recipes/getRecipesByID?id=${id}`);
+      if (response?.data) {
+        setRecipeData(response.data[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching recipe:", error);
+    }
+  };
 
   useEffect(() => {
-    const getRecipeData = async () => {
-      try {
-        const response = await api.get(`/recipes/getRecipesByID?id=${id}`)
-        if (response) {
-          setRecipeData(response.data[0])
-        }
-        
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    getRecipeData()
-  }, [id])
-
-
+    fetchRecipeData();
+  }, [id]);
 
   return (
-    <SafeAreaView className="bg-secondary-200">
-      <Stack.Screen options={{ headerShown: false }} />
-      <Page recipeData={recipeData}/>
-    </SafeAreaView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView className="flex-1 bg-secondary-400">
+        <Stack.Screen options={{ headerShown: false }} />
+        <Page recipeData={recipeData} onRefresh={fetchRecipeData} />
+      </SafeAreaView>
+    </GestureHandlerRootView>
   )
 }
 
-function Page({ recipeData }: { recipeData: any }) {
+function Page({ recipeData, onRefresh }: { recipeData: any, onRefresh: () => void }) {
   const [activeTab, setActiveTab] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const insets = useSafeAreaInsets()
@@ -52,6 +53,7 @@ function Page({ recipeData }: { recipeData: any }) {
   const scrollY = useRef(new Animated.Value(0)).current;
   const TOTAL_HEADER_HEIGHT = HEADER_HEIGHT_NARROWED + HEADER_HEIGHT_EXPANDED + insets.top;
   const tabs = ['Nutrition', 'Recipe', 'Reviews'];
+  const recipeTags = recipeData?.tags?.split(' | ') || [];
   const tabWidth = (containerWidth - 8) / tabs.length;
   const translateX = slideAnim.interpolate({
     inputRange: [0, 1, 2],
@@ -143,37 +145,42 @@ function Page({ recipeData }: { recipeData: any }) {
           paddingTop: TOTAL_HEADER_HEIGHT -30,
           paddingBottom: insets.bottom + 50
         }}>
-        <View className="p-6 bg-secondary-200 rounded-t-[30px]">
-          <View className="mt-2 mb-7">
+        <View className="p-6 bg-secondary-400 rounded-t-[30px]">
+          <View className="bg-gray-900 self-center w-[15rem] h-[3px] rounded-full"></View>
+          <View className="my-9">
             <Text className="font-fogsta text-4xl">
               {recipeData.name}
             </Text>
 
-            <View className="flex flex-row flex-wrap gap-x-3 mt-2">
-              {recipeData?.tags && recipeData.tags.split(' | ').map((tag: string, index: number) => (
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 5, marginTop: 10 }}
+            >
+              {recipeTags.map((item: string, index: number) => (
                 <View key={index} className="bg-white px-3 py-1 rounded-full">
                   <Text className="font-brsegma-600 font-bold text-primary-400">
-                    {tag}
+                    {item}
                   </Text>
                 </View>
               ))}
-            </View>
-
-            <Text className="font-brsegma-600 mt-5 p-1">
+            </ScrollView>
+            <Text className="font-brsegma-500 mt-5 p-1">
               {recipeData.Description}
             </Text>
 
             <View className="flex flex-row bg-primary-500 p-5 rounded-xl mt-7">
               <View className="flex-1 flex-row justify-center items-center border-r border-white">
                 <Ionicons name="star-outline" size={16} color="white" />
-                <Text className="font-brsegma-500 text-white font-bold ml-2">{recipeData.rating_score || "0"} <Text style={{ fontWeight: '400' }}>(200)</Text></Text>
+                <Text className="font-brsegma-500 text-white font-bold ml-2">{recipeData.rating_score || "0"}</Text>
+                <Text className="font-light text-white ml-2">(200)</Text>
               </View>
               <View className="flex-1 flex-row justify-center items-center border-r border-white">
                 <Text className="font-brsegma-500 text-white font-bold">{recipeData.TotalTime}</Text>
               </View>
               <View className="flex-1 flex-row justify-center items-center">
                 <Ionicons name="restaurant-outline" size={16} color="white" />
-                <Text className="font-brsegma-500 text-white font-bold ml-2">{recipeData.RecipeServings}</Text>
+                <Text className="font-brsegma-500 text-white font-bold ml-2">{recipeData.RecipeServings} Servings</Text>
               </View>
             </View>
           </View>
@@ -208,12 +215,13 @@ function Page({ recipeData }: { recipeData: any }) {
             
             {activeTab === 1 && (
               <InstructionsTab 
-              recipeData={recipeData} />
+                recipeData={recipeData} />
             )}
 
             {activeTab === 2 && (
-              <View><Text>Halaman Reviews</Text></View>
-              // <ReviewsTab />
+              <ReviewsTab 
+                recipeData={recipeData} 
+                onReviewSuccess={onRefresh} />
             )}
           </View>
 

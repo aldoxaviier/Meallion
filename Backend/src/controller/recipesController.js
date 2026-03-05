@@ -85,7 +85,31 @@ class recipesController {
             const recipeData = await recipesRepository.getRecipeByID(id)
             res.json(ApiResponse.success("Ingredients fetched successfully", recipeData , 200));
         } catch (err) {
-            comsole.error(err.message)
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
+
+    static async addReview(req, res) {
+        try {
+            const { review, selectedRating, recipeId, name } = req.body
+            const userId = req.user
+            await recipesService.addReview(userId, recipeId, name, selectedRating, review)
+            res.status(201).json(ApiResponse.success("Review Added Succesfully", null, 201));
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
+
+    static async getReview(req, res) {
+        try {
+            const recipeID = parseInt(req.query.id)
+            const query = req.query.query
+            const reviewData = await recipesRepository.getReview(recipeID, query)
+            res.json(ApiResponse.success("Get Review successfully", reviewData , 200));
+        } catch (err) {
+            console.error(err.message)
             res.status(500).json(ApiResponse.error("Internal Server Error", 500));
         }
     }

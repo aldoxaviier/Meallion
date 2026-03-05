@@ -9,5 +9,7 @@ router.get("/getIngredients", recipesController.getIngredients);
 router.get("/get10Recipes", recipesController.get10Recipes);
 router.get("/getRecipesByName", recipesController.getRecipesByName);
 router.get("/getRecipesByID", recipesController.getRecipeByID)
+router.post("/addReview", authorization, recipesController.addReview)
+router.get("/getReview", recipesController.getReview)
 
 module.exports = router;

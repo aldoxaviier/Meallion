@@ -66,6 +66,24 @@ class recipesRepository {
         const result = await Database.from("recipes").select("*").eq("recipe_id", id)
         return result.data
    }
+
+   static async addReview(userId, recipeId, name, selectedRating, review) {
+        const { error } = await Database.from("ratings").insert({ user_id: userId, recipe_id: recipeId, name: name, rating: selectedRating, review: review });
+   }
+
+   static async getRatingTotal(recipeId) {
+        const ratingTotal = await Database.from("ratings").select("rating", { count: "exact" }).eq("recipe_id", recipeId)
+        console.log(ratingTotal.data);
+        return ratingTotal
+   }
+
+   static async updateRating(recipeId, rating_score, rating_total) {
+        const { error } = await Database.from("recipes").update({ rating_score: rating_score, rating_total: rating_total }).eq("recipe_id", recipeId)
+   }
+   static async getReview(recipeId, query) {
+        const result = await Database.from("ratings").select("*").eq("recipe_id", recipeId).ilike("name", `%${query}%`)
+        return result.data
+   }
 }
 
 module.exports = recipesRepository;

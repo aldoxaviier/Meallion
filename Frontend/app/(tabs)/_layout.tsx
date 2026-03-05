@@ -1,7 +1,6 @@
 import { View,Text, ImageBackground, Image } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Tabs } from "expo-router";
-import { AuthContext } from "../store/authContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 

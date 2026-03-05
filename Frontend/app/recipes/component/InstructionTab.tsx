@@ -7,22 +7,25 @@ export default function InstructionsTab({ recipeData }: { recipeData: any }) {
   const quantities = recipeData?.RecipeIngredientQuantities?.split(', ') || [];
   const parts = recipeData?.RecipeIngredientParts?.split(', ') || [];
   
-  const steps = recipeData?.RecipeInstructions?.split(', ') || [];
+  const steps = recipeData?.RecipeInstructions?.split('., ') || [];
 
   return (
-    <View className="bg-white rounded-2xl p-6 shadow-sm">
+    <View className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5">
       
       <View className="flex-row items-center mb-4">
         <Ionicons name="restaurant-outline" size={22} color="#311004" />
         <Text className="font-brsegma-600 text-lg ml-3 text-[#311004]">Ingredients</Text>
       </View>
 
-      <View className="pb-6 border-b border-gray-400">
+      <View className="pb-6 border-b border-gray-100">
         {parts.map((item: string, index: number) => (
-          <View key={index} className="flex-row items-start mb-3 px-1">
-            <Text className="text-primary-400 mr-2 text-lg leading-5">•</Text>
-            <Text className="font-brsegma-500 text-[15px] leading-5">
-              {quantities[index] ? `${quantities[index]} ` : ''}{item}
+          <View key={index} className="flex-row items-start mb-4 px-1">
+            <Text className="text-orange-400 mr-3 text-lg leading-5">•</Text>
+            <Text className="font-brsegma-300 text-gray-900 text-sm leading-6 flex-1">
+              <Text className="font-brsegma-600 text-black">
+                {quantities[index] ? `${quantities[index]}   ` : ''}
+              </Text>
+              {item}
             </Text>
           </View>
         ))}
@@ -35,16 +38,16 @@ export default function InstructionsTab({ recipeData }: { recipeData: any }) {
 
       <View>
         {steps.map((step: string, index: number) => {
-           
            return (
             <View key={index} className="flex-row mb-6 items-start">
-              <View className="w-full h-8 rounded-full items-center flex-row">
-                <Text className="text-primary-400 font-bold text-l">{index + 1}</Text>
-                <Text className="font-brsegma-500 text-[15px] ml-3">
-                  {step}
+              <View className="w-full h-full rounded-full items-center flex-row">
+                <View className="w-6 h-6 rounded-full bg-orange-50 items-center justify-center mt-0.5">
+                  <Text className="text-orange-500 font-brsegma-600 text-xs">{index + 1}</Text>
+                </View>
+                <Text className="font-brsegma-300 text-gray-900 text-sm leading-6 ml-4 flex-1">
+                  {step.trim()}
                 </Text>
               </View>
-
             </View>
           );
         })}

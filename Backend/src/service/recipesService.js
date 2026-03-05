@@ -19,6 +19,27 @@ class recipesService {
             return result
         }
     }
+
+    static async addReview(userId, recipeId, name, rating, review) {
+        await recipesRepository.addReview(userId, recipeId, name, rating, review)
+
+        const ratingResult = await recipesRepository.getRatingTotal(recipeId);
+        const { data, count, error } = ratingResult;
+        let rating_score = 0;
+
+        if (error) {
+            throw new Error("Gagal mengambil data rating: " + error.message);
+        }
+        
+        if (data && count > 0) {
+            const ratingTotal = data.reduce((acc, item) => acc + item.rating, 0);
+            rating_score = parseFloat((ratingTotal / (count)).toFixed(1));
+            await recipesRepository.updateRating(recipeId, rating_score, count);
+        } 
+        else {
+            await recipesRepository.updateRating(recipeId, rating, 1)
+        }
+    }
 }
 
 module.exports = recipesService
