@@ -40,6 +40,15 @@ class recipesService {
             await recipesRepository.updateRating(recipeId, rating, 1)
         }
     }
+
+    static async getMealPlan(userId, date) {
+        const mealPlanData = await recipesRepository.getMealPlan(userId, date)
+        const progressMeal = await recipesRepository.getProgressMeal(userId, date)
+        return {
+            mealPlanData,
+            progressMeal
+        }
+    }
 }
 
 module.exports = recipesService

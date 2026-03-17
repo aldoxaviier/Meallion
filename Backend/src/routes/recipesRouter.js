@@ -11,5 +11,7 @@ router.get("/getRecipesByName", recipesController.getRecipesByName);
 router.get("/getRecipesByID", recipesController.getRecipeByID)
 router.post("/addReview", authorization, recipesController.addReview)
 router.get("/getReview", recipesController.getReview)
+router.get("/getMealPlan", authorization, recipesController.getMealPlan)
+router.get("/getLikesByUserId", authorization, recipesController.getLikesByUserId)
 
 module.exports = router;

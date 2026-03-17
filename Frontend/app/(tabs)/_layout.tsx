@@ -27,7 +27,7 @@ const _Layout = () => {
                 }} 
             />
             <Tabs.Screen 
-                name="search"
+                name="social"
                 options={{ title: "Socials",
                     headerShown:false, 
                     tabBarIcon: ({ color, size, focused }) => (

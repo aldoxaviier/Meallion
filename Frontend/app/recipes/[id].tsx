@@ -93,16 +93,7 @@ function Page({ recipeData, onRefresh }: { recipeData: any, onRefresh: () => voi
     <View className="overflow-hidden">
       {/* Back button */}
       <TouchableOpacity 
-        style={{
-          position: 'absolute',
-          zIndex: 10,
-          top: 20,
-          left: 20,
-          borderRadius: 15,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.6)'
-        }}
+        className="absolute z-10 top-20 left-5 rounded-[15px] items-center justify-center bg-black/60"
         onPress={() => router.back()}>
         <Ionicons name="arrow-back-outline" color="white" size={30}></Ionicons>
       </TouchableOpacity>

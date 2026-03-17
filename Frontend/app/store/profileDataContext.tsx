@@ -16,7 +16,7 @@ interface ProfileData {
   diet_preferences: string[]
   updated_at: string
   target_calories: number | null
-  target_protein: number | null
+  target_proteins: number | null
   target_carbs: number | null
   target_fats: number | null
   profile_image: string | null

@@ -32,29 +32,29 @@ class recipesRepository {
    }
 
    static async getRecipesByCategory(categories, firstPage, nextPage) {
-     let dbQuery = Database.from("recipes").select("*", { count: "exact" })
-     categories.forEach(tags => {
-          dbQuery = dbQuery.ilike("tags", `%${tags}%`)
-     });
+        let dbQuery = Database.from("recipes").select("*", { count: "exact" })
+        categories.forEach(tags => {
+            dbQuery = dbQuery.ilike("tags", `%${tags}%`)
+        });
 
-     const { data, count } = await dbQuery.range(firstPage, nextPage);
-     return {
-          data: data,
-          total: count
-     };
+        const { data, count } = await dbQuery.range(firstPage, nextPage);
+        return {
+            data: data,
+            total: count
+        };
    }
 
    static async getRecipesByNameCategory(query, categories, firstPage, nextPage) {
-     let dbQuery = Database.from("recipes").select("*", { count: "exact" })
-     dbQuery = dbQuery.ilike("name", `%${query}%`)
-     categories.forEach(tags => {
-          dbQuery = dbQuery.ilike("tags", `%${tags}%`)
-     });
-     const { data, count } = await dbQuery.range(firstPage, nextPage);
-     return {
-          data: data,
-          total: count
-     };
+        let dbQuery = Database.from("recipes").select("*", { count: "exact" })
+        dbQuery = dbQuery.ilike("name", `%${query}%`)
+        categories.forEach(tags => {
+            dbQuery = dbQuery.ilike("tags", `%${tags}%`)
+        });
+        const { data, count } = await dbQuery.range(firstPage, nextPage);
+        return {
+            data: data,
+            total: count
+        };
    }
 
    static async get10Recipes() {
@@ -80,10 +80,26 @@ class recipesRepository {
    static async updateRating(recipeId, rating_score, rating_total) {
         const { error } = await Database.from("recipes").update({ rating_score: rating_score, rating_total: rating_total }).eq("recipe_id", recipeId)
    }
+
    static async getReview(recipeId, query) {
         const result = await Database.from("ratings").select("*").eq("recipe_id", recipeId).ilike("name", `%${query}%`)
         return result.data
    }
+
+   static async getMealPlan(userId, date) {
+        const result = await Database.from("mealplan").select("id, recipe_id, meal_time, recipes(name, Calories, TotalTime, Images, FatContent, CarbohydrateContent, ProteinContent)").eq('user_id', userId).eq('date', date)
+        return result.data
+   }
+
+   static async getProgressMeal(userId, date) {
+        const result = await Database.from("user_health_tracker").select("id, progress_cal, progress_carb, progress_pro, progress_fat").eq('user_id', userId).eq('date', date)
+        return result.data
+   }
+
+   static async getLikesByUserId(userId) {
+        const result = await Database.from("likes").select("recipe_id, recipes(name, Images, Calories, TotalTime, FatContent, CarbohydrateContent, ProteinContent)").eq("user_id", userId)
+        return result.data
+    }
 }
 
 module.exports = recipesRepository;

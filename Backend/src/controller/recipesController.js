@@ -35,6 +35,7 @@ class recipesController {
            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
        }
    }
+   
    static async getIngredients(req, res) {
         try {
             const query = req.query.query;
@@ -108,6 +109,29 @@ class recipesController {
             const query = req.query.query
             const reviewData = await recipesRepository.getReview(recipeID, query)
             res.json(ApiResponse.success("Get Review successfully", reviewData , 200));
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
+
+    static async getMealPlan(req, res) {
+        try {
+            const userId = req.user
+            const date = req.query.date
+            const MealData = await recipesService.getMealPlan(userId, date)
+            res.json(ApiResponse.success("Get Meal Plan Successfull", MealData, 200))
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
+
+    static async getLikesByUserId(req, res) {
+        try {
+            const userId = req.user
+            const likedRecipes = await recipesRepository.getLikesByUserId(userId)
+            res.json(ApiResponse.success("Get Liked Recipes Successfull", likedRecipes, 200))
         } catch (err) {
             console.error(err.message)
             res.status(500).json(ApiResponse.error("Internal Server Error", 500));
