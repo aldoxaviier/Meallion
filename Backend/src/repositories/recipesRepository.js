@@ -100,6 +100,21 @@ class recipesRepository {
         const result = await Database.from("likes").select("recipe_id, recipes(name, Images, Calories, TotalTime, FatContent, CarbohydrateContent, ProteinContent)").eq("user_id", userId)
         return result.data
     }
+
+    static async addToMealPlan(userId, recipeId, mealType, date) {
+        const { error } = await Database.from("mealplan").insert({ user_id: userId, recipe_id: recipeId, meal_time: mealType, date: date })
+        console.log(error);
+    }
+
+    static async removeLikes(userId, recipeId) {
+        const { error } = await Database.from("likes").delete().eq("user_id", userId).eq("recipe_id", recipeId)
+        console.log(error);
+    }
+
+    static async deleteMealPlan(userId, mealId) {
+        const { error } = await Database.from("mealplan").delete().eq("user_id", userId).eq("id", mealId)
+        console.log(error);
+    }
 }
 
 module.exports = recipesRepository;

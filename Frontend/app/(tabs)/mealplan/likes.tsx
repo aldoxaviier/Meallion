@@ -3,8 +3,10 @@ import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from "react";
 import { api } from "@/app/utils/api";
+import { useRouter } from 'expo-router';
 
 export default function Likes() {
+  const router = useRouter();
   const { mealType, selectedDate } = useLocalSearchParams();
   const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
   console.log(mealType);
@@ -27,7 +29,7 @@ export default function Likes() {
     try {
       const body = {recipeId, mealType, date: selectedDate}
       await api.post(`/recipes/addToMealPlan`, body);
-
+      router.back();
       console.log('Added to meal plan', recipeId);
     } catch (err) {
       console.error('Error adding to meal plan:', err);
@@ -36,16 +38,16 @@ export default function Likes() {
 
   const handleRemoveLike = async (recipeId: number) => {
     try {
-      await api.delete(`/recipes/removeLike?recipeId=${recipeId}`);
+      await api.delete(`/recipes/removeLikes?recipeId=${recipeId}`);
       setLikedRecipes((prev) => prev.filter((item) => item.recipes?.id !== recipeId));
-      console.log('Removed like for', recipeId);
+      await refreshLikedRecipes();
     } catch (err) {
       console.error('Error removing like:', err);
     }
   };
 
   const renderFood = ({ item }: { item: any }) => {
-    const recipeId = item.recipes?.id ?? item.id;
+    const recipeId = item.recipe_id ?? null;
 
     return (
       <View className="flex-row items-center bg-white rounded-2xl p-3">

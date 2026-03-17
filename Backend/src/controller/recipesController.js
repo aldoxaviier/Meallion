@@ -138,6 +138,41 @@ class recipesController {
         }
     }
 
+    static async addToMealPlan(req, res) {
+        try {            
+            const userId = req.user
+            const { recipeId, mealType, date } = req.body
+            await recipesRepository.addToMealPlan(userId, recipeId, mealType, date)
+            res.status(201).json(ApiResponse.success("Added to Meal Plan Successfull", null, 201))
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
+
+    static async removeLikes(req, res) {
+        try {
+            const userId = req.user
+            const recipeId = parseInt(req.query.recipeId)
+            await recipesRepository.removeLikes(userId, recipeId)
+            res.json(ApiResponse.success("Removed Like Successfull", null, 200))
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
+
+    static async deleteMealPlan(req, res) {
+        try {
+            const userId = req.user
+            const mealId = req.query.mealId
+            await recipesRepository.deleteMealPlan(userId, mealId)
+            res.json(ApiResponse.success("Deleted Meal Plan Successfull", null, 200))
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
 }
 
 module.exports = { recipesController };

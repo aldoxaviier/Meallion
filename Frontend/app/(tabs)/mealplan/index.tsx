@@ -9,56 +9,6 @@ import { ProfileDataContext } from '@/app/store/profileDataContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-const MealSection = ({ title, type, data, onAdd } : { title: string, type: string, data: any[], onAdd: () => void }) => {
-  const filteredMeals = data.filter((meal) => meal.meal_time === type);
-
-  return (
-    <View className="bg-white rounded-3xl p-5 mb-4">
-      <View className="flex-row justify-between items-center">
-        <Text className="text-lg font-brsegma-600">{title}</Text>
-        <TouchableOpacity className="px-4 py-2 rounded-full bg-primary-500" onPress={onAdd}>
-          <Text className="text-sm font-semibold text-white">+ Add</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View className="mt-4 flex flex-col gap-3">
-        {filteredMeals.length > 0 ? (
-          filteredMeals.map((meal: any, index: number) => (
-            <View key={index} className="flex-row items-center bg-secondary-400 rounded-2xl p-3">
-              <Image className="w-14 h-14 rounded-2xl" source={{ uri: meal.recipes.Images }} />
-              <View className="flex-1 ml-3">
-                <Text className="font-semibold text-black" numberOfLines={1}>
-                  {meal.recipes.name || 'Unknown Meal'}
-                </Text>
-                <Text className="text-xs text-gray-500">
-                  {meal.recipes.Calories} kcal · {meal.recipes.TotalTime || '0 mins'}
-                </Text>
-                <View className="flex-row items-center mt-1">
-                  <Text className="text-[10px] text-gray-500">{meal.recipes.CarbohydrateContent}g carbs</Text>
-                  <Text className="text-[10px] text-gray-500 ml-2">{meal.recipes.FatContent}g fats</Text>
-                  <Text className="text-[10px] text-gray-500 ml-2">{meal.recipes.ProteinContent}g prot</Text>
-                </View>
-              </View>
-              <View className="flex-row items-center">
-                <TouchableOpacity className="p-2 rounded-full bg-white mr-2">
-                  <Ionicons name="pencil-outline" size={12} color="gray" />
-                </TouchableOpacity>
-                <TouchableOpacity className="p-2 rounded-full bg-white">
-                  <Ionicons name="trash-outline" size={12} color="gray" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))
-        ) : (
-          <View className="items-center mt-2">
-            <Text className="text-sm text-gray-400">+ Add your meal</Text>
-          </View>
-        )}
-      </View>
-    </View>
-  );
-};
-
 export default function mealPlan() {
   const router = useRouter();
   const today = startOfToday();
@@ -75,8 +25,24 @@ export default function mealPlan() {
     end: addDays(today, 7),
   });
 
+  const getMealPlan = async () => {
+    try {
+      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+      const response = await api.get(`/recipes/getMealPlan?date=${formattedDate}`)
+      if(response.data){
+        setMealPlanData({
+          mealPlanData: response.data.mealPlanData || [],
+          progressMeal: response.data.progressMeal || []
+        });
+      }
+    } catch (error) {
+      console.error("Error getting meal plan data: ", error)
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
+      getMealPlan();
       setSelectedDate(today);
       const timeout = setTimeout(() => {
         if (flatListRef.current) {
@@ -92,20 +58,6 @@ export default function mealPlan() {
   );
 
   useEffect(() => {
-    const getMealPlan = async () => {
-      try {
-        const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-        const response = await api.get(`/recipes/getMealPlan?date=${formattedDate}`)
-        if(response.data){
-          setMealPlanData({
-            mealPlanData: response.data.mealPlanData || [],
-            progressMeal: response.data.progressMeal || []
-          });
-        }
-      } catch (error) {
-        console.error("Error getting meal plan data: ", error)
-      }
-    }
     getMealPlan()
   }, [selectedDate])
   
@@ -116,6 +68,20 @@ export default function mealPlan() {
       index: index,
       animated: true
     });
+  };
+
+  const handleDeletePlan = async (mealId: string) => {
+    try {
+      const body = { mealId };
+      await api.delete(`/recipes/deleteMealPlan`,
+        { params: body }
+      );
+      await getMealPlan(); 
+      
+      console.log('Deleted meal:', mealId);
+    } catch (error) {
+      console.error("Gagal menghapus:", error);
+    }
   };
 
   const renderItem = ({ item, index }: {item: Date; index: number}) => {
@@ -143,6 +109,7 @@ export default function mealPlan() {
       <ScrollView 
         className='h-full w-full px-6 pt-7'
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
       >
         <Text className="text-4xl text-primary-500 font-fogsta">
           My Plan
@@ -204,27 +171,78 @@ export default function mealPlan() {
             type="breakfast" 
             data={mealPlanData.mealPlanData} 
             onAdd={() => router.push({ pathname: '/mealplan/likes', params: { mealType: 'breakfast', selectedDate: format(selectedDate, 'yyyy-MM-dd') } })}
+            onDelete={handleDeletePlan}
           />
           <MealSection 
             title="Lunch" 
             type="lunch" 
             data={mealPlanData.mealPlanData} 
             onAdd={() => router.push({ pathname: '/mealplan/likes', params: { mealType: 'lunch', selectedDate: format(selectedDate, 'yyyy-MM-dd') } })}
+            onDelete={handleDeletePlan}
           />
           <MealSection 
             title="Snack" 
             type="snack" 
             data={mealPlanData.mealPlanData} 
             onAdd={() => router.push({ pathname: '/mealplan/likes', params: { mealType: 'snack', selectedDate: format(selectedDate, 'yyyy-MM-dd') } })}
+            onDelete={handleDeletePlan}
           />
           <MealSection 
             title="Dinner" 
             type="dinner" 
             data={mealPlanData.mealPlanData} 
             onAdd={() => router.push({ pathname: '/mealplan/likes', params: { mealType: 'dinner', selectedDate: format(selectedDate, 'yyyy-MM-dd') } })}
+            onDelete={handleDeletePlan}
           />
         </View>
       </ScrollView>
     </SafeAreaView>
   )
 }
+
+const MealSection = ({ title, type, data, onAdd, onDelete } : { title: string, type: string, data: any[], onAdd: () => void, onDelete: (mealId: string) => void }) => {
+  const filteredMeals = data.filter((meal) => meal.meal_time === type);
+  
+  return (
+    <View className="bg-white rounded-3xl p-5 mb-4">
+      <View className="flex-row justify-between items-center">
+        <Text className="text-lg font-brsegma-600">{title}</Text>
+        <TouchableOpacity className="px-4 py-2 rounded-full bg-primary-500" onPress={onAdd}>
+          <Text className="text-sm font-semibold text-white">+ Add</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View className="mt-4 flex flex-col gap-3">
+        {filteredMeals.length > 0 ? (
+          filteredMeals.map((meal: any, index: number) => (
+            <View key={index} className="flex-row items-center bg-secondary-400 rounded-2xl p-3">
+              <Image className="w-14 h-14 rounded-2xl" source={{ uri: meal.recipes.Images }} />
+              <View className="flex-1 ml-3">
+                <Text className="font-semibold text-black" numberOfLines={1}>
+                  {meal.recipes.name || 'Unknown Meal'}
+                </Text>
+                <Text className="text-xs text-gray-500">
+                  {meal.recipes.Calories} kcal · {meal.recipes.TotalTime || '0 mins'}
+                </Text>
+                <View className="flex-row items-center mt-1">
+                  <Text className="text-[10px] text-gray-500">{meal.recipes.CarbohydrateContent}g carbs</Text>
+                  <Text className="text-[10px] text-gray-500 ml-2">{meal.recipes.FatContent}g fats</Text>
+                  <Text className="text-[10px] text-gray-500 ml-2">{meal.recipes.ProteinContent}g prot</Text>
+                </View>
+              </View>
+              <View className="flex-row items-center">
+                <TouchableOpacity className="p-2 rounded-full bg-white" onPress={() => onDelete(meal.id)}>
+                  <Ionicons name="trash-outline" size={12} color="gray" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
+        ) : (
+          <View className="items-center mt-2">
+            <Text className="text-sm text-gray-400">+ Add your meal</Text>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};

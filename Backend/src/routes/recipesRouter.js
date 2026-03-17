@@ -13,5 +13,8 @@ router.post("/addReview", authorization, recipesController.addReview)
 router.get("/getReview", recipesController.getReview)
 router.get("/getMealPlan", authorization, recipesController.getMealPlan)
 router.get("/getLikesByUserId", authorization, recipesController.getLikesByUserId)
+router.post("/addToMealPlan", authorization, recipesController.addToMealPlan)
+router.delete("/removeLikes", authorization, recipesController.removeLikes)
+router.delete("/deleteMealPlan", authorization, recipesController.deleteMealPlan)
 
 module.exports = router;
