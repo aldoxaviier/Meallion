@@ -19,5 +19,6 @@ router.get("/getProfile", authorization, profileController.getProfile);
 router.get("/test", authorization, (req, res) => {
     res.status(200).json({message: "Profile route working"});
 });
-router.put("/editProfile", authorization,upload.single("image"), profileController.editProfile);
+router.put("/updateProfile", authorization,upload.single("image"), profileController.updateProfile);
+router.put("/updateDietPreferences", authorization, profileController.updateDietPreferences);
 module.exports = router;

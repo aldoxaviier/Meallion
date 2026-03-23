@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
-
+import SocialHeader from "../components/SocialHeader";
 
 const _Layout = () => {
     
@@ -29,7 +29,7 @@ const _Layout = () => {
             <Tabs.Screen 
                 name="social"
                 options={{ title: "Socials",
-                    headerShown:false, 
+                    header : () => <SocialHeader />,
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
                         name={focused ? 'people' : 'people-outline'}

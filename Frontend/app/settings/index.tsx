@@ -25,6 +25,10 @@ const Index = () => {
         }
     }
 
+    const onPressDiateryRequirements = () => {
+        router.push('/settings/dietaryRequirements' as any);
+     }
+
     return (
         <View className="h-full bg-secondary-400 px-6">
             <ScrollView className="flex-1">
@@ -102,16 +106,8 @@ const Index = () => {
                 <View className="">
                     <Text className="text-sm text-gray-600 mb-2 font-brsegma-500">PERSONALIZATION</Text>
                     
-                    <View className="bg-white rounded-lg mb-4">
-                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
-                            <View className="flex-row items-center">
-                                <Ionicons name="person" size={20} color="#3E0703" />
-                                <Text className="ml-3 text-base font-brsegma-500">Personal details</Text>
-                            </View>
-                            <Ionicons name="chevron-forward" size={20} color="#999" />
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
+                    <View className="bg-white rounded-lg mb-4">       
+                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100" onPress={onPressDiateryRequirements}>
                             <View className="flex-row items-center">
                                 <Ionicons name="restaurant" size={20} color="#3E0703" />
                                 <Text className="ml-3 text-base font-brsegma-500">Dietary requirements</Text>

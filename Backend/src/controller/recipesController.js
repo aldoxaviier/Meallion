@@ -173,6 +173,18 @@ class recipesController {
             res.status(500).json(ApiResponse.error("Internal Server Error", 500));
         }
     }
+    static async addRecipe(req, res) {
+        try {
+            const userId = req.user
+            const recipeData = req.body
+            const newRecipe = await recipesRepository.addRecipe(userId, recipeData)
+            res.status(201).json(ApiResponse.success("Recipe Added Successfully", newRecipe, 201))
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
+
 }
 
 module.exports = { recipesController };

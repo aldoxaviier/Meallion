@@ -3,28 +3,23 @@ import CustomHeader from "../components/CustomHeader";
 
 export default function _Layout() {
     return (
+        <>
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen 
                 name="index" 
                 options={{ 
                     headerShown: true,
-                    header: () => <CustomHeader title="Settings" />
+                    header: () => <CustomHeader title="Add Recipe" />
                 }}
             />
             <Stack.Screen 
-                name="profile" 
+                name="ingredients" 
                 options={{ 
                     headerShown: true,
-                    header: () => <CustomHeader title="Profile" />
-                }}
-            />
-            <Stack.Screen 
-                name="dietaryRequirements" 
-                options={{ 
-                    headerShown: true,
-                    header: () => <CustomHeader title="Dietary Requirements" />
+                    header: () => <CustomHeader title="Add Ingredients" />
                 }}
             />
         </Stack>
+        </>
     )
 }

@@ -25,11 +25,11 @@ const Preference = () => {
 
   const postAllInteractions = async () => {
     try {
-      const response = await api.post("/profile/addInteraction", {
+      const response:any = await api.post("/profile/addInteraction", {
         interactions
       })
       console.log("response", response);
-      if (response.status === 201){
+      if (response.statusCode === 201){
         authContext?.login(
           registerContext?.accessToken || "",
           registerContext?.refreshToken || ""
@@ -85,7 +85,7 @@ const Preference = () => {
     setIsLoading(true);
     try {
       const response = await api.get('/recipes/get10recipes');
-      setRecipes(response.data.data.recipes);
+      setRecipes(response.data.recipes);
       setIsLoading(false);
     } catch (err) {
       console.error("Error fetching recipes:", err);

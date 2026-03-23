@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import "../../globals.css"
 import { TenRecipeContext } from "@/app/store/tenRecipeContext";
 import { RecipeCard } from "../../components/RecipeCard";
+import { TodaysMeal } from "../../components/TodaysMeal";
 
 
 export default function Index() {
@@ -259,221 +260,265 @@ export default function Index() {
     setSearchCategory(newCategory);
   }
 
-  return (
-    <SafeAreaView className="bg-secondary-400 flex-1">
-      <View className="bg-secondary-400 h-full w-full pt-8 flex flex-col gap-5">
-
-        <Animated.View 
-          style={{ 
-            opacity: homeContentOpacity,
-            height: isSearchMode ? 0 : 'auto',
-            overflow: 'hidden'
-          }}
-          className="gap-7"
-        >
-          <View className="flex flex-row items-center justify-between px-6">
-            <View className="flex flex-row gap-3 items-center">
-              <Image 
-                className="w-16 h-16 rounded-full"
-                source={profileData?.profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profileData.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
-              />
-              <View>
-                <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
-                <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
+  const renderSearchHeader = () => (
+    <View className="h-12 mb-4">
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 10 }}
+      >
+        {searchCategories.map((cat, index) => {
+          return (
+            <TouchableHighlight
+              key={index} 
+              className={`px-5 py-2 rounded-full justify-center ${cat.isActive ? 'bg-primary-400' : 'bg-white'}`}
+              onPress={() => handleSearchCategory(index)}
+            >
+              <View className="flex flex-row items-center">
+                <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400'}`}>
+                  {cat.name}
+                </Text>
+                {cat.isActive && <FontAwesome6 name="x" className="ml-3" size={15} color="white"></FontAwesome6>}
               </View>
-            </View>
-            <TouchableHighlight onPress={() => router.push('/profile')} className="rounded-full">
-              <AntDesign name="bell" size={24} color="black" />
             </TouchableHighlight>
-          </View>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
 
-          <View className="px-6">
-            <Text className="text-primary-500 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
-          </View>
-        </Animated.View>
-
-        {/* Invisible placeholder to maintain layout spacing */}
-        <View className="px-6" style={{ opacity: 0 }}>
-          <View className="flex-row items-center gap-3">
-            <View className="flex-1 flex-row items-center rounded-full px-4 py-2">
-              <FontAwesome5 name="search" size={20} color="gray" />
-              <TextInput 
-                className="flex-1 ml-3 text-base text-gray-700" 
-                placeholder="Find your meal..." 
-                editable={false}
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* Back arrow - absolutely positioned and independent from search bar */}
-        <Animated.View 
-          className="absolute"
-          style={{ 
-            transform: [
-              { translateY: searchBarTranslateY },
-              { translateX: backArrowTranslateX }
-            ],
-            opacity: backArrowOpacity,
-            top: 198,
-            left: 24,
-            zIndex: isSearchMode ? 11 : -1,
-          }}
-          pointerEvents={isSearchMode ? 'auto' : 'none'}
-        >
-          <TouchableHighlight 
-            onPress={exitSearchMode}
-            underlayColor="transparent"
-          >
-            <Ionicons name="arrow-back" size={24} color="#4a2c2a" />
-          </TouchableHighlight>
-        </Animated.View>
-
-        {/* Absolute positioned search bar for animation */}
-        <Animated.View 
-          className="w-full absolute px-6"
-          style={{ 
-            transform: [
-              { translateY: searchBarTranslateY },
-              { translateX: searchBarLeftMargin },
-              { scaleX: searchBarScale }
-            ],
-            top: 182,
-            left: 0,
-            right: 0,
-            zIndex: 10,
-          }}
-        >
-          <Pressable
-          onPress={() => {
-            if (!isSearchMode) {
-              enterSearchMode();
-            }
-          }}>
-          <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
+  const renderCommonElements = () => (
+    <>
+      {/* Invisible placeholder to maintain layout spacing */}
+      <View className="px-6" style={{ opacity: 0 }}>
+        <View className="flex-row items-center gap-3">
+          <View className="flex-1 flex-row items-center rounded-full px-4 py-2">
             <FontAwesome5 name="search" size={20} color="gray" />
             <TextInput 
-              ref={searchInputRef}
               className="flex-1 ml-3 text-base text-gray-700" 
               placeholder="Find your meal..." 
-              value={searchRec}
-              onChangeText={setSearchRec}
-              editable={isSearchMode}
+              editable={false}
             />
-            <Animated.View style={{ opacity: filterIconOpacity }}>
-              {isSearchMode && (
-                <TouchableHighlight underlayColor="transparent">
-                  <FontAwesome6 name="sliders" size={20} color="#4a2c2a" />
-                </TouchableHighlight>
-              )}
-            </Animated.View>
           </View>
-          </Pressable>
-        </Animated.View>
+        </View>
+      </View>
 
-        {!isSearchMode && (
+      {/* Back arrow - absolutely positioned and independent from search bar */}
+      <Animated.View 
+        className="absolute"
+        style={{ 
+          transform: [
+            { translateY: searchBarTranslateY },
+            { translateX: backArrowTranslateX }
+          ],
+          opacity: backArrowOpacity,
+          top: 198,
+          left: 24,
+          zIndex: isSearchMode ? 11 : -1,
+        }}
+        pointerEvents={isSearchMode ? 'auto' : 'none'}
+      >
+        <TouchableHighlight 
+          onPress={exitSearchMode}
+          underlayColor="transparent"
+        >
+          <Ionicons name="arrow-back" size={24} color="#4a2c2a" />
+        </TouchableHighlight>
+      </Animated.View>
+
+      {/* Absolute positioned search bar for animation */}
+      <Animated.View 
+        className="w-full absolute px-6"
+        style={{ 
+          transform: [
+            { translateY: searchBarTranslateY },
+            { translateX: searchBarLeftMargin },
+            { scaleX: searchBarScale }
+          ],
+          top: 182,
+          left: 0,
+          right: 0,
+          zIndex: 10,
+        }}
+      >
+        <Pressable
+        onPress={() => {
+          if (!isSearchMode) {
+            enterSearchMode();
+          }
+        }}>
+        <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
+          <FontAwesome5 name="search" size={20} color="gray" />
+          <TextInput 
+            ref={searchInputRef}
+            className="flex-1 ml-3 text-base text-gray-700" 
+            placeholder="Find your meal..." 
+            value={searchRec}
+            onChangeText={setSearchRec}
+            editable={isSearchMode}
+          />
+          <Animated.View style={{ opacity: filterIconOpacity }}>
+            {isSearchMode && (
+              <TouchableHighlight underlayColor="transparent">
+                <FontAwesome6 name="sliders" size={20} color="#4a2c2a" />
+              </TouchableHighlight>
+            )}
+          </Animated.View>
+        </View>
+        </Pressable>
+      </Animated.View>
+    </>
+  );
+
+  return (
+    <SafeAreaView className="bg-secondary-400 flex-1" edges={['top']}>
+      {isSearchMode ? (
+        // Search mode: Use FlatList as the main scrolling container
+        <View className="bg-secondary-400 h-full w-full pt-7 flex flex-col gap-5 pb-6">
           <Animated.View 
-            style={{ opacity: homeContentOpacity, flex: 1 }}
+            style={{ 
+              opacity: homeContentOpacity,
+              height: 0,
+              overflow: 'hidden'
+            }}
+            className="gap-7"
           >
-            {/* Categories */}
-            <View className="flex gap-3">
-              <Text className="text-xl font-fogsta px-6">Categories</Text>
-              <FlatList
-                data={categories}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
-                renderItem={({ item }) => (
-                  <TouchableHighlight onPress={() => handleCategories(item.url)} underlayColor="transparent">
-                    <View key={item.label} className="items-center">
-                      <View className={`size-20 rounded-full items-center justify-center ${item.bg}`}>
-                        <FontAwesome5 name={item.icon} size={28} color="black" />
-                      </View>
-                      <Text className="text-center font-brsegma-600 w-24">{item.label}</Text>
-                    </View>
-                  </TouchableHighlight>
-                )}
-              />
+            <View className="flex flex-row items-center justify-between px-6">
+              <View className="flex flex-row gap-3 items-center">
+                <Image 
+                  className="w-16 h-16 rounded-full"
+                  source={profileData?.profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profileData.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
+                />
+                <View>
+                  <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
+                  <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
+                </View>
+              </View>
+              <TouchableHighlight onPress={() => router.push('/profile')} className="rounded-full">
+                <FontAwesome5 name="bell" size={24} color="#4a2c2a" />
+              </TouchableHighlight>
             </View>
 
-            {/* 10 recipe */}
-            <View className="gap-3">
-              <Text className="text-xl font-fogsta px-6">For You</Text>
-              <FlatList
-                data={tenRecipe?.TenRecipe}
-                showsHorizontalScrollIndicator={false}
-                horizontal={true}
-                contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
-                renderItem={({ item }) => (
-                  <RecipeCard 
-                    recipe={item} 
-                    width="w-56"
-                    onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
-                  />
-                )}
-              />
+            <View className="px-6">
+              <Text className="text-primary-500 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
             </View>
           </Animated.View>
-        )}
 
-        {isSearchMode && (
-        <Animated.View 
-          style={{ opacity: searchContentOpacity, flex: 1 }}
-          className="px-6 z-20"
-          pointerEvents={isSearchMode ? 'auto' : 'none'}
-        >
-          {/* Search Category Pills */}
-          <View className="h-12 mb-4">
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 10 }}
+          {renderCommonElements()}
+
+          <Animated.View 
+            style={{ opacity: searchContentOpacity, flex: 1 }}
+            className="px-6 z-20"
+            pointerEvents={isSearchMode ? 'auto' : 'none'}
+          >
+            <FlatList
+              data={recipeData}
+              showsVerticalScrollIndicator={false}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: 'space-between' }}
+              contentContainerStyle={{ gap: 14, paddingBottom: 100 }}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.3}
+              keyExtractor={(item) => item.recipe_id?.toString()}
+              ListHeaderComponent={renderSearchHeader}
+              renderItem={({ item }) => (
+                <RecipeCard 
+                  recipe={item} 
+                  width="w-[48%]"
+                  onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
+                />
+              )}
+              ListFooterComponent={() => (
+                <View className="h-[30px]">
+                  {isLoadingSearch && <ActivityIndicator />}
+                </View>
+              )}
+            />
+          </Animated.View>
+        </View>
+      ) : (
+        // Home mode: Use ScrollView for the home content
+        <ScrollView>
+          <View className="bg-secondary-400 h-full w-full pt-7 flex flex-col gap-5 pb-6">
+            <Animated.View 
+              style={{ 
+                opacity: homeContentOpacity,
+                height: 'auto',
+                overflow: 'hidden'
+              }}
+              className="gap-7"
             >
-              {searchCategories.map((cat, index) => {
-                return (
-                  <TouchableHighlight
-                    key={index} 
-                    className={`px-5 py-2 rounded-full justify-center ${cat.isActive ? 'bg-primary-400' : 'bg-white'}`}
-                    onPress={() => handleSearchCategory(index)}
-                  >
-                    <View className="flex flex-row items-center">
-                      <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400'}`}>
-                        {cat.name}
-                      </Text>
-                      {cat.isActive && <FontAwesome6 name="x" className="ml-3" size={15} color="white"></FontAwesome6>}
-                    </View>
-                  </TouchableHighlight>
-                );
-              })}
-            </ScrollView>
-          </View>
-
-          <FlatList
-            data={recipeData}
-            showsVerticalScrollIndicator={false}
-            numColumns={2}
-            columnWrapperStyle={{ justifyContent: 'space-between' }}
-            contentContainerStyle={{ gap: 14, paddingBottom: 100 }}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.3}
-            keyExtractor={(item) => item.recipe_id?.toString()}
-            renderItem={({ item }) => (
-              <RecipeCard 
-                recipe={item} 
-                width="w-[48%]"
-                onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
-              />
-            )}
-            ListFooterComponent={() => (
-              <View className="h-[30px]">
-                {isLoadingSearch && <ActivityIndicator />}
+              <View className="flex flex-row items-center justify-between px-6  h-16">
+                <View className="flex flex-row gap-3 items-center">
+                  <Image 
+                    className="w-16 h-16 rounded-full"
+                    source={profileData?.profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profileData.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
+                  />
+                  <View >
+                    <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
+                    <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
+                  </View>
+                </View>
+                <TouchableHighlight onPress={() => router.push('/profile')} className="rounded-full">
+                  <FontAwesome5 name="bell" size={24} color="#4a2c2a" />
+                </TouchableHighlight>
               </View>
-            )}
-          />
-        </Animated.View>
-        )}
 
-      </View>
+              <View className="px-6">
+                <Text className="text-primary-500 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
+              </View>
+            </Animated.View>
+
+            {renderCommonElements()}
+
+            <Animated.View 
+              style={{ opacity: homeContentOpacity, flex: 1 }}
+            >
+              <View className="flex gap-4">
+                {/* Today's Meal */}
+                <TodaysMeal />
+                {/* Categories */}
+                <View className="flex gap-3">
+                  <Text className="text-xl font-fogsta px-6">Categories</Text>
+                  <FlatList
+                    data={categories}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
+                    renderItem={({ item }) => (
+                      <TouchableHighlight onPress={() => handleCategories(item.url)} underlayColor="transparent">
+                        <View key={item.label} className="items-center">
+                          <View className={`size-20 rounded-full items-center justify-center ${item.bg}`}>
+                            <FontAwesome5 name={item.icon} size={28} color="#4a2c2a" />
+                          </View>
+                          <Text className="text-center font-brsegma-600 w-24">{item.label}</Text>
+                        </View>
+                      </TouchableHighlight>
+                    )}
+                  />
+                </View>
+                {/* 10 recipe */}
+                <View className="gap-3">
+                  <Text className="text-xl font-fogsta px-6">For You</Text>
+                  <FlatList
+                    data={tenRecipe?.TenRecipe}
+                    showsHorizontalScrollIndicator={false}
+                    horizontal={true}
+                    contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
+                    renderItem={({ item }) => (
+                      <RecipeCard 
+                        recipe={item} 
+                        width="w-56"
+                        onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
+                      />
+                    )}
+                  />
+                </View>
+              </View>
+            </Animated.View>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

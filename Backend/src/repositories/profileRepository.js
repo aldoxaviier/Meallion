@@ -52,6 +52,15 @@ class profileRepository {
         console.log("updateProfile result:", result);
         return result.data;
     }
+    static async updateDietPreferences(userId, diet_preferences) {
+        const result = await Database
+            .from('user_profiles')
+            .update({ diet_preferences: diet_preferences })
+            .eq("user_id", userId)
+            .select();
+        console.log("updateDietPreferences result:", result);
+        return result.data;
+    }
 }
 
 module.exports =  profileRepository;

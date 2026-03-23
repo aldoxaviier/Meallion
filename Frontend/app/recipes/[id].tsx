@@ -37,10 +37,8 @@ export default function dynamicRecipe() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1 bg-secondary-400">
-        <Stack.Screen options={{ headerShown: false }} />
-        <Page recipeData={recipeData} onRefresh={fetchRecipeData} />
-      </SafeAreaView>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Page recipeData={recipeData} onRefresh={fetchRecipeData} />
     </GestureHandlerRootView>
   )
 }
@@ -90,7 +88,7 @@ function Page({ recipeData, onRefresh }: { recipeData: any, onRefresh: () => voi
   };
 
   return (
-    <View className="overflow-hidden">
+    <View className="overflow-hidden bg-secondary-400">
       {/* Back button */}
       <TouchableOpacity 
         className="absolute z-10 top-20 left-5 rounded-[15px] items-center justify-center bg-black/60"

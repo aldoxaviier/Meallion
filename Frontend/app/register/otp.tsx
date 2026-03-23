@@ -37,7 +37,7 @@ const otpduplicated = () => {
             };
             console.log("body:", body);
             const response = await api.post(`/auth/register`, body);
-            registerContext?.setTokens(response.data.data.accessToken, response.data.data.refreshToken);
+            registerContext?.setTokens(response.data.accessToken, response.data.refreshToken);
             router.push('/register/profileonboard');
         } catch (error : any) {
             console.log(error.response.data);

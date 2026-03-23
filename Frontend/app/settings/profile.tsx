@@ -135,7 +135,7 @@ const Profile = () => {
             formdata.append(key, String(value));
         });
         try {
-            const response:any = await api.put('/profile/editProfile', formdata, {
+            const response:any = await api.put('/profile/updateProfile', formdata, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

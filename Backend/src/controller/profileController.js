@@ -42,7 +42,7 @@ class profileController {
             res.status(500).json(ApiResponse.error(err.message, 500));
         }
     }
-    static async editProfile(req, res) {
+    static async updateProfile(req, res) {
         try {
             const userId = req.user;
             const profile = req.body;
@@ -50,6 +50,17 @@ class profileController {
             console.log("body", req.body);
             const editedProfile = await profileService.updateProfile(userId, profile, req);
             res.status(200).json(ApiResponse.success("Profile updated successfully", editedProfile, 200));
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json(ApiResponse.error(err.message, 500));
+        }
+    }
+    static async updateDietPreferences(req, res) {
+        try {
+            const userId = req.user;
+            const { diet_preferences } = req.body;
+            const updatedProfile = await profileRepository.updateDietPreferences(userId, diet_preferences);
+            res.status(200).json(ApiResponse.success("Diet preferences updated successfully", updatedProfile, 200));
         } catch (err) {
             console.error(err.message);
             res.status(500).json(ApiResponse.error(err.message, 500));

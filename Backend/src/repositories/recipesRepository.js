@@ -115,6 +115,18 @@ class recipesRepository {
         const { error } = await Database.from("mealplan").delete().eq("user_id", userId).eq("id", mealId)
         console.log(error);
     }
+
+    static async addRecipe(data) {
+          const result = await Database.from("recipes").insert(
+               {user_id: data.userId, height: data.height, 
+               weight: data.weight, activity_level: data.activity_level, 
+               goal_plan: data.goal_plan, allergies: data.dislikes, 
+               diet_preferences: data.diet_preferences,birthdate: data.birthdate,
+               gender: data.gender,health_condition: data.healthCondition,target_calories: data.target_calories, 
+               target_carbs: data.target_carbs, target_proteins: data.target_proteins, 
+               target_fats: data.target_fats, updated_at: data.updated_at});
+          return result.data;
+     }
 }
 
 module.exports = recipesRepository;
