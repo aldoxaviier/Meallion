@@ -173,6 +173,7 @@ class recipesController {
             res.status(500).json(ApiResponse.error("Internal Server Error", 500));
         }
     }
+
     static async addRecipe(req, res) {
         try {
             const userId = req.user
@@ -184,7 +185,22 @@ class recipesController {
             res.status(500).json(ApiResponse.error("Internal Server Error", 500));
         }
     }
-
+    
+    static async addLikes(req, res) {
+        try {
+            const userId = req.user
+            const recipeId = req.body.recipeId
+            console.log(recipeId);
+            const result =await recipesService.addLikes(userId, recipeId)
+            if (result.isDuplicate) {
+                return res.status(200).json(ApiResponse.success(result.message, { isDuplicate: true }, 200));
+            }
+            res.status(201).json(ApiResponse.success("Added Like Successfully", result.data, 201));
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+        }
+    }
 }
 
 module.exports = { recipesController };

@@ -96,17 +96,22 @@ class recipesRepository {
         return result.data
    }
 
-   static async getLikesByUserId(userId) {
-        const result = await Database.from("likes").select("recipe_id, recipes(name, Images, Calories, TotalTime, FatContent, CarbohydrateContent, ProteinContent)").eq("user_id", userId)
-        return result.data
+   static async getLikesByUserId(userId, recipeId) {
+        let query = Database.from("likes").select("recipe_id, recipes(name, Images, Calories, TotalTime, FatContent, CarbohydrateContent, ProteinContent)").eq("user_id", userId);
+
+        if (recipeId) {
+            query = query.eq("recipe_id", recipeId);
+        }
+        const result = await query;
+        return result.data;
     }
 
-    static async addToMealPlan(userId, recipeId, mealType, date) {
+     static async addToMealPlan(userId, recipeId, mealType, date) {
         const { error } = await Database.from("mealplan").insert({ user_id: userId, recipe_id: recipeId, meal_time: mealType, date: date })
         console.log(error);
     }
 
-    static async removeLikes(userId, recipeId) {
+     static async removeLikes(userId, recipeId) {
         const { error } = await Database.from("likes").delete().eq("user_id", userId).eq("recipe_id", recipeId)
         console.log(error);
     }
@@ -127,6 +132,12 @@ class recipesRepository {
                target_fats: data.target_fats, updated_at: data.updated_at});
           return result.data;
      }
+
+     static async addLikes(userId, recipeId) {
+        const result = await Database.from("likes").insert({ user_id: userId, recipe_id: recipeId })
+        return result.data;
+     }
+     
 }
 
 module.exports = recipesRepository;

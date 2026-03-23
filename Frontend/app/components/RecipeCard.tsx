@@ -1,6 +1,7 @@
-import { View, Text, Image, TouchableHighlight } from 'react-native';
+import { View, Text, Image, TouchableHighlight, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { router } from "expo-router";
+import { api } from '../utils/api';
 
 interface RecipeCardProps {
   recipe: {
@@ -29,9 +30,22 @@ export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
     return null;
   };
 
+  const handleLikes = async () => {
+    try {
+      const response = await api.post(`/recipes/addLikes`, { recipeId: recipe.recipe_id });
+      if (response.data?.isDuplicate) {
+        Alert.alert("Warning", "Recipe already liked!");
+      } else {
+        Alert.alert("Success", "Recipe saved to your likes!"); 
+      }
+    } catch (error) {
+      console.error("Error adding like:", error);
+    }
+  };
+
   const firstTag = getFirstTag(recipe.tags);
   return (
-    <TouchableHighlight className={`w-52 h-72 p-3 gap-2 bg-white rounded-xl shadow-sm`} onPress={() => router.push(`../recipes/${recipe.recipe_id}`)}>
+    <TouchableHighlight className={`w-52 h-80 p-3 gap-2 bg-white rounded-xl shadow-sm`} onPress={() => router.push(`../recipes/${recipe.recipe_id}`)}>
       <View className='flex justify-between h-full'>
         <View className='flex gap-1 '>
           <View className="relative">
@@ -63,11 +77,11 @@ export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
             </Text>
           </View>
           <TouchableHighlight 
-            className="bg-primary-400 btn-default"
-            onPress={onAddToPlan}
+            className="bg-primary-400 btn-default py-1"
+            onPress={handleLikes}
             underlayColor="#660B05"
           >
-            <Text className="text-secondary-400 font-fogsta">Add to plan</Text>
+            <Text className="text-white font-fogsta">Love This!</Text>
           </TouchableHighlight>
         </View>
       </View>

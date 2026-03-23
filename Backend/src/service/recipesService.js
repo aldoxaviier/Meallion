@@ -49,6 +49,15 @@ class recipesService {
             progressMeal
         }
     }
+
+    static async addLikes(userId, recipeId) {
+        const alreadyExists = await recipesRepository.getLikesByUserId(userId, recipeId);
+        if (alreadyExists.length > 0) {
+            return { isDuplicate: true, message: "Recipe already liked by the user" };
+        }
+        const result = await recipesRepository.addLikes(userId, recipeId);
+        return { isDuplicate: false, data: result };
+    }
 }
 
 module.exports = recipesService

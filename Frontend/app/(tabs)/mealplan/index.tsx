@@ -147,17 +147,32 @@ export default function mealPlan() {
 
           <View className="mt-6 flex-row justify-between">
             <View className="items-center">
-              <View className="w-16 h-2 rounded-full bg-primary-500" />
+              <View className="w-16 h-2 rounded-full bg-gray-200 overflow-hidden flex-row justify-start">
+                <View 
+                  className="h-full rounded-full bg-primary-500" 
+                  style={{ width: `${Math.min(((mealPlanData?.progressMeal?.progress_pro || 0) / (profileData?.profileData?.target_proteins || 1)) * 100, 100)}%` }} 
+                />
+              </View>
               <Text className="text-xs font-semibold text-black mt-2">Protein</Text>
               <Text className="text-xs text-gray-500">{mealPlanData?.progressMeal?.progress_pro || 0}/{profileData?.profileData?.target_proteins}g</Text>
             </View>
             <View className="items-center">
-              <View className="w-16 h-2 rounded-full bg-amber-500" />
+              <View className="w-16 h-2 rounded-full bg-gray-200 overflow-hidden flex-row justify-start">
+                <View 
+                  className="h-full rounded-full bg-amber-500" 
+                  style={{ width: `${Math.min(((mealPlanData?.progressMeal?.progress_carbs || 0) / (profileData?.profileData?.target_carbs || 1)) * 100, 100)}%` }} 
+                />
+              </View>
               <Text className="text-xs font-semibold text-black mt-2">Carbs</Text>
               <Text className="text-xs text-gray-500">{mealPlanData?.progressMeal?.progress_carbs || 0}/{profileData?.profileData?.target_carbs}g</Text>
             </View>
             <View className="items-center">
-              <View className="w-16 h-2 rounded-full bg-emerald-500" />
+              <View className="w-16 h-2 rounded-full bg-gray-200 overflow-hidden flex-row justify-start">
+                <View 
+                  className="h-full rounded-full bg-emerald-500" 
+                  style={{ width: `${Math.min(((mealPlanData?.progressMeal?.progress_fat || 0) / (profileData?.profileData?.target_fats || 1)) * 100, 100)}%` }} 
+                />
+              </View>
               <Text className="text-xs font-semibold text-black mt-2">Fat</Text>
               <Text className="text-xs text-gray-500">{mealPlanData?.progressMeal?.progress_fat || 0}/{profileData?.profileData?.target_fats}g</Text>
             </View>

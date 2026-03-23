@@ -1,5 +1,5 @@
 import { useLocalSearchParams, Stack, router } from "expo-router";
-import { Animated, View, Text, TouchableOpacity, ImageBackground } from "react-native";
+import { Animated, View, Text, TouchableOpacity, ImageBackground, Alert } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState, useRef } from "react";
@@ -17,7 +17,6 @@ const AnimatedImageBackground = Animated.createAnimatedComponent(ImageBackground
 
 export default function dynamicRecipe() {
   const { id } = useLocalSearchParams()
-  console.log(id)
   const [recipeData, setRecipeData] = useState<any>([])
   
   const fetchRecipeData = async () => {
@@ -31,6 +30,19 @@ export default function dynamicRecipe() {
     }
   };
 
+  const handleLikes = async () => {
+    try {
+      const response = await api.post(`/recipes/addLikes`, { recipeId: id });
+      if (response.data?.isDuplicate) {
+        Alert.alert("Warning", "Recipe already liked!");
+      } else {
+        Alert.alert("Success", "Recipe saved to your likes!"); 
+      }
+    } catch (error) {
+      console.error("Error adding like:", error);
+    }
+  };
+
   useEffect(() => {
     fetchRecipeData();
   }, [id]);
@@ -38,12 +50,12 @@ export default function dynamicRecipe() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Page recipeData={recipeData} onRefresh={fetchRecipeData} />
+      <Page recipeData={recipeData} onRefresh={fetchRecipeData} addLikes={handleLikes}/>
     </GestureHandlerRootView>
   )
 }
 
-function Page({ recipeData, onRefresh }: { recipeData: any, onRefresh: () => void }) {
+function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh: () => void, addLikes: () => void }) {
   const [activeTab, setActiveTab] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const insets = useSafeAreaInsets()
@@ -216,6 +228,15 @@ function Page({ recipeData, onRefresh }: { recipeData: any, onRefresh: () => voi
 
         </View>
       </Animated.ScrollView>
+
+      {/* Add to Plan Button */}
+      <TouchableOpacity
+        className="absolute z-10 bottom-11 left-0 right-0 bg-primary-500 py-4 items-center justify-center m-6 rounded-xl"
+        onPress={() => addLikes()}>
+        <Text className="font-brsegma-600 text-white font-bold text-lg">
+          Save to Likes
+        </Text>
+      </TouchableOpacity>
     </View>
   )
 }

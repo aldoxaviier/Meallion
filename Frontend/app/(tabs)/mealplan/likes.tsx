@@ -9,8 +9,6 @@ export default function Likes() {
   const router = useRouter();
   const { mealType, selectedDate } = useLocalSearchParams();
   const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
-  console.log(mealType);
-  console.log(selectedDate);
 
   const refreshLikedRecipes = async () => {
     try {
@@ -30,7 +28,6 @@ export default function Likes() {
       const body = {recipeId, mealType, date: selectedDate}
       await api.post(`/recipes/addToMealPlan`, body);
       router.back();
-      console.log('Added to meal plan', recipeId);
     } catch (err) {
       console.error('Error adding to meal plan:', err);
     }
@@ -50,7 +47,7 @@ export default function Likes() {
     const recipeId = item.recipe_id ?? null;
 
     return (
-      <View className="flex-row items-center bg-white rounded-2xl p-3">
+      <View className="flex-row items-center bg-white rounded-2xl p-3 mb-2">
         <Image className="w-14 h-14 rounded-2xl" source={{ uri: item.recipes.Images }} />
         <View className="flex-1 ml-3">
           <Text className="font-semibold text-black" numberOfLines={1}>

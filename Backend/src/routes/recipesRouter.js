@@ -17,5 +17,6 @@ router.post("/addToMealPlan", authorization, recipesController.addToMealPlan)
 router.delete("/removeLikes", authorization, recipesController.removeLikes)
 router.delete("/deleteMealPlan", authorization, recipesController.deleteMealPlan)
 router.post("/addRecipe", authorization, recipesController.addRecipe)
+router.post("/addLikes", authorization, recipesController.addLikes)
 
 module.exports = router;
