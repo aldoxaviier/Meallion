@@ -8,7 +8,16 @@ const profileSchema = Yup.object({
     gender: Yup.string().required("Gender required").oneOf(['Male', 'Female'], "Select a valid gender"),
 });
 
+const recipeSchema = Yup.object({
+    name: Yup.string().required("Recipe name is required").min(3, "Recipe name must be at least 3 characters"),
+    cookTime: Yup.number().required("Cook time is required").min(1, "Cook time must be at least 1 minute").max(1440, "Cook time cannot exceed 24 hours"),
+    prepTime: Yup.number().required("Prep time is required").min(1, "Prep time must be at least 1 minute").max(1440, "Prep time cannot exceed 24 hours"),
+    description: Yup.string().required("Description is required").min(10, "Description must be at least 10 characters"),
+    image: Yup.object({
+        uri: Yup.string().required("Image is required"),
+        name: Yup.string().required("Image name is required"),
+        type: Yup.string().required("Image type is required"),
+    }).required("Image is required"),
+});
 
-
-
-export { profileSchema };
+export { profileSchema, recipeSchema };

@@ -1,11 +1,12 @@
 import { Stack } from "expo-router";
 import CustomHeader from "../components/CustomHeader";
-
+import RecipeProvider from "../store/addRecipeContext";
 export default function _Layout() {
     return (
         <>
-        <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen 
+        <RecipeProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen 
                 name="index" 
                 options={{ 
                     headerShown: true,
@@ -20,6 +21,7 @@ export default function _Layout() {
                 }}
             />
         </Stack>
+        </RecipeProvider>
         </>
     )
 }
