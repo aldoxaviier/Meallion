@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { recipesController } = require("../controller/recipesController");
+const recipesController = require("../controller/recipesController");
 const authorization = require("../middleware/authorization");
 
 router.get("/getAll", recipesController.getAllRecipes);
@@ -17,6 +17,7 @@ router.post("/addToMealPlan", authorization, recipesController.addToMealPlan)
 router.delete("/removeLikes", authorization, recipesController.removeLikes)
 router.delete("/deleteMealPlan", authorization, recipesController.deleteMealPlan)
 router.post("/addRecipe", authorization, recipesController.addRecipe)
+router.get("/search-ingredients", recipesController.searchIngredients)
 router.post("/addLikes", authorization, recipesController.addLikes)
 
 module.exports = router;
