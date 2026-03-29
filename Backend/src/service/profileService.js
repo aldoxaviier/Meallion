@@ -17,7 +17,7 @@ const addInteraction = async (userId, interactions) => {
                 recipeId,
             });
         console.log("existing", existingInteraction);
-        if (existingInteraction.length > 0) {
+        if (existingInteraction) {
             console.log("updating existing interaction");
             const updated =
                 await profileRepository.updateInteraction({

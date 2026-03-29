@@ -141,7 +141,7 @@ const Profile = () => {
                 },
             });
             console.log('Profile updated successfully:', response.data);
-            profileContext?.setProfileData(response.data[0]);
+            profileContext?.setProfileData(response.data);
         } catch (err) {
             console.error('Error saving profile:', err);
             Alert.alert('Error', 'An error occurred while saving your profile. Please try again.');

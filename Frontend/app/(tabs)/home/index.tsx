@@ -62,7 +62,7 @@ export default function Index() {
         try {
           const response = await api.get('/profile/getProfile')
           console.log("Profile response:", response.data);
-          profileData?.setProfileData(response.data[0])
+          profileData?.setProfileData(response.data)
         } catch (err: any) {
             console.log(err)
         } finally {

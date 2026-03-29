@@ -27,6 +27,7 @@ interface ProfileDataContextType {
   profileData: ProfileData | null
   setProfileData: (data: ProfileData) => void
   updateProfile: (partial: Partial<ProfileData>) => void
+  resetProfileData: () => void
 }
 
 const ProfileDataContext = createContext<ProfileDataContextType | undefined>(undefined)
@@ -44,9 +45,11 @@ const ProfileDataProvider = ({ children }: { children: React.ReactNode }) => {
     )
   }
 
+  const resetProfileData = () => setProfileDataState(null)
+
   return (
     <ProfileDataContext.Provider
-      value={{ profileData, setProfileData, updateProfile }}
+      value={{ profileData, setProfileData, updateProfile, resetProfileData }}
     >
       {children}
     </ProfileDataContext.Provider>

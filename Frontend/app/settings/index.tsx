@@ -5,19 +5,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AuthContext } from '../store/authContext';
 import { api } from '../utils/api';
-
+import { ProfileDataContext } from '../store/profileDataContext';
 const Index = () => {
     const [themeEnabled, setThemeEnabled] = useState(true);
     const [pushNotifications, setPushNotifications] = useState(true);
     const [emailNotifications, setEmailNotifications] = useState(true);
     const authContext = useContext(AuthContext);
     const router = useRouter();
+    const profileContext = useContext(ProfileDataContext);
 
     const onPressLogout = async () => {
         try {
         const response:any = await api.get('/auth/logout',);
         console.log("Logout response:", response.data);
         if (response.statusCode === 200) {
+            profileContext?.resetProfileData();
             authContext?.logout();
         }
         } catch (err) {

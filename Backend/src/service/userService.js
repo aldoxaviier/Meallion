@@ -8,8 +8,7 @@ const jwt = require("jsonwebtoken");
 
 const reqOTP = async (email, res) => {
     const user = await userRepository.findEmailUnique(email);
-    console.log("user:", user.data);
-    if (user.data.length > 0) {
+    if (user) {
         throw new Error("Email already exists");
     }
     const otp = randomstring.generate({ length: 6, charset: "numeric" });
@@ -28,34 +27,35 @@ const register = async (email, name, password, otp) => {
     const salt = await bcrypt.genSalt(saltRound);
     const bcryptpassword = await bcrypt.hash(password,salt);
     const result = await userRepository.createUser(email, name, bcryptpassword);
-    const refreshToken = jwtGenerator.refreshToken(result.data[0].user_id);
-    const accessToken = jwtGenerator.accessToken(result.data[0].user_id);
-    await userRepository.updateRefreshToken(result.data[0].user_id, refreshToken);
+    console.log("User created:", result);
+    const refreshToken = jwtGenerator.refreshToken(result.user_id);
+    const accessToken = jwtGenerator.accessToken(result.user_id);
+    await userRepository.updateRefreshToken(result.user_id, refreshToken);
     console.log(accessToken, refreshToken);
     return { accessToken, refreshToken };
 }
 
 const login = async (email, password) => {
     const user = await userRepository.findUserByEmail(email);
-    if(user.data.length === 0){
+    if(!user){
         throw new Error("Email or password is incorrect");
     }
-    const validPassword = await bcrypt.compare(password, user.data[0].password);
+    const validPassword = await bcrypt.compare(password, user.password);
     console.log(validPassword);
     console.log(password)
     if(!validPassword){
         throw new Error("Email or password is incorrect");
     }
-    const refreshToken = jwtGenerator.refreshToken(user.data[0].user_id);
-    const accessToken = jwtGenerator.accessToken(user.data[0].user_id);
-    await userRepository.updateRefreshToken(user.data[0].user_id, refreshToken);
+    const refreshToken = jwtGenerator.refreshToken(user.user_id);
+    const accessToken = jwtGenerator.accessToken(user.user_id);
+    await userRepository.updateRefreshToken(user.user_id, refreshToken);
     return { accessToken, refreshToken};
 }
 
 const refresh = async (refreshToken) => {
     const isvalid = jwt.verify(refreshToken, process.env.RefreshSecret);
     const storedRefreshToken = await userRepository.findUserRefreshToken(refreshToken);
-    if(storedRefreshToken.data.length === 0){
+    if(!storedRefreshToken){
         throw new Error("Refresh token is revoked");
     }
     if(isvalid){
