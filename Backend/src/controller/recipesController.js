@@ -12,29 +12,6 @@ const getAllRecipes = async (req, res) => {
     }
 }
 
-const addBookmark = async (req, res) => {
-    try {
-        const { recipeId } = req.body;
-        const userId = req.user;
-        await recipesRepository.addBookmark(userId, recipeId);
-        res.status(201).json(ApiResponse.success("Bookmark added successfully", null, 201));
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
-    }
-}
-
-const getBookmarksByUserId = async (req, res) => {
-    try {
-        const userId = req.user;
-        const result = await recipesRepository.getBookmarksByUserId(userId);
-        res.json(ApiResponse.success("Bookmarks fetched successfully", { result }, 200));
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
-    }
-}
-
 const getIngredients = async (req, res) => {
     try {
         const query = req.query.query;
@@ -213,8 +190,7 @@ const searchIngredients = async (req, res) => {
 
 module.exports = { 
     getAllRecipes, 
-    addBookmark, 
-    getBookmarksByUserId,getIngredients, 
+    getIngredients,
     getRecipesByName, 
     get10Recipes, 
     getRecipeByID, 
