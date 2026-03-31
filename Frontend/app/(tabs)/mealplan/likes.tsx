@@ -48,18 +48,18 @@ export default function Likes() {
 
     return (
       <View className="flex-row items-center bg-white rounded-2xl p-3 mb-2">
-        <Image className="w-14 h-14 rounded-2xl" source={{ uri: item.recipes.Images }} />
+        <Image className="w-14 h-14 rounded-2xl" source={{ uri: item?.Images }} />
         <View className="flex-1 ml-3">
           <Text className="font-semibold text-black" numberOfLines={1}>
-            {item.recipes.name || 'Unknown Meal'}
+            {item.name || 'Unknown Meal'}
           </Text>
           <Text className="text-xs text-gray-500">
-            {item.recipes.Calories} kcal · {item.recipes.TotalTime || '0 mins'}
+            {item.Calories} kcal · {item.TotalTime || '0 mins'}
           </Text>
           <View className="flex-row items-center mt-1">
-            <Text className="text-[10px] text-gray-500">{item.recipes.CarbohydrateContent}g carbs</Text>
-            <Text className="text-[10px] text-gray-500 ml-2">{item.recipes.FatContent}g fats</Text>
-            <Text className="text-[10px] text-gray-500 ml-2">{item.recipes.ProteinContent}g prot</Text>
+            <Text className="text-[10px] text-gray-500">{item.CarbohydrateContent}g carbs</Text>
+            <Text className="text-[10px] text-gray-500 ml-2">{item.FatContent}g fats</Text>
+            <Text className="text-[10px] text-gray-500 ml-2">{item.ProteinContent}g prot</Text>
           </View>
         </View>
         <View className="flex-row items-center">

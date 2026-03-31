@@ -61,7 +61,6 @@ export default function Index() {
     const fetchProfile = async () => {
         try {
           const response = await api.get('/profile/getProfile')
-          console.log("Profile response:", response.data);
           profileData?.setProfileData(response.data)
         } catch (err: any) {
             console.log(err)
@@ -90,7 +89,7 @@ export default function Index() {
       const activeCategories = searchCategories.filter(c => c.isActive);
       if (searchRec.length >= 2 || activeCategories.length > 0) {
         const catParam = activeCategories.map(c => c.name).join(',');
-        const res = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=1&limit=10&category=${catParam}`)
+        const res = await api.get(`/recipes/getRecipesByNameCategory?query=${searchRec}&page=1&limit=10&category=${catParam}`)
         console.log(res)
         setRecipeData(res.data.data)
         setTotalPage(res.data.info)
@@ -221,7 +220,7 @@ export default function Index() {
       const activeCategories = searchCategories.filter(c => c.isActive);
       if (searchRec.length >= 2 || activeCategories.length > 0) {
         const catParam = activeCategories.map(c => c.name).join(',');
-        const response = await api.get(`/recipes/getRecipesByName?query=${searchRec}&page=${nextPage}&limit=10&category=${catParam}`)
+        const response = await api.get(`/recipes/getRecipesByNameCategory?query=${searchRec}&page=${nextPage}&limit=10&category=${catParam}`)
         const newRecipes = response.data.data
         if (newRecipes?.length > 0) {
           setRecipeData((prevData: any[]) => [...prevData, ...newRecipes]);

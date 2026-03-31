@@ -23,7 +23,7 @@ export default function dynamicRecipe() {
     try {
       const response = await api.get(`/recipes/getRecipesByID?id=${id}`);
       if (response?.data) {
-        setRecipeData(response.data[0]);
+        setRecipeData(response.data);
       }
     } catch (error) {
       console.error("Error fetching recipe:", error);

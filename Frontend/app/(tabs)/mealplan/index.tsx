@@ -1,56 +1,84 @@
-import {View, Text, TouchableHighlight, TouchableOpacity, FlatList, ScrollView, Image} from 'react-native';
-import {api} from '../../utils/api';
-import { useEffect, useState, useContext, useRef, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
+import { View, Text, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React from 'react';
-import { format, addDays, startOfToday, eachDayOfInterval, subDays } from 'date-fns';
-import { ProfileDataContext } from '@/app/store/profileDataContext';
-import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { format, addDays, startOfToday, eachDayOfInterval, subDays } from 'date-fns';
 
-export default function mealPlan() {
+import { api } from '../../utils/api';
+import { ProfileDataContext } from '@/app/store/profileDataContext';
+
+interface DeletePlanParams {
+  mealId: string;
+  date: string;
+  cal: number;
+  pro: number;
+  fat: number;
+  carbs: number;
+}
+
+interface MealSectionProps {
+  title: string;
+  type: string;
+  data: any[];
+  onAdd: () => void;
+  onDelete: (meal: any) => void;
+  isComplete: boolean;
+}
+
+export default function MealPlan() {
   const router = useRouter();
+  const profileData = useContext(ProfileDataContext);
+  const flatListRef = useRef<FlatList<Date>>(null);
+
   const today = startOfToday();
   const [selectedDate, setSelectedDate] = useState(today);
   const [mealPlanData, setMealPlanData] = useState<any>({
     mealPlanData: [],
-    progressMeal: []
+    progressMeal: {} 
   });
-  const flatListRef = useRef<FlatList<Date>>(null);
-  const profileData = useContext(ProfileDataContext);
 
   const dates = eachDayOfInterval({
     start: subDays(today, 7),
     end: addDays(today, 7),
   });
 
+  // main API calls
   const getMealPlan = async () => {
     try {
       const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-      const response = await api.get(`/recipes/getMealPlan?date=${formattedDate}`)
-      if(response.data){
+      const response = await api.get(`/recipes/getMealPlan?date=${formattedDate}`);
+      if (response.data) {
         setMealPlanData({
           mealPlanData: response.data.mealPlanData || [],
-          progressMeal: response.data.progressMeal || []
+          progressMeal: response.data.progressMeal || {}
         });
       }
     } catch (error) {
-      console.error("Error getting meal plan data: ", error)
+      console.error("Error getting meal plan data: ", error);
     }
   };
 
+  const handleDeletePlan = async ({ mealId, date, cal, pro, fat, carbs }: DeletePlanParams) => {
+    try {
+      const body = { mealId, date, cal, pro, fat, carbs };
+      await api.delete(`/recipes/deleteMealPlan`, { params: body });
+      await getMealPlan(); 
+      console.log('Deleted meal:', mealId);
+    } catch (error) {
+      console.error("Gagal menghapus:", error);
+    }
+  };
+
+  // screenfocus
   useFocusEffect(
     useCallback(() => {
       getMealPlan();
       setSelectedDate(today);
+      
       const timeout = setTimeout(() => {
-        if (flatListRef.current) {
-          flatListRef.current.scrollToIndex({
-            index: 7,
-            animated: true
-          });
-        }
+        flatListRef.current?.scrollToIndex({ index: 7, animated: true });
       }, 100);
 
       return () => clearTimeout(timeout);
@@ -58,44 +86,37 @@ export default function mealPlan() {
   );
 
   useEffect(() => {
-    getMealPlan()
-  }, [selectedDate])
-  
+    getMealPlan();
+  }, [selectedDate]);
+
+  // --- Handlers & Helpers ---
   const handleDatePress = (item: Date, index: number) => {
-    setSelectedDate(item); 
-    
-    flatListRef.current?.scrollToIndex({
-      index: index,
-      animated: true
+    setSelectedDate(item);
+    flatListRef.current?.scrollToIndex({ index, animated: true });
+  };
+
+  const handleAddMeal = (mealType: string) => {
+    router.push({
+      pathname: '/mealplan/likes',
+      params: { mealType, selectedDate: format(selectedDate, 'yyyy-MM-dd') }
     });
   };
 
-  const handleDeletePlan = async (mealId: string) => {
-    try {
-      const body = { mealId };
-      await api.delete(`/recipes/deleteMealPlan`,
-        { params: body }
-      );
-      await getMealPlan(); 
-      
-      console.log('Deleted meal:', mealId);
-    } catch (error) {
-      console.error("Gagal menghapus:", error);
-    }
-  };
+  // Kalkulasi satu kali (agar tidak berulang di setiap MealSection)
+  const isDailyGoalCompleted = profileData?.profileData?.target_calories
+    ? (mealPlanData.progressMeal?.progress_cal || 0) >= profileData.profileData.target_calories
+    : false;
 
-  const renderItem = ({ item, index }: {item: Date; index: number}) => {
+  // --- Render Sub-Components ---
+  const renderDateItem = ({ item, index }: { item: Date; index: number }) => {
     const isSelected = format(item, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
-    
     return (
       <TouchableOpacity
         onPress={() => handleDatePress(item, index)}
-        className={`mr-3 w-16 h-24 rounded-2xl items-center justify-center ${
-          isSelected ? 'bg-primary-400' : 'bg-white'
-        }`}
+        className={`mr-3 w-16 h-24 rounded-2xl items-center justify-center ${isSelected ? 'bg-primary-400' : 'bg-white'}`}
       >
         <Text className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-400'}`}>
-          {format(item, 'EEE')} 
+          {format(item, 'EEE')}
         </Text>
         <Text className={`text-2xl font-bold mt-1 ${isSelected ? 'text-white' : 'text-black'}`}>
           {format(item, 'dd')}
@@ -104,125 +125,98 @@ export default function mealPlan() {
     );
   };
 
-  return(
+  return (
     <SafeAreaView className='bg-secondary-400'>
-      <ScrollView 
-        className='h-full w-full px-6 pt-7'
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      >
-        <Text className="text-4xl text-primary-500 font-fogsta">
-          My Plan
-        </Text>
+      <ScrollView className='h-full w-full px-6 pt-7' showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+        <Text className="text-4xl text-primary-500 font-fogsta">My Plan</Text>
+        
+        {/* Horizontal Calendar */}
         <View className='h-24 mt-6'>
           <FlatList
             ref={flatListRef}
             data={dates}
-            renderItem={renderItem}
+            renderItem={renderDateItem}
             keyExtractor={(item) => item.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}
             initialScrollIndex={7}
-            getItemLayout={(data, index) => ({
-              length: 44, 
-              offset: 44 * index,
-              index,
-            })}
-            onScrollToIndexFailed={info => {
-              const wait = new Promise(resolve => setTimeout(resolve, 500));
-              wait.then(() => {
-                flatListRef.current?.scrollToIndex({ index: info.index, animated: true });
-              });
-            }}
+            getItemLayout={(data, index) => ({ length: 44, offset: 44 * index, index })}
           />
         </View>
-        
+
+        {/* Progress Card */}
         <View className="bg-secondary-200 rounded-3xl p-6 mt-6">
           <View className="items-center mt-6">
             <View className="w-44 h-44 rounded-full border-8 border-gray-200 items-center justify-center">
-              <Text className="text-5xl font-fogsta">{mealPlanData?.progressMeal?.progress_cal || 0}</Text>
-              <Text className="text-xs text-gray-500">kcal left of {profileData?.profileData?.target_calories}</Text>
+              <Text className="text-5xl font-fogsta">{mealPlanData.progressMeal?.progress_cal || 0}</Text>
+              <Text className="text-xs text-gray-500">kcal left of {profileData?.profileData?.target_calories || 0}</Text>
             </View>
           </View>
 
           <View className="mt-6 flex-row justify-between">
-            <View className="items-center">
-              <View className="w-16 h-2 rounded-full bg-gray-200 overflow-hidden flex-row justify-start">
-                <View 
-                  className="h-full rounded-full bg-primary-500" 
-                  style={{ width: `${Math.min(((mealPlanData?.progressMeal?.progress_pro || 0) / (profileData?.profileData?.target_proteins || 1)) * 100, 100)}%` }} 
-                />
-              </View>
-              <Text className="text-xs font-semibold text-black mt-2">Protein</Text>
-              <Text className="text-xs text-gray-500">{mealPlanData?.progressMeal?.progress_pro || 0}/{profileData?.profileData?.target_proteins}g</Text>
-            </View>
-            <View className="items-center">
-              <View className="w-16 h-2 rounded-full bg-gray-200 overflow-hidden flex-row justify-start">
-                <View 
-                  className="h-full rounded-full bg-amber-500" 
-                  style={{ width: `${Math.min(((mealPlanData?.progressMeal?.progress_carbs || 0) / (profileData?.profileData?.target_carbs || 1)) * 100, 100)}%` }} 
-                />
-              </View>
-              <Text className="text-xs font-semibold text-black mt-2">Carbs</Text>
-              <Text className="text-xs text-gray-500">{mealPlanData?.progressMeal?.progress_carbs || 0}/{profileData?.profileData?.target_carbs}g</Text>
-            </View>
-            <View className="items-center">
-              <View className="w-16 h-2 rounded-full bg-gray-200 overflow-hidden flex-row justify-start">
-                <View 
-                  className="h-full rounded-full bg-emerald-500" 
-                  style={{ width: `${Math.min(((mealPlanData?.progressMeal?.progress_fat || 0) / (profileData?.profileData?.target_fats || 1)) * 100, 100)}%` }} 
-                />
-              </View>
-              <Text className="text-xs font-semibold text-black mt-2">Fat</Text>
-              <Text className="text-xs text-gray-500">{mealPlanData?.progressMeal?.progress_fat || 0}/{profileData?.profileData?.target_fats}g</Text>
-            </View>
+            {['pro', 'carbs', 'fat'].map((macro, idx) => {
+              const currentMacro = mealPlanData.progressMeal?.[`progress_${macro}`] || 0;
+              const targetMacro = profileData?.profileData?.[`target_${macro === 'pro' ? 'proteins' : macro === 'carbs' ? 'carbs' : 'fats'}`] || 1;
+              const percentage = Math.min((currentMacro / targetMacro) * 100, 100);
+              const colors = ['bg-primary-500', 'bg-amber-500', 'bg-emerald-500'];
+              const labels = ['Protein', 'Carbs', 'Fat'];
+
+              return (
+                <View key={idx} className="items-center">
+                  <View className="w-16 h-2 rounded-full bg-gray-200 overflow-hidden flex-row justify-start">
+                    <View className={`h-full rounded-full ${colors[idx]}`} style={{ width: `${percentage}%` }} />
+                  </View>
+                  <Text className="text-xs font-semibold text-black mt-2">{labels[idx]}</Text>
+                  <Text className="text-xs text-gray-500">{currentMacro}/{targetMacro}g</Text>
+                </View>
+              );
+            })}
           </View>
         </View>
 
-        {/* Meals */}
+        {/* Meal Sections */}
         <View className="mt-6">
-          <MealSection 
-            title="Breakfast" 
-            type="breakfast" 
-            data={mealPlanData.mealPlanData} 
-            onAdd={() => router.push({ pathname: '/mealplan/likes', params: { mealType: 'breakfast', selectedDate: format(selectedDate, 'yyyy-MM-dd') } })}
-            onDelete={handleDeletePlan}
-          />
-          <MealSection 
-            title="Lunch" 
-            type="lunch" 
-            data={mealPlanData.mealPlanData} 
-            onAdd={() => router.push({ pathname: '/mealplan/likes', params: { mealType: 'lunch', selectedDate: format(selectedDate, 'yyyy-MM-dd') } })}
-            onDelete={handleDeletePlan}
-          />
-          <MealSection 
-            title="Snack" 
-            type="snack" 
-            data={mealPlanData.mealPlanData} 
-            onAdd={() => router.push({ pathname: '/mealplan/likes', params: { mealType: 'snack', selectedDate: format(selectedDate, 'yyyy-MM-dd') } })}
-            onDelete={handleDeletePlan}
-          />
-          <MealSection 
-            title="Dinner" 
-            type="dinner" 
-            data={mealPlanData.mealPlanData} 
-            onAdd={() => router.push({ pathname: '/mealplan/likes', params: { mealType: 'dinner', selectedDate: format(selectedDate, 'yyyy-MM-dd') } })}
-            onDelete={handleDeletePlan}
-          />
+          {['Breakfast', 'Lunch', 'Snack', 'Dinner'].map((mealTitle) => {
+            const mealType = mealTitle.toLowerCase();
+            return (
+              <MealSection
+                key={mealType}
+                title={mealTitle}
+                type={mealType}
+                data={mealPlanData.mealPlanData}
+                isComplete={isDailyGoalCompleted}
+                onAdd={() => handleAddMeal(mealType)}
+                
+                onDelete={(meal) => handleDeletePlan({
+                  mealId: meal.id,
+                  date: format(selectedDate, 'yyyy-MM-dd'),
+                  cal: Math.round(mealPlanData?.progressMeal?.progress_cal - (meal.Calories) || 0),
+                  pro: Math.round(mealPlanData?.progressMeal?.progress_pro - (meal.ProteinContent) || 0),
+                  fat: Math.round(mealPlanData?.progressMeal?.progress_fat - (meal.FatContent) || 0),
+                  carbs: Math.round(mealPlanData?.progressMeal?.progress_carbs - (meal.CarbohydrateContent) || 0)
+                })}
+              />
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
-const MealSection = ({ title, type, data, onAdd, onDelete } : { title: string, type: string, data: any[], onAdd: () => void, onDelete: (mealId: string) => void }) => {
+const MealSection = ({ title, type, data, onAdd, onDelete, isComplete }: MealSectionProps) => {
   const filteredMeals = data.filter((meal) => meal.meal_time === type);
-  
+
   return (
     <View className="bg-white rounded-3xl p-5 mb-4">
+      {/* Header Section */}
       <View className="flex-row justify-between items-center">
         <Text className="text-lg font-brsegma-600">{title}</Text>
-        <TouchableOpacity className="px-4 py-2 rounded-full bg-primary-500" onPress={onAdd}>
+        <TouchableOpacity 
+          className={`px-4 py-2 rounded-full ${isComplete ? 'bg-gray-300' : 'bg-primary-500'}`} 
+          disabled={isComplete} 
+          onPress={onAdd}
+        >
           <Text className="text-sm font-semibold text-white">+ Add</Text>
         </TouchableOpacity>
       </View>
@@ -230,23 +224,25 @@ const MealSection = ({ title, type, data, onAdd, onDelete } : { title: string, t
       <View className="mt-4 flex flex-col gap-3">
         {filteredMeals.length > 0 ? (
           filteredMeals.map((meal: any, index: number) => (
-            <View key={index} className="flex-row items-center bg-secondary-400 rounded-2xl p-3">
-              <Image className="w-14 h-14 rounded-2xl" source={{ uri: meal.recipes.Images }} />
+            <View key={meal.id || index} className={`flex-row items-center ${meal.is_eaten ? 'bg-green-200' : 'bg-secondary-400'} rounded-2xl p-3`}>
+              <Image className="w-14 h-14 rounded-2xl" source={{ uri: meal.Images }} />
+              
               <View className="flex-1 ml-3">
                 <Text className="font-semibold text-black" numberOfLines={1}>
-                  {meal.recipes.name || 'Unknown Meal'}
+                  {meal.name || 'Unknown Meal'}
                 </Text>
                 <Text className="text-xs text-gray-500">
-                  {meal.recipes.Calories} kcal · {meal.recipes.TotalTime || '0 mins'}
+                  {meal.Calories || 0} kcal · {meal.TotalTime || '0 mins'}
                 </Text>
                 <View className="flex-row items-center mt-1">
-                  <Text className="text-[10px] text-gray-500">{meal.recipes.CarbohydrateContent}g carbs</Text>
-                  <Text className="text-[10px] text-gray-500 ml-2">{meal.recipes.FatContent}g fats</Text>
-                  <Text className="text-[10px] text-gray-500 ml-2">{meal.recipes.ProteinContent}g prot</Text>
+                  <Text className="text-[10px] text-gray-500">{meal.CarbohydrateContent || 0}g carbs</Text>
+                  <Text className="text-[10px] text-gray-500 ml-2">{meal.FatContent || 0}g fats</Text>
+                  <Text className="text-[10px] text-gray-500 ml-2">{meal.ProteinContent || 0}g prot</Text>
                 </View>
               </View>
+
               <View className="flex-row items-center">
-                <TouchableOpacity className="p-2 rounded-full bg-white" onPress={() => onDelete(meal.id)}>
+                <TouchableOpacity className="p-2 rounded-full bg-white" onPress={() => onDelete(meal)}>
                   <Ionicons name="trash-outline" size={12} color="gray" />
                 </TouchableOpacity>
               </View>

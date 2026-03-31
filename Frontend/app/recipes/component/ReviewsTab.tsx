@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRef, useState, useContext, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Modal, Image } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Modal, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@/app/utils/api';
 import { ProfileDataContext } from '@/app/store/profileDataContext';
@@ -15,6 +15,7 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
   const [reviewData, setReviewData] = useState<any>([])
   const [allReviewData, setAllReviewData] = useState<any>([])
   const profileData = useContext(ProfileDataContext)
+  const [loading, setisLoading] = useState(false)
   console.log("stars: ", selectedRating);
   console.log("review: ", review);
 
@@ -54,6 +55,7 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
 
   const SubmitReviews = async () => {
     try {
+      setisLoading(true)
       if(!selectedRating || !review.trim()){
         setErrorMessage("Please complete your review before submitting")
         return
@@ -75,6 +77,8 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
       
     } catch (error: any) {
       console.error("Error Submiting Review: ", error)
+    } finally {
+      setisLoading(false)
     }
   }
 
@@ -213,8 +217,12 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
                 </Text>
               ) : null}
               {/* submit button */}
-              <TouchableOpacity className=" mb-4 bg-primary-400 p-4 rounded-xl items-center shadow-sm" onPress={() => SubmitReviews()}>
-                <Text className="text-white font-bold text-lg">Submit Review</Text>
+              <TouchableOpacity className=" mb-4 bg-primary-400 p-4 rounded-xl items-center shadow-sm" onPress={() => SubmitReviews()} disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white font-bold text-lg">Submit Review</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>

@@ -4,21 +4,15 @@ const getRecipesByNameCategory = async (query, category, page = 1, limit = 10) =
     const firstPage = (page - 1) * limit;
     const nextPage = firstPage + limit - 1;
     
-    if (query && !category) {
-        const result = await recipesRepository.getRecipesByName(query, firstPage, nextPage)
-        return result
-    }
-    else if (!query && category) {
-        const categories = category.split(',')
-        const result = await recipesRepository.getRecipesByCategory(categories, firstPage, nextPage)
-        return result
-    }
-    else {
-        const categories = category.split(',')
-        const result = await recipesRepository.getRecipesByNameCategory(query, categories, firstPage, nextPage)
-        return result
-    }
-}
+    const categories = category ? category.split(',') : [];
+
+    return await recipesRepository.getRecipesByNameCategory(
+        query || "", 
+        categories, 
+        firstPage, 
+        nextPage
+    );
+};
 
 const addLikes = async (userId, recipeId) => {
     const alreadyExists = await recipesRepository.getLikesByUserId(userId, recipeId);
@@ -33,17 +27,14 @@ const addReview = async (userId, recipeId, name, rating, review) => {
     await recipesRepository.addReview(userId, recipeId, name, rating, review)
 
     const ratingResult = await recipesRepository.getRatingTotal(recipeId);
-    const { data, count, error } = ratingResult;
     let rating_score = 0;
-
-    if (error) {
-        throw new Error("Gagal mengambil data rating: " + error.message);
-    }
     
-    if (data && count > 0) {
-        const ratingTotal = data.reduce((acc, item) => acc + item.rating, 0);
-        rating_score = parseFloat((ratingTotal / (count)).toFixed(1));
-        await recipesRepository.updateRating(recipeId, rating_score, count);
+    if (ratingResult && ratingResult.length > 0) {
+        const ratingTotal = ratingResult.reduce((curr, next) => curr + next.rating, 0);
+        rating_score = parseFloat((ratingTotal / ratingResult.length).toFixed(1));
+        console.log("Rating Total:", ratingTotal);
+        console.log("Rating Score:", rating_score);
+        await recipesRepository.updateRating(recipeId, rating_score, ratingResult.length);
     } 
     else {
         await recipesRepository.updateRating(recipeId, rating, 1)
@@ -77,4 +68,37 @@ const searchIngredients = async (query) => {
     }
 }
 
-module.exports = { getRecipesByNameCategory, addReview, getMealPlan, searchIngredients, addLikes };
+const updateMealProgress = async (userId, mealIDs, date, progress_cal, progress_pro, progress_fat, progress_carbs) => {
+    if (!mealIDs || mealIDs.length === 0) {
+        throw new Error("Meal IDs cannot be empty");
+    }
+    await recipesRepository.updateMealPlan(userId, mealIDs);
+    const progress = await recipesRepository.getProgressMeal(userId, date);
+    if (progress) {
+        const update_cal = progress.progress_cal + progress_cal;
+        const update_pro = progress.progress_pro + progress_pro;
+        const update_fat = progress.progress_fat + progress_fat;
+        const update_carbs = progress.progress_carbs + progress_carbs;
+        await recipesRepository.updateMealProgress(userId, date, update_cal, update_pro, update_fat, update_carbs);
+        return;
+    }
+    await recipesRepository.addMealProgress(userId, date, progress_cal, progress_pro, progress_fat, progress_carbs);
+}
+
+const deleteMealPlan = async (userId, mealId, date, cal, pro, fat, carbs) => {
+    const meal = await recipesRepository.getMealPlanById(userId, mealId);
+
+    if (!meal) {
+        throw new Error("Meal plan not found");
+    }
+
+    const wasEaten = meal.is_eaten === true;
+
+    await recipesRepository.deleteMealPlan(userId, mealId);
+
+    if (wasEaten) {
+        await recipesRepository.updateMealProgress(userId, date, cal, pro, fat, carbs);
+    }
+}
+
+module.exports = { getRecipesByNameCategory, addReview, getMealPlan, searchIngredients, addLikes, updateMealProgress, deleteMealPlan };

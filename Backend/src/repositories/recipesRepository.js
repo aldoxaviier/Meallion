@@ -16,74 +16,29 @@ const getIngredients = async (query) => {
     return result;
 }
 
-const getRecipesByName = async (query, firstPage, nextPage) => {
-    const data = await sql`
-        SELECT * FROM recipes
-        WHERE name ILIKE ${'%' + query + '%'}
-        LIMIT ${nextPage - firstPage + 1}
-        OFFSET ${firstPage}
-    `;
-    const countResult = await sql`
-        SELECT COUNT(*) FROM recipes
-        WHERE name ILIKE ${'%' + query + '%'}
-    `;
-    const total = Number(countResult[0].count);
-
-    return {
-        data,
-        total
-    };
-}
-
-const getRecipesByCategory = async (categories, firstPage, nextPage) => {
-    const conditions = categories.map(tag => 
-        sql`tags ILIKE ${'%' + tag + '%'}`
-    );
-    let whereClause = sql``;
-    if (conditions.length > 0) {
-        let combined = conditions[0];
-        for (let i = 1; i < conditions.length; i++) {
-            combined = sql`${combined} AND ${conditions[i]}`;
-        }
-
-        whereClause = sql`WHERE ${combined}`;
-    }
-    const result = await sql`
-        SELECT *, COUNT(*) OVER() AS total_count
-        FROM recipes
-        ${whereClause}
-        LIMIT ${nextPage - firstPage + 1}
-        OFFSET ${firstPage}
-    `;
-
-    return {
-        data: result,
-        total: result.length > 0 ? Number(result[0].total_count) : 0
-    };
-}
-
 const getRecipesByNameCategory = async (query, categories, firstPage, nextPage) => {
-    const conditions = [
-        sql`name ILIKE ${'%' + query + '%'}`
-    ];
+    const conditions = [];
 
-    for (const tag of categories) {
-        conditions.push(sql`tags ILIKE ${'%' + tag + '%'}`
-        );
+    if (query && query.trim() !== "") {
+        conditions.push(sql`name ILIKE ${'%' + query + '%'}`);
+    }
+
+    if (Array.isArray(categories) && categories.length > 0) {
+        categories.forEach(tag => {
+            conditions.push(sql`tags ILIKE ${'%' + tag + '%'}`);
+        });
     }
 
     let whereClause = sql``;
-
     if (conditions.length > 0) {
-        whereClause = sql`
-            WHERE ${conditions.reduce((prev, curr) => sql`${prev} AND ${curr}`)}
-        `;
+        whereClause = sql`WHERE ${conditions.reduce((prev, curr) => sql`${prev} AND ${curr}`)}`;
     }
 
     const result = await sql`
         SELECT *, COUNT(*) OVER() AS total_count
         FROM recipes
         ${whereClause}
+        ORDER BY recipe_id ASC
         LIMIT ${nextPage - firstPage + 1}
         OFFSET ${firstPage}
     `;
@@ -92,7 +47,7 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage) 
         data: result,
         total: result.length > 0 ? Number(result[0].total_count) : 0
     };
-}
+};
 
 const get10Recipes = async () => {
     const ids = [3233, 1832, 4009, 3369, 3317, 3413, 809, 468, 547, 1415];
@@ -156,6 +111,7 @@ const getMealPlan = async (userId, date) => {
             m.id,
             m.recipe_id,
             m.meal_time,
+            m.is_eaten,
             r.name,
             r."Calories",
             r."TotalTime",
@@ -172,19 +128,34 @@ const getMealPlan = async (userId, date) => {
     return result;
 };
 
+const getMealPlanById = async (userId, mealId) => {
+    const result = await sql`
+        SELECT 
+            id, 
+            is_eaten 
+        FROM mealplan 
+        WHERE user_id = ${userId} 
+        AND id = ${mealId}
+        LIMIT 1
+    `;
+    
+    return result[0] || null;
+};
+
 const getProgressMeal = async (userId, date) => {
     const result = await sql`
         SELECT 
             id,
             progress_cal,
-            progress_carb,
+            progress_carbs,
             progress_pro,
             progress_fat
         FROM user_health_tracker
         WHERE user_id = ${userId}
         AND date = ${date}
+        LIMIT 1
     `;
-    return result;
+    return result[0] || null;
 };
 
 const getLikesByUserId = async (userId, recipeId) => {
@@ -304,6 +275,41 @@ const addLikes = async (userId, recipeId) => {
     }
 };
      
+const updateMealPlan = async (userId, mealIDs) => {
+    const result = await sql`
+        UPDATE mealplan 
+        SET is_eaten = true 
+        WHERE user_id = ${userId} 
+        AND id IN ${sql(mealIDs)};
+    `;
+    return result;
+};
+
+const addMealProgress = async (userId, date, progress_cal, progress_pro, progress_fat, progress_carbs) => {
+    const result = await sql`
+        INSERT INTO user_health_tracker 
+            (user_id, date, progress_cal, progress_pro, progress_fat, progress_carbs)
+        VALUES 
+            (${userId}, ${date}, ${progress_cal}, ${progress_pro}, ${progress_fat}, ${progress_carbs})
+        RETURNING *;
+    `;
+    return result;
+};
+
+const updateMealProgress = async (userId, date, progress_cal, progress_pro, progress_fat, progress_carbs) => {
+    const result = await sql`
+        UPDATE user_health_tracker 
+        SET 
+            progress_cal = ${progress_cal}, 
+            progress_pro = ${progress_pro}, 
+            progress_fat = ${progress_fat}, 
+            progress_carbs = ${progress_carbs}
+        WHERE user_id = ${userId} 
+        AND date = ${date}
+        RETURNING *;
+    `;
+    return result;
+};
 
 module.exports = {
      getAll,
@@ -322,7 +328,9 @@ module.exports = {
      removeLikes,
      deleteMealPlan,
      addRecipe,
-     getRecipesByCategory,
-     getRecipesByName,
-     addLikes
+     addLikes,
+     updateMealPlan,
+     addMealProgress,
+     updateMealProgress,
+     getMealPlanById
 };

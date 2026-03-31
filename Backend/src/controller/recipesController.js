@@ -23,7 +23,7 @@ const getIngredients = async (req, res) => {
     }
 }
 
-const getRecipesByName = async (req, res) => {
+const getRecipesByNameCategory = async (req, res) => {
     try {
         const query = req.query.query;
         const category = req.query.category;
@@ -157,14 +157,15 @@ const addLikes = async (req, res) => {
 const deleteMealPlan = async (req, res) => {
     try {
         const userId = req.user
-        const mealId = req.query.mealId
-        await recipesRepository.deleteMealPlan(userId, mealId)
+        const { mealId, date, cal, pro, fat, carbs } = req.query;
+        await recipesService.deleteMealPlan(userId, mealId, date, cal, pro, fat, carbs)
         res.json(ApiResponse.success("Deleted Meal Plan Successfull", null, 200))
     } catch (err) {
         console.error(err.message)
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
     }
 }
+
 const addRecipe = async (req, res) => {
     try {
         const userId = req.user
@@ -188,10 +189,22 @@ const searchIngredients = async (req, res) => {
     }
 }
 
+const updateMealProgress = async (req, res) => {
+    try {
+        const userId = req.user
+        const { mealIDs, date, progress_cal, progress_pro, progress_fat, progress_carbs } = req.body
+        const result = await recipesService.updateMealProgress(userId, mealIDs, date, progress_cal, progress_pro, progress_fat, progress_carbs );
+        res.json(ApiResponse.success("Meal progress updated successfully", result, 200));
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+    }
+}
+
 module.exports = { 
     getAllRecipes, 
     getIngredients,
-    getRecipesByName, 
+    getRecipesByNameCategory, 
     get10Recipes, 
     getRecipeByID, 
     addReview, 
@@ -203,5 +216,6 @@ module.exports = {
     deleteMealPlan, 
     addRecipe, 
     searchIngredients, 
-    addLikes 
+    addLikes,
+    updateMealProgress
 };

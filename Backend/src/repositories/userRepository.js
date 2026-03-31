@@ -33,11 +33,15 @@ const deleteRefreshToken = async (user_id) => {
 }
 
 const findUserByEmail = async (email) => {
-    const result = await sql`
-        SELECT * FROM users WHERE email = ${email}
-    `;
-    console.log("findUserByEmail result:", result);
-    return result[0];
+    try {
+        const result = await sql`
+            SELECT * FROM users WHERE email = ${email}
+        `;
+        return result[0];
+    } catch (err) {
+        console.error("Error in findUserByEmail:", err);
+        throw err;
+    }
 }
 
 const findUserRefreshToken = async (refreshToken) => {
