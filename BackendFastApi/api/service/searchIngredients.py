@@ -4,85 +4,84 @@ import requests
 from rapidfuzz import fuzz
 from core.config import setting
 import re
-# from xai_sdk import Client
-# from xai_sdk.chat import user, system
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# xai_client = Client(api_key=setting.XAI_API_KEY)
-# chat = xai_client.chat.create(model="grok-3-mini")
 
-def search_ingredients(query):
-    logger.info(f"Searching for ingredient: {query}")
-    ingredients = supabase_client.table("ingredients_mapping").select("simplified_name").ilike("original_name", f"%{query}%").execute()
-    logger.info(f"Found ingredients: {ingredients.data}")
-    if not ingredients.data:
-        logger.info("No ingredients found, querying USDA API")
-        url = "https://api.nal.usda.gov/fdc/v1/foods/search"
-        params = {
-            "api_key": setting.USDA_API_KEY,
-            "query": query,
-            "pageSize": 10,
-            "dataType": ["Foundation", "SR Legacy"],
-        }
-        response = requests.get(url, params=params)
-        usda_data = response.json()
-        best_food = get_best_match(query, usda_data["foods"])
-        nutrients = best_food.get("foodNutrients", [])
-        calories = next(
-            (n["value"] for n in nutrients if "Energy" in n["nutrientName"] and n["unitName"] == "KCAL"),
-            None
-        )
-        protein = next(
-            (n["value"] for n in nutrients if n["nutrientName"] == "Protein"),
-            None
-        )
-        fat = next(
-            (n["value"] for n in nutrients if n["nutrientName"] == "Total lipid (fat)"),
-            None
-        )
-        carbs = next(
-            (n["value"] for n in nutrients if n["nutrientName"] == "Carbohydrate, by difference"),
-            None
-        )
-        fiber = next(
-            (n["value"] for n in nutrients if n["nutrientName"] == "Fiber, total dietary"),
-            None
-        )
-        sugar = next(
-            (n["value"] for n in nutrients if "Sugars" in n["nutrientName"]),
-            None
-        )
-        sodium = next(
-            (n["value"] for n in nutrients if n["nutrientName"] == "Sodium, Na"),
-            None
-        )
-        cholesterol = next(
-            (n["value"] for n in nutrients if n["nutrientName"] == "Cholesterol"),
-            None
-        )
-        unit = best_food.get("servingSizeUnit", None)
-        servingSize = best_food.get("servingSize", None)
-        householdServing = best_food.get("householdServingFullText", None)
-        simplified_name = get_best_simplified_name(query)
 
-        new_ingredient = supabase_client.table("ingredients_mapping").insert({
-            "original_name": best_food["description"],
-            "simplified_name": simplified_name,
-            "fdcId": best_food["fdcId"],
-            "calories": calories,
-            "protein": protein,
-            "fat": fat,
-            "carbohydrate": carbs,
-            "fiber": fiber,
-            "sugar": sugar,
-            "sodium": sodium,
-            "cholesterol": cholesterol,
-            "unit": unit,
-            "serving_size": servingSize,
-            "household_serving": householdServing
-        }).execute()
-        return new_ingredient.data[0]
-    return ingredients.data[0]
+def search_ingredients(ingredients_list):
+    results = []
+    for ingredient in ingredients_list:
+        ingredients = supabase_client.table("ingredients_mapping").select("simplified_name").ilike("original_name", f"%{ingredient}%").execute()
+        logger.info(f"Found ingredients: {ingredients.data}")
+        if not ingredients.data:
+            logger.info("No ingredients found, querying USDA API")
+            url = "https://api.nal.usda.gov/fdc/v1/foods/search"
+            params = {
+                "api_key": setting.USDA_API_KEY,
+                "query": ingredient,
+                "pageSize": 10,
+                "dataType": ["Foundation", "SR Legacy"],
+            }
+            response = requests.get(url, params=params)
+            usda_data = response.json()
+            best_food = get_best_match(ingredient, usda_data["foods"])
+            nutrients = best_food.get("foodNutrients", [])
+            calories = next(
+                (n["value"] for n in nutrients if "Energy" in n["nutrientName"] and n["unitName"] == "KCAL"),
+                None
+            )
+            protein = next(
+                (n["value"] for n in nutrients if n["nutrientName"] == "Protein"),
+                None
+            )
+            fat = next(
+                (n["value"] for n in nutrients if n["nutrientName"] == "Total lipid (fat)"),
+                None
+            )
+            carbs = next(
+                (n["value"] for n in nutrients if n["nutrientName"] == "Carbohydrate, by difference"),
+                None
+            )
+            fiber = next(
+                (n["value"] for n in nutrients if n["nutrientName"] == "Fiber, total dietary"),
+                None
+            )
+            sugar = next(
+                (n["value"] for n in nutrients if "Sugars" in n["nutrientName"]),
+                None
+            )
+            sodium = next(
+                (n["value"] for n in nutrients if n["nutrientName"] == "Sodium, Na"),
+                None
+            )
+            cholesterol = next(
+                (n["value"] for n in nutrients if n["nutrientName"] == "Cholesterol"),
+                None
+            )
+            unit = best_food.get("servingSizeUnit", None)
+            servingSize = best_food.get("servingSize", None)
+            householdServing = best_food.get("householdServingFullText", None)
+            simplified_name = get_best_simplified_name(ingredient)
+
+            new_ingredient = supabase_client.table("ingredients_mapping").insert({
+                "original_name": best_food["description"],
+                "simplified_name": simplified_name,
+                "fdcId": best_food["fdcId"],
+                "calories": calories,
+                "protein": protein,
+                "fat": fat,
+                "carbohydrate": carbs,
+                "fiber": fiber,
+                "sugar": sugar,
+                "sodium": sodium,
+                "cholesterol": cholesterol,
+                "unit": unit,
+                "serving_size": servingSize,
+                "household_serving": householdServing
+            }).execute()
+            results.append(new_ingredient.data[0])
+        results.append(ingredients.data[0])
+    return results
 
 def clean(text):
     text = text.lower()

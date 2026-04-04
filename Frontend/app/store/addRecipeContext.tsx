@@ -7,12 +7,23 @@ interface image{
     type: string;
 }
 
+interface ingredient{
+    name: string;
+    qty: string;
+}
+
+interface step{
+    description: string;
+}
+
 interface recipeData {
   name?: string;
   cookTime?: number;
   prepTime?: number;
   description?: string;
   image?: image;
+  ingredients?: ingredient[];
+  steps?: step[];
 }
 
 interface RecipeContextType {
@@ -30,9 +41,11 @@ const RecipeProvider = ({ children }: { children: React.ReactNode }) => {
     prepTime: 0,
     description: "",
     image: undefined,
+    ingredients: [],
+    steps: [],
   });
 
-  const resetRecipeData = () => setRecipeData({ name: "", cookTime: 0, prepTime: 0, description: "", image: undefined });
+  const resetRecipeData = () => setRecipeData({ name: "", cookTime: 0, prepTime: 0, description: "", image: undefined, ingredients: [], steps: [] });
   return (
     <RecipeContext.Provider value={{ recipeData, setRecipeData, resetRecipeData }}>
       {children}

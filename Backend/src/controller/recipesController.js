@@ -170,21 +170,10 @@ const addRecipe = async (req, res) => {
     try {
         const userId = req.user
         const recipeData = req.body
-        const newRecipe = await recipesRepository.addRecipe(userId, recipeData)
-        res.status(201).json(ApiResponse.success("Recipe Added Successfully", newRecipe, 201))
+        const result = await recipesService.addRecipe(userId, recipeData, req)
+        res.status(201).json(ApiResponse.success("Recipe Added Successfully", recipeData, 200))
     } catch (err) {
         console.error(err.message)
-        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
-    }
-}
-
-const searchIngredients = async (req, res) => {
-    try {
-        const query = req.query;
-        const result = await recipesService.searchIngredients(query);
-        res.json(ApiResponse.success("Ingredients fetched successfully", result , 200));
-    } catch (err) {
-        console.error(err.message);
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
     }
 }
@@ -215,7 +204,6 @@ module.exports = {
     removeLikes, 
     deleteMealPlan, 
     addRecipe, 
-    searchIngredients, 
     addLikes,
-    updateMealProgress
+    updateMealProgress,
 };

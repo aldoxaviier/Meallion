@@ -332,5 +332,5 @@ module.exports = {
      updateMealPlan,
      addMealProgress,
      updateMealProgress,
-     getMealPlanById
+     getMealPlanById,
 };

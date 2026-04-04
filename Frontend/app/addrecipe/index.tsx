@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { View,Text, TextInput,TouchableOpacity, Alert,Image} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { RecipeContext } from "../store/addRecipeContext";
 import * as ImagePicker from 'expo-image-picker';
 import { ProfileDataContext } from "../store/profileDataContext";
@@ -99,9 +99,13 @@ const Index = () => {
         }
     };
 
+    useEffect(() => {
+        console.log("Current Recipe Context Data:", inputs);
+    },[inputs])
+
     const onPressNext = async () => {
         try {
-            recipeContext?.setRecipeData({
+            const recipePayload = {
                 name: inputs.name,
                 cookTime: parseInt(inputs.cookTime),
                 prepTime: parseInt(inputs.prepTime),
@@ -111,9 +115,9 @@ const Index = () => {
                     name: image.name,
                     type: image.type,
                 },
-            });
-            await recipeSchema.validate(recipeContext?.recipeData);
-            console.log("Recipe Context Data:", recipeContext?.recipeData);
+            };
+            await recipeSchema.validate(recipePayload);
+            recipeContext?.setRecipeData((prev) => ({ ...prev, ...recipePayload }));
             setMessage("");
             router.push("/addrecipe/ingredients");           
         } catch (error) {

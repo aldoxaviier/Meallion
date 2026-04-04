@@ -20,6 +20,13 @@ export default function _Layout() {
                     header: () => <CustomHeader title="Add Ingredients" />
                 }}
             />
+            <Stack.Screen 
+                name="steps" 
+                options={{ 
+                    headerShown: true,
+                    header: () => <CustomHeader title="Add Steps" />
+                }}
+            />
         </Stack>
         </RecipeProvider>
         </>

@@ -2,12 +2,13 @@ from fastapi import APIRouter, HTTPException, Depends, Response
 from api.service.searchIngredients import search_ingredients
 from api.middleware.authorization import get_current_user
 from api.utils.apiResponse import ApiResponse
+from fastapi import Body
 router = APIRouter(prefix="/recipes")
 
-@router.get("/search-ingredients")
-def search_ingredients_endpoint(response: Response, query: str):
+@router.post("/search-ingredients")
+def search_ingredients_endpoint(response: Response, ingredients: list = Body(...)):
     try:
-        data = search_ingredients(query)
+        data = search_ingredients(ingredients)
         response.status_code = 200
         return ApiResponse.success(
             message="Ingredients searched successfully",

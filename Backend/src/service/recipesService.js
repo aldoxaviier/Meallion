@@ -1,3 +1,4 @@
+const { json } = require("../config/dbSql");
 const recipesRepository = require("../repositories/recipesRepository")
 
 const getRecipesByNameCategory = async (query, category, page = 1, limit = 10) => {
@@ -50,24 +51,6 @@ const getMealPlan = async (userId, date) => {
     }
 }
 
-const searchIngredients = async (query) => {
-    const result = await recipesRepository.getIngredients(query);
-    if(!result){
-        const response = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search`,{
-            method: "GET",
-            params: {
-                api_key: process.env.USDA_API_KEY,
-                query: query,
-                pageSize: 10,
-                pageNumber: 1,
-                dataType: ["Foundation", "SR Legacy"]
-            }
-        })
-        const data = await response.json();
-        return data;
-    }
-}
-
 const updateMealProgress = async (userId, mealIDs, date, progress_cal, progress_pro, progress_fat, progress_carbs) => {
     if (!mealIDs || mealIDs.length === 0) {
         throw new Error("Meal IDs cannot be empty");
@@ -101,4 +84,23 @@ const deleteMealPlan = async (userId, mealId, date, cal, pro, fat, carbs) => {
     }
 }
 
-module.exports = { getRecipesByNameCategory, addReview, getMealPlan, searchIngredients, addLikes, updateMealProgress, deleteMealPlan };
+const addRecipe = async (userId, {name, prepTime, cookTime, description,ingredients,steps}, req) => {
+    const recipeImage = `assets/recipe/${req.file.filename}`;
+    const ingredientsData = JSON.parse(ingredients);
+    const ingredientsNames = ingredientsData.map(ingredient => ingredient.name.trim().toLowerCase());
+    console.log("ingredientsNames", ingredientsNames);
+    const response = await fetch(`${process.env.FAST_API_URL}/recipes/search-ingredients`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(
+            ingredientsNames
+        )
+    });
+    const data = await response.json();
+    console.log("response", data);
+    return recipeImage
+}
+
+module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe };

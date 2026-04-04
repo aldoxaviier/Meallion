@@ -6,7 +6,6 @@ class Settings(BaseSettings):
     SupabaseKey: str 
     JWT_SECRET: str
     USDA_API_KEY: str
-    XAI_API_KEY: str
     model_config = {"env_file": ".env"}
 
 setting = Settings()

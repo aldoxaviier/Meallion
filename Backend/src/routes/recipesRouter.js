@@ -1,6 +1,16 @@
 const router = require("express").Router();
 const recipesController = require("../controller/recipesController");
 const authorization = require("../middleware/authorization");
+const multer = require("multer");
+const path = require("path");
+const storage = multer.diskStorage({
+    destination: "assets/recipe/",
+    filename: (req,file,cb) => {
+        cb(null,Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({storage});
+
 
 router.get("/getAll", recipesController.getAllRecipes);
 router.get("/getIngredients", recipesController.getIngredients);
@@ -14,8 +24,7 @@ router.get("/getLikesByUserId", authorization, recipesController.getLikesByUserI
 router.post("/addToMealPlan", authorization, recipesController.addToMealPlan)
 router.delete("/removeLikes", authorization, recipesController.removeLikes)
 router.delete("/deleteMealPlan", authorization, recipesController.deleteMealPlan)
-router.post("/addRecipe", authorization, recipesController.addRecipe)
-router.get("/search-ingredients", recipesController.searchIngredients)
+router.post("/addRecipe", authorization, upload.single("image"), recipesController.addRecipe)
 router.post("/addLikes", authorization, recipesController.addLikes)
 router.post("/updateMealProgress", authorization, recipesController.updateMealProgress)
 
