@@ -171,6 +171,7 @@ const addRecipe = async (req, res) => {
         const userId = req.user
         const recipeData = req.body
         const result = await recipesService.addRecipe(userId, recipeData, req)
+        console.log("recipeData", recipeData);
         res.status(201).json(ApiResponse.success("Recipe Added Successfully", recipeData, 200))
     } catch (err) {
         console.error(err.message)

@@ -14,6 +14,13 @@ export default function _Layout() {
                 }}
             />
             <Stack.Screen 
+                name="category" 
+                options={{ 
+                    headerShown: true,
+                    header: () => <CustomHeader title="Choose Category" />
+                }}
+            />
+            <Stack.Screen 
                 name="ingredients" 
                 options={{ 
                     headerShown: true,

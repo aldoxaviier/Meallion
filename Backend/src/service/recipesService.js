@@ -86,34 +86,21 @@ const deleteMealPlan = async (userId, mealId, date, cal, pro, fat, carbs) => {
 
 const addRecipe = async (userId, {name, prepTime, cookTime, description,ingredients,steps}, req) => {
     const recipeImage = `assets/recipe/${req.file.filename}`;
-    const ingredientsData = JSON.parse(ingredients);
-    const response = await fetch(`${process.env.FAST_API_URL}/recipes/search-ingredients`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(
-            ingredientsData
-        )
-    });
-    const data = await response.json();
-    console.log("response", data);
     return recipeImage
 }
 
 const searchIngredients = async (query) => {
-    let result = await recipesRepository.searchIngredients(query);
+    let result = await recipesRepository.getIngredients(query);
     if (!result || result.length === 0) {
         const response = await fetch(`${process.env.FAST_API_URL}/recipes/search-ingredients`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: query
+            body: JSON.stringify( query )
         });
         const data = await response.json();
-        console.log("response", data);
-        return data;
+        return data.data;
     }
     return result;
 }

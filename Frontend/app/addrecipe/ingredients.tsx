@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     View,
     ActivityIndicator,
+    ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -13,20 +14,13 @@ import { RecipeContext } from "../store/addRecipeContext";
 import { router } from "expo-router";
 import { api } from "../utils/api";
 
-type Ingredient = {
-    id: number;
-    name: string;
-    qty: string;
-    ingredientId: number;
-};
-
 type IngredientSuggestion = {
     original_name: string;
     [key: string]: any;
 };
 
 const Ingredients = () => {
-    const [ingredients, setIngredients] = useState<Ingredient[]>([
+    const [ingredients, setIngredients] = useState<any[]>([
         { id: 1, name: "", qty: "", ingredientId: 0 },
     ]);
     const [nextId, setNextId] = useState(3);
@@ -52,7 +46,8 @@ const Ingredients = () => {
             return;
         }
         try {
-            const response = await api.get(`/recipes/getIngredients?query=${query}`);
+            const response = await api.get(`/recipes/search-ingredients?query=${query}`);
+            console.log("Suggestions response:", response.data.length);
             setSuggestions(response.data);
         } catch (error) {
             setSuggestions([]);
@@ -63,7 +58,7 @@ const Ingredients = () => {
 
     const updateIngredient = (
         id: number,
-        key: keyof Omit<Ingredient, "id">,
+        key: keyof Omit<any, "id">,
         value: string
     ) => {
         setIngredients((prev) =>
@@ -99,21 +94,26 @@ const Ingredients = () => {
     };
 
     const selectSuggestion = (ingredientId: number, suggestion: IngredientSuggestion) => {
-        setIngredients((prev) =>
-            prev.map((item) =>
-                item.id === ingredientId
-                    ? { ...item, name: suggestion.original_name, ingredientId: suggestion.id }
-                    : item
-            )
-        );
-        setSuggestions([]);
-        setActiveInputId(null);
-        setIsLoadingSuggestions(false);
+    setIngredients((prev) =>
+        prev.map((item) =>
+            item.id === ingredientId
+                ? {
+                    ...item,
+                    ...suggestion,
+                    ingredientId: suggestion.id,
+                    name: suggestion.original_name,
+                  }
+                : item
+        )
+    );
+    setSuggestions([]);
+    setActiveInputId(null);
+    setIsLoadingSuggestions(false);
 
-        if (debounceTimers.current[ingredientId]) {
-            clearTimeout(debounceTimers.current[ingredientId]);
-        }
-    };
+    if (debounceTimers.current[ingredientId]) {
+        clearTimeout(debounceTimers.current[ingredientId]);
+    }
+};
 
     const addIngredient = () => {
         setIngredients((prev) => [...prev, { id: nextId, name: "", qty: "", ingredientId: 0 }]); 
@@ -138,7 +138,7 @@ const Ingredients = () => {
         try {
             await recipeContext?.setRecipeData({
                 ...recipeContext.recipeData,
-                ingredients: ingredients.map(({ ingredientId, name, qty }) => ({ ingredientId, name, qty })),
+                ingredients: ingredients.map(({ id, name, ...rest }) => rest),
             });
             router.push("/addrecipe/steps");
         } catch (error) {
@@ -210,21 +210,25 @@ const Ingredients = () => {
                             {/* Suggestions dropdown */}
                             {activeInputId === item.id && !isLoadingSuggestions && suggestions.length > 0 && ( // 👈
                                 <View className="mt-1 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                                    {suggestions.slice(0, 5).map((suggestion, index) => (
+                                    <ScrollView
+                                        keyboardShouldPersistTaps="handled"
+                                        nestedScrollEnabled={true}
+                                        style={{ maxHeight: 200 }}
+                                    >
+                                        {suggestions.map((suggestion, index) => (
                                         <TouchableOpacity
                                             key={`${suggestion.original_name}-${index}`}
                                             onPress={() => selectSuggestion(item.id, suggestion)}
                                             className={`px-4 py-3 ${
-                                                index !== Math.min(suggestions.length, 5) - 1
-                                                    ? "border-b border-gray-100"
-                                                    : ""
+                                            index !== suggestions.length - 1 ? "border-b border-gray-100" : ""
                                             }`}
                                         >
                                             <Text className="font-brsegma-500 text-gray-700">
-                                                {suggestion.original_name}
+                                            {suggestion.original_name}
                                             </Text>
                                         </TouchableOpacity>
-                                    ))}
+                                        ))}
+                                    </ScrollView>
                                 </View>
                             )}
                         </View>
