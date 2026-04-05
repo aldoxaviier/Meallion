@@ -5,7 +5,7 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    FlatList,
+    ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -17,6 +17,7 @@ type Ingredient = {
     id: number;
     name: string;
     qty: string;
+    ingredientId: number;
 };
 
 type IngredientSuggestion = {
@@ -26,24 +27,28 @@ type IngredientSuggestion = {
 
 const Ingredients = () => {
     const [ingredients, setIngredients] = useState<Ingredient[]>([
-        { id: 1, name: "", qty: "" },
+        { id: 1, name: "", qty: "", ingredientId: 0 },
     ]);
     const [nextId, setNextId] = useState(3);
     const [suggestions, setSuggestions] = useState<IngredientSuggestion[]>([]);
     const [activeInputId, setActiveInputId] = useState<number | null>(null);
     const [message, setMessage] = useState<string>("");
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false); // 👈
     const recipeContext = useContext(RecipeContext);
     const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+    const loaderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 
     useEffect(() => {
         return () => {
             Object.values(debounceTimers.current).forEach(clearTimeout);
+            Object.values(loaderTimers.current).forEach(clearTimeout);
         };
     }, []);
 
     const fetchSuggestions = async (query: string) => {
         if (!query.trim()) {
             setSuggestions([]);
+            setIsLoadingSuggestions(false);
             return;
         }
         try {
@@ -51,6 +56,8 @@ const Ingredients = () => {
             setSuggestions(response.data);
         } catch (error) {
             setSuggestions([]);
+        } finally {
+            setIsLoadingSuggestions(false);
         }
     };
 
@@ -67,13 +74,27 @@ const Ingredients = () => {
             setActiveInputId(id);
             setSuggestions([]);
 
+            setIngredients((prev) =>
+                prev.map((item) => (item.id === id ? { ...item, ingredientId: 0 } : item))
+            );
+
             if (debounceTimers.current[id]) {
                 clearTimeout(debounceTimers.current[id]);
             }
 
+            if (loaderTimers.current[id]) {
+                clearTimeout(loaderTimers.current[id]);
+            }
+
+            if (value.trim()) {
+                loaderTimers.current[id] = setTimeout(() => {
+                    setIsLoadingSuggestions(true);
+                }, 500);
+            }
+
             debounceTimers.current[id] = setTimeout(() => {
                 fetchSuggestions(value);
-            }, 2000);
+            }, 1000);
         }
     };
 
@@ -81,12 +102,13 @@ const Ingredients = () => {
         setIngredients((prev) =>
             prev.map((item) =>
                 item.id === ingredientId
-                    ? { ...item, name: suggestion.original_name }
+                    ? { ...item, name: suggestion.original_name, ingredientId: suggestion.id }
                     : item
             )
         );
         setSuggestions([]);
         setActiveInputId(null);
+        setIsLoadingSuggestions(false);
 
         if (debounceTimers.current[ingredientId]) {
             clearTimeout(debounceTimers.current[ingredientId]);
@@ -94,7 +116,7 @@ const Ingredients = () => {
     };
 
     const addIngredient = () => {
-        setIngredients((prev) => [...prev, { id: nextId, name: "", qty: "" }]);
+        setIngredients((prev) => [...prev, { id: nextId, name: "", qty: "", ingredientId: 0 }]); 
         setNextId((prev) => prev + 1);
     };
 
@@ -104,6 +126,7 @@ const Ingredients = () => {
         if (activeInputId === id) {
             setSuggestions([]);
             setActiveInputId(null);
+            setIsLoadingSuggestions(false); // 👈
         }
     };
 
@@ -115,7 +138,7 @@ const Ingredients = () => {
         try {
             await recipeContext?.setRecipeData({
                 ...recipeContext.recipeData,
-                ingredients: ingredients.map(({ name, qty }) => ({ name, qty })),
+                ingredients: ingredients.map(({ ingredientId, name, qty }) => ({ ingredientId, name, qty })),
             });
             router.push("/addrecipe/steps");
         } catch (error) {
@@ -147,6 +170,7 @@ const Ingredients = () => {
                                             if (activeInputId === item.id) {
                                                 setSuggestions([]);
                                                 setActiveInputId(null);
+                                                setIsLoadingSuggestions(false); // 👈
                                             }
                                         }, 200);
                                     }}
@@ -176,30 +200,31 @@ const Ingredients = () => {
                                 </TouchableOpacity>
                             </View>
 
+                            {/* Loading indicator */}
+                            {activeInputId === item.id && isLoadingSuggestions && ( // 👈
+                                <View className="mt-1 rounded-xl border border-gray-200 bg-white px-4 py-3 items-center">
+                                    <ActivityIndicator size="small" color="#8E1207" />
+                                </View>
+                            )}
+
                             {/* Suggestions dropdown */}
-                            {activeInputId === item.id && suggestions.length > 0 && (
+                            {activeInputId === item.id && !isLoadingSuggestions && suggestions.length > 0 && ( // 👈
                                 <View className="mt-1 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                                    <FlatList
-                                        data={suggestions}
-                                        keyExtractor={(s, index) => `${s.original_name}-${index}`}
-                                        keyboardShouldPersistTaps="handled"
-                                        scrollEnabled={suggestions.length > 4}
-                                        style={{ maxHeight: 160 }}
-                                        renderItem={({ item: suggestion, index }) => (
-                                            <TouchableOpacity
-                                                onPress={() => selectSuggestion(item.id, suggestion)}
-                                                className={`px-4 py-3 ${
-                                                    index !== suggestions.length - 1
-                                                        ? "border-b border-gray-100"
-                                                        : ""
-                                                }`}
-                                            >
-                                                <Text className="font-brsegma-500 text-gray-700">
-                                                    {suggestion.original_name}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        )}
-                                    />
+                                    {suggestions.slice(0, 5).map((suggestion, index) => (
+                                        <TouchableOpacity
+                                            key={`${suggestion.original_name}-${index}`}
+                                            onPress={() => selectSuggestion(item.id, suggestion)}
+                                            className={`px-4 py-3 ${
+                                                index !== Math.min(suggestions.length, 5) - 1
+                                                    ? "border-b border-gray-100"
+                                                    : ""
+                                            }`}
+                                        >
+                                            <Text className="font-brsegma-500 text-gray-700">
+                                                {suggestion.original_name}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
                                 </View>
                             )}
                         </View>

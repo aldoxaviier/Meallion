@@ -8,6 +8,7 @@ interface image{
 }
 
 interface ingredient{
+    ingredientId: number; 
     name: string;
     qty: string;
 }

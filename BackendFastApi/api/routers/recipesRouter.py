@@ -6,7 +6,7 @@ from fastapi import Body
 router = APIRouter(prefix="/recipes")
 
 @router.post("/search-ingredients")
-def search_ingredients_endpoint(response: Response, ingredients: list = Body(...)):
+def search_ingredients_endpoint(response: Response, ingredients = Body(...)):
     try:
         data = search_ingredients(ingredients)
         response.status_code = 200

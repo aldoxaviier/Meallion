@@ -87,15 +87,13 @@ const deleteMealPlan = async (userId, mealId, date, cal, pro, fat, carbs) => {
 const addRecipe = async (userId, {name, prepTime, cookTime, description,ingredients,steps}, req) => {
     const recipeImage = `assets/recipe/${req.file.filename}`;
     const ingredientsData = JSON.parse(ingredients);
-    const ingredientsNames = ingredientsData.map(ingredient => ingredient.name.trim().toLowerCase());
-    console.log("ingredientsNames", ingredientsNames);
     const response = await fetch(`${process.env.FAST_API_URL}/recipes/search-ingredients`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(
-            ingredientsNames
+            ingredientsData
         )
     });
     const data = await response.json();
@@ -103,4 +101,21 @@ const addRecipe = async (userId, {name, prepTime, cookTime, description,ingredie
     return recipeImage
 }
 
-module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe };
+const searchIngredients = async (query) => {
+    let result = await recipesRepository.searchIngredients(query);
+    if (!result || result.length === 0) {
+        const response = await fetch(`${process.env.FAST_API_URL}/recipes/search-ingredients`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: query
+        });
+        const data = await response.json();
+        console.log("response", data);
+        return data;
+    }
+    return result;
+}
+
+module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients };

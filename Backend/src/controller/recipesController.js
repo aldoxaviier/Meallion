@@ -190,6 +190,17 @@ const updateMealProgress = async (req, res) => {
     }
 }
 
+const searchIngredients = async (req, res) => {
+    try {
+        const query = req.query.query;
+        const result = await recipesService.searchIngredients(query);
+        res.json(ApiResponse.success("Ingredients fetched successfully", result , 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+    }
+}
+
 module.exports = { 
     getAllRecipes, 
     getIngredients,
@@ -206,4 +217,5 @@ module.exports = {
     addRecipe, 
     addLikes,
     updateMealProgress,
+    searchIngredients
 };

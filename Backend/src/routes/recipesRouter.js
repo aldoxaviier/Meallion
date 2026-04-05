@@ -27,5 +27,5 @@ router.delete("/deleteMealPlan", authorization, recipesController.deleteMealPlan
 router.post("/addRecipe", authorization, upload.single("image"), recipesController.addRecipe)
 router.post("/addLikes", authorization, recipesController.addLikes)
 router.post("/updateMealProgress", authorization, recipesController.updateMealProgress)
-
+router.get("/search-ingredients", recipesController.searchIngredients)
 module.exports = router;
