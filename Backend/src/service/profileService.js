@@ -90,9 +90,9 @@ const updateProfile = async (userId, profile, req) => {
         profile.profile_image = `assets/avatar/${req.file.filename}`;
         const existingProfile = await profileRepository.getProfile(userId);
         console.log("existing profile:", existingProfile);
-        if(existingProfile[0].profile_image){
+        if(existingProfile.profile_image){
             console.log("ada lama");
-            const oldpath = path.join(__dirname,"../../",existingProfile[0].profile_image);
+            const oldpath = path.join(__dirname,"../../",existingProfile.profile_image);
             console.log("oldpath:", oldpath);
             if (fs.existsSync(oldpath)) {
                 fs.unlinkSync(oldpath);

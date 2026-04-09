@@ -16,8 +16,6 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
   const [allReviewData, setAllReviewData] = useState<any>([])
   const profileData = useContext(ProfileDataContext)
   const [loading, setisLoading] = useState(false)
-  console.log("stars: ", selectedRating);
-  console.log("review: ", review);
 
   const recipeId = recipeData?.recipe_id
   const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -102,7 +100,7 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
               <Ionicons key={s} name="star" size={16} color={s <= Math.round(recipeData.rating_score || 0) ? "#FF9F1C" : "#E5E7EB"} />
             ))}
           </View>
-          <Text className="text-gray-500 text-xs">({recipeData.rating_total || 0} reviews)</Text>
+          <Text className="text-gray-500 text-xs">({reviewData.length || 0} reviews)</Text>
         </View>
 
         <View className="flex-[1.5] pl-6">

@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Image, ScrollView, FlatList } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { Link, useRouter, useLocalSearchParams } from 'expo-router';
 import { api } from '../../utils/api';
 import { AuthContext } from '../../store/authContext';
 import { ProfileDataContext } from '../../store/profileDataContext';
@@ -15,7 +15,29 @@ const Index = () => {
   const tenRecipe = useContext(TenRecipeContext);
   const [activeTab, setActiveTab] = useState<'grid' | 'favorites'>('grid');
   const [recipes, setRecipes] = useState<any[]>([]);
+  const [viewedProfile, setViewedProfile] = useState<any>(null);
+  const { user_id } = useLocalSearchParams<{ user_id?: string }>();
+  const isOwnProfile = !user_id || user_id === profileData?.profileData?.user_id;
+  const displayProfile = isOwnProfile ? profileData?.profileData : viewedProfile;
+  console.log("user_id:", user_id);
   const router = useRouter();
+
+  useEffect(() => {
+    if (user_id && !isOwnProfile) {
+      const fetchProfile = async () => {
+        try {
+          const response = await api.get(`/profile/getProfileFromID?user_id=${user_id}`);
+          if (response.data?.data) {
+            setViewedProfile(response.data.data);
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+        }
+      };
+      fetchProfile();
+    }
+  }, [user_id]);
+
   useEffect(() => {
     if (tenRecipe?.TenRecipe) {
       setRecipes(tenRecipe.TenRecipe);
@@ -40,12 +62,14 @@ const Index = () => {
     <SafeAreaView className="flex-1 bg-primary-600" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="bg-primary-600 h-28 relative">
-          <TouchableOpacity
-            className="absolute top-2 right-4 w-10 h-10 rounded-full bg-secondary-400/20 items-center justify-center"
-            onPress={() => router.push("/settings/" as any)}
-          >
-            <Ionicons name="settings-outline" size={22} color="#F2E8C6" />
-          </TouchableOpacity>
+          {isOwnProfile && (
+            <TouchableOpacity
+              className="absolute top-2 right-4 w-10 h-10 rounded-full bg-secondary-400/20 items-center justify-center"
+              onPress={() => router.push("/settings/" as any)}
+            >
+              <Ionicons name="settings-outline" size={22} color="#F2E8C6" />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View className="bg-secondary-400 min-h-screen rounded-t-3xl -mt-4 px-6 pb-8">
@@ -53,13 +77,13 @@ const Index = () => {
             <View className="w-24 h-24 rounded-full border-4 border-secondary-400 overflow-hidden bg-secondary-300">
               <Image
                 className="w-full h-full"
-                source={profileData?.profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profileData.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
+                source={displayProfile?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${displayProfile.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
               />
             </View>
           </View>
 
           <Text className="font-fogsta text-3xl text-primary-500 mb-1">
-            {profileData?.profileData?.users?.name || 'User'}
+            {displayProfile?.users?.name || 'User'}
           </Text>
 
           <Text className="font-brsegma-300 text-sm text-gray-600 mb-6 leading-5">
@@ -70,21 +94,21 @@ const Index = () => {
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700">Current weight</Text>
               <Text className="font-brsegma-600 text-primary-500">
-                {profileData?.profileData?.weight || '--'} kg
+                {displayProfile?.weight || '--'} kg
               </Text>
             </View>
 
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700">Goal</Text>
               <Text className="font-brsegma-600 text-primary-500">
-                {getGoalLabel(profileData?.profileData?.goal_plan)}
+                {getGoalLabel(displayProfile?.goal_plan)}
               </Text>
             </View>
 
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700">Diet</Text>
               <Text className="font-brsegma-600 text-primary-500">
-                {getDietLabel(profileData?.profileData?.diet_preferences)}
+                {getDietLabel(displayProfile?.diet_preferences)}
               </Text>
             </View>
           </View>

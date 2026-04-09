@@ -18,4 +18,5 @@ router.post("/addInteraction", authorization, profileController.addInteraction);
 router.get("/getProfile", authorization, profileController.getProfile);
 router.put("/updateProfile", authorization,upload.single("image"), profileController.updateProfile);
 router.put("/updateDietPreferences", authorization, profileController.updateDietPreferences);
+router.get("/getProfileFromID", profileController.getProfileFromID);
 module.exports = router;

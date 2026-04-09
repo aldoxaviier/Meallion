@@ -1,139 +1,166 @@
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Modal } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, FlatList, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5, Feather, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import { useEffect, useRef, useState } from "react";
-import { router, useNavigation } from "expo-router";
-
-// Mock data for posts
-const POSTS = [
-  {
-    id: "1",
-    username: "X_AE_A-13",
-    subtitle: "Product Designer, slothUI",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    content: "Habitant morbi tristique senectus et netus et. Suspendisse sed nisi lacus sed viverra. Dolor morbi non arcu risus quis varius.",
-    hashtags: ["#amazing", "#great", "#lifetime", "#uiux", "#machinelearning"],
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
-    likes: 12,
-    comments: 25,
-    shares: 187,
-    bookmarks: 8,
-  },
-  {
-    id: "2",
-    username: "ChefMaria",
-    subtitle: "Food Enthusiast",
-    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-    content: "Just made the most amazing pasta dish! The secret is fresh basil and homemade sauce.",
-    hashtags: ["#cooking", "#pasta", "#homemade", "#foodie"],
-    image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400",
-    likes: 45,
-    comments: 12,
-    shares: 89,
-    bookmarks: 23,
-  },
-  {
-    id: "3",
-    username: "ChefMaria",
-    subtitle: "Food Enthusiast",
-    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-    content: "Just made the most amazing pasta dish! The secret is fresh basil and homemade sauce.",
-    hashtags: ["#cooking", "#pasta", "#homemade", "#foodie"],
-    image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400",
-    likes: 45,
-    comments: 12,
-    shares: 89,
-    bookmarks: 23,
-  },
-  {
-    id: "4",
-    username: "ChefMaria",
-    subtitle: "Food Enthusiast",
-    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-    content: "Just made the most amazing pasta dish! The secret is fresh basil and homemade sauce.",
-    hashtags: ["#cooking", "#pasta", "#homemade", "#foodie"],
-    image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400",
-    likes: 45,
-    comments: 12,
-    shares: 89,
-    bookmarks: 23,
-  },
-];
+import { useEffect, useState, useCallback } from "react";
+import { router, useFocusEffect } from "expo-router";
+import SocialHeader from "../../components/SocialHeader";
+import { api } from "@/app/utils/api";
 
 export default function Index() {
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const renderHashtags = (text: string) => {
-    return (
-      <Text className="text-gray-700 font-brsegma-500">
-        {text}{" "}
-      </Text>
-    );
+  const [recipes, setRecipes] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [activeTab, setActiveTab] = useState('foryou');
+
+  const fetchRecipes = async (pageNum: number) => {
+    try {
+      const res = await api.get(`/recipes/getRecipesByNameCategory?query=&page=${pageNum}&limit=10&category=`);
+      return res.data;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
   };
+
+  const loadInitial = async () => {
+    setIsLoading(true);
+    const data = await fetchRecipes(1);
+    if (data) {
+      setRecipes(data.data || []);
+      setPage(1);
+      setTotalPage(data.info?.totalPage || 1);
+    }
+    setIsLoading(false);
+  };
+
+
+  useFocusEffect(
+    useCallback(() => {
+      loadInitial();
+
+      return () => {
+        setRecipes([]); 
+        setPage(1);
+      };
+    }, [])
+  );
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore || page >= totalPage) return;
+    console.log("Trigger")
+    setIsLoadingMore(true);
+    
+    const nextPage = page + 1;
+    const data = await fetchRecipes(nextPage);
+    
+    if (data?.data?.length > 0) {
+      setRecipes(prev => {
+        const newRecipes = data.data.filter(
+          (newItem: any) => !prev.some((prevItem) => prevItem.recipe_id === newItem.recipe_id)
+        );
+        return [...prev, ...newRecipes];
+      });
+      setPage(nextPage);
+    }
+    setIsLoadingMore(false);
+  };
+
+  const handleActiveTab = async (selectedTab: string) => {
+    console.log("Tab: ", selectedTab);
+    setActiveTab(selectedTab);
+  };
+
+  const getFirstTag = (tags: string | string[] | undefined) => {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags.slice(0, 3).map(t => `#${t.trim()}`);
+    return tags.split('|').slice(0, 3).map(t => `#${t.trim()}`);
+  };
+
+  const renderRecipePost = ({ item }: { item: any }) => (
+    <TouchableOpacity activeOpacity={0.8} onPress={() => router.push(`../recipes/${item.recipe_id}`)} className="p-6 border-b-[0.5px] border-gray-400">
+      <View className="flex-row justify-between items-start mb-3">
+        <View className="flex-row items-center gap-3">
+          <Image
+            source={item.profile_image ? { uri: item.profile_image } : require('../../../assets/avatar/profile_dumb.jpg')}
+            className="w-10 h-10 rounded-full"
+          />
+          <View>
+            <Text className="font-brsegma-600 text-gray-800">{item.author_name || "Chef"}</Text>
+            <Text className="text-gray-400 text-xs">Food Enthusiast</Text>
+          </View>
+        </View>
+        <TouchableOpacity>
+          <Feather name="more-vertical" size={20} color="#9CA3AF" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Post Content */}
+      <View className="mb-3">
+        <Text className="text-gray-800 font-brsegma-600 text-base mb-1" numberOfLines={2}>{item.name}</Text>
+        <Text className="text-gray-500 font-brsegma-500 text-sm" numberOfLines={2}>{item.Description}</Text>
+        {getFirstTag(item.tags).length > 0 && (
+          <Text className="text-primary-400 font-brsegma-500 text-sm mt-1">
+            {getFirstTag(item.tags).join(' ')}
+          </Text>
+        )}
+      </View>
+
+      {/* Post Image */}
+      {item.Images && (
+        <Image
+          source={{ uri: item.Images }}
+          className="w-full h-72 rounded-xl mb-3"
+          resizeMode="cover"
+        />
+      )}
+
+      {/* Post Actions */}
+      <View className="flex-row justify-between items-center pt-2">
+        <View className="flex-row gap-5">
+          <TouchableOpacity className="flex-row items-center gap-1">
+            <Feather name="star" size={18} color="#FFD700" />
+            <Text className="text-gray-500 text-sm">{item.rating_total || 0}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="flex-row items-center gap-1">
+            <Feather name="message-square" size={18} color="#6B7280" />
+          </TouchableOpacity>
+          <TouchableOpacity className="flex-row items-center gap-1">
+            <Feather name="share-2" size={18} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity className="flex-row items-center gap-1">
+          <Feather name="bookmark" size={18} color="#6B7280" />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <>
-      <ScrollView
-        className="flex-1 "
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-      >
-        
-
-        {POSTS.map((post) => (
-          <View key={post.id} className="p-6 border-b-[0.5px] border-gray-400">
-            <View className="flex-row justify-between items-start mb-3">
-              <View className="flex-row items-center gap-3">
-                <Image
-                  source={{ uri: post.avatar }}
-                  className="w-10 h-10 rounded-full"
-                />
-                <View>
-                  <Text className="font-brsegma-600 text-gray-800">{post.username}</Text>
-                  <Text className="text-gray-400 text-xs">{post.subtitle}</Text>
-                </View>
-              </View>
-              <TouchableOpacity>
-                <Feather name="more-vertical" size={20} color="#9CA3AF" />
-              </TouchableOpacity>
+    <SocialHeader onPressBtn={handleActiveTab} />
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#4a2c2a" />
+        </View>
+      ) : (
+        <FlatList
+          data={recipes}
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.recipe_id?.toString()}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          renderItem={renderRecipePost}
+          ListFooterComponent={() => (
+            <View className="h-[30px]">
+              {isLoadingMore && <ActivityIndicator />}
             </View>
-
-            {/* Post Content */}
-            <View className="mb-3">
-              {renderHashtags(post.content)}
-            </View>
-
-            {/* Post Image */}
-            <Image
-              source={{ uri: post.image }}
-              className="w-full h-72 rounded-xl mb-3"
-              resizeMode="cover"
-            />
-
-            {/* Post Actions */}
-            <View className="flex-row justify-between items-center pt-2">
-              <View className="flex-row gap-5">
-                <TouchableOpacity className="flex-row items-center gap-1">
-                  <Feather name="thumbs-up" size={18} color="#6B7280" />
-                  <Text className="text-gray-500 text-sm">{post.likes}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className="flex-row items-center gap-1">
-                  <Feather name="message-square" size={18} color="#6B7280" />
-                  <Text className="text-gray-500 text-sm">{post.comments}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className="flex-row items-center gap-1">
-                  <Feather name="share-2" size={18} color="#6B7280" />
-                  <Text className="text-gray-500 text-sm">{post.shares}</Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity className="flex-row items-center gap-1">
-                <Feather name="bookmark" size={18} color="#6B7280" />
-                <Text className="text-gray-500 text-sm">{post.bookmarks}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+          )}
+        />
+      )}
 
       <TouchableOpacity
         activeOpacity={0.9}

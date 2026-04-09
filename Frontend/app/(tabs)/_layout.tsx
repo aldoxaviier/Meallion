@@ -29,7 +29,7 @@ const _Layout = () => {
             <Tabs.Screen 
                 name="social"
                 options={{ title: "Socials",
-                    header : () => <SocialHeader />,
+                    headerShown:false,
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
                         name={focused ? 'people' : 'people-outline'}

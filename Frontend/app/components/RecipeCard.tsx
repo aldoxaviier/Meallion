@@ -45,7 +45,7 @@ export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
 
   const firstTag = getFirstTag(recipe.tags);
   return (
-    <TouchableHighlight className={`w-52 h-80 p-3 gap-2 bg-white rounded-xl shadow-sm`} onPress={() => router.push(`../recipes/${recipe.recipe_id}`)}>
+    <TouchableHighlight className={`w-52 h-80 p-3 gap-2 bg-white rounded-xl shadow-sm`} onPress={() => router.push(`/recipes/${recipe.recipe_id}`)}>
       <View className='flex justify-between h-full'>
         <View className='flex gap-1 '>
           <View className="relative">

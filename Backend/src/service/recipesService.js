@@ -118,4 +118,5 @@ const searchIngredients = async (query) => {
     return result;
 }
 
+
 module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients };

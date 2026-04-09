@@ -1,5 +1,5 @@
 import { useLocalSearchParams, Stack, router } from "expo-router";
-import { Animated, View, Text, TouchableOpacity, ImageBackground, Alert } from "react-native";
+import { Animated, View, Text, TouchableOpacity, ImageBackground, Alert, Image } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState, useRef } from "react";
@@ -169,6 +169,35 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
             <Text className="font-brsegma-500 mt-5 p-1">
               {recipeData.Description}
             </Text>
+            {/* Author Profile Section - under description */}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                if (!recipeData?.user_id) {
+                  Alert.alert("Error", "User not found");
+                  return;
+                }
+                router.push({ pathname: '/(tabs)/profile', params: { user_id: recipeData.user_id } });
+              }}
+              className="flex-row items-center mt-4 ml-1"
+            >
+              <Image
+                source={
+                  recipeData?.profile_image
+                    ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${recipeData.profile_image}` }
+                    : require('../../assets/avatar/profile_dumb.jpg')
+                }
+                className="w-9 h-9 rounded-full"
+              />
+              <View className="ml-2">
+                <Text className="text-[15px] text-gray-600 uppercase font-brsegma-800">
+                  Recipe by
+                </Text>
+                <Text className="font-brsegma-600 font-bold text-sm text-gray-900">
+                  {recipeData?.author_name || 'Unknown Author'}
+                </Text>
+              </View>
+            </TouchableOpacity>
 
             <View className="flex flex-row bg-primary-500 p-5 rounded-xl mt-7">
               <View className="flex-1 flex-row justify-center items-center border-r border-white">

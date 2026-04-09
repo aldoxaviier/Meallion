@@ -11,13 +11,13 @@ module.exports = async(req,res,next) =>{
             token = header.slice(7);
         }
         if(!header || !token){
-            res.status(403).json(ApiResponse.error("unauthorized", 403));
+            return res.status(403).json(ApiResponse.error("unauthorized", 403));
         }
         const payload = jwt.verify(token,process.env.AccessSecret);
         req.user = payload.user;
         next();
     } catch (err) {
         console.error(err.message);
-        res.status(403).json(ApiResponse.error("unauthorized", 403));
+        return res.status(403).json(ApiResponse.error("unauthorized", 403));
     }
 }

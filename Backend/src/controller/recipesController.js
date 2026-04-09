@@ -41,7 +41,7 @@ const getRecipesByNameCategory = async (req, res) => {
             }
         }, 200));
     } catch (err) {
-        console.error("Error in contoler getRecipesByName:", err.message);
+        console.error("Error in contoler getRecipesByNameCategory:", err.message);
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
     }
 }
@@ -200,6 +200,7 @@ const searchIngredients = async (req, res) => {
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
     }
 }
+
 
 module.exports = { 
     getAllRecipes, 

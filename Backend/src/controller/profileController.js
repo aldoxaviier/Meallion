@@ -66,4 +66,21 @@ const updateDietPreferences = async (req, res) => {
     }
 }
 
-module.exports = { addProfile, addInteraction, getProfile, updateProfile, updateDietPreferences }
+const getProfileFromID = async (req, res) => {
+    try {
+        const { user_id } = req.query;
+        if (!user_id) {
+            return res.status(400).json(ApiResponse.error("user_id is required", 400));
+        }
+        const profile = await profileRepository.getProfile(user_id);
+        if (!profile) {
+            return res.status(404).json(ApiResponse.error("Profile not found", 404));
+        }
+        res.status(200).json(ApiResponse.success("Profile found", profile, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+module.exports = { addProfile, addInteraction, getProfile, getProfileFromID, updateProfile, updateDietPreferences }

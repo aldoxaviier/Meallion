@@ -38,7 +38,7 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage) 
         SELECT *, COUNT(*) OVER() AS total_count
         FROM recipes
         ${whereClause}
-        ORDER BY recipe_id ASC
+        ORDER BY "DatePublished" DESC
         LIMIT ${nextPage - firstPage + 1}
         OFFSET ${firstPage}
     `;
@@ -60,8 +60,10 @@ const get10Recipes = async () => {
 
 const getRecipeByID = async (id) => {
     const result = await sql`
-        SELECT * FROM recipes
-        WHERE recipe_id = ${id}
+        SELECT r.*, up.profile_image 
+        FROM recipes r
+        LEFT JOIN user_profiles up ON r.user_id = up.user_id
+        WHERE r.recipe_id = ${id}
     `;
     return result[0];
 }
