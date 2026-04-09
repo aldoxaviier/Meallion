@@ -1,5 +1,5 @@
-const { json } = require("../config/dbSql");
 const recipesRepository = require("../repositories/recipesRepository")
+const userRepository = require("../repositories/userRepository");
 
 const getRecipesByNameCategory = async (query, category, page = 1, limit = 10) => {
     const firstPage = (page - 1) * limit;
@@ -84,9 +84,59 @@ const deleteMealPlan = async (userId, mealId, date, cal, pro, fat, carbs) => {
     }
 }
 
-const addRecipe = async (userId, {name, prepTime, cookTime, description,ingredients,steps}, req) => {
+const addRecipe = async (userId, {name, prepTime, cookTime, description, recipeServings, ingredients, steps, tags}, req) => {
     const recipeImage = `assets/recipe/${req.file.filename}`;
-    return recipeImage
+    const parsedIngredients = parseMaybeJson(ingredients);
+    const existingIngredients = parsedIngredients
+        .filter(i => i.ingredientId)
+        .map(i => ({ ingredientId: i.ingredientId, quantity: i.qty }));
+
+    const newIngredients = parsedIngredients.filter(i => !i.ingredientId);
+    console.log("newIngredients", newIngredients);
+    let newIngredientIds = [];
+    if (newIngredients.length > 0) {
+        const inserted = await recipesRepository.addIngredients(newIngredients);
+        newIngredientIds = inserted.map(row => {
+            const original = newIngredients.find(i => i.fdc_id === row.fdcId);
+            return {
+                ingredientId: row.id,
+                quantity: original?.qty ?? 0
+            };
+        });
+    }
+
+    const allIngredientRelationships = [...existingIngredients, ...newIngredientIds];
+    console.log("allIngredientRelationships", allIngredientRelationships);
+    const parsedSteps = parseMaybeJson(steps);
+    const formattedTags = tags.split(',').map(tag => tag.trim()).join(' | ');
+    const nutritionTotals = calculateNutritionTotals(parsedIngredients);
+    const authorData = await userRepository.getUserById(userId);
+    const body ={
+        userId,
+        name,
+        authorName: authorData,
+        prepTime: toHourMinute(Number(prepTime)),
+        cookTime: toHourMinute(Number(cookTime)),
+        totalTime: toHourMinute(Number(prepTime) + Number(cookTime)),
+        description,
+        recipeServings,
+        image: recipeImage,
+        steps: parsedSteps.map(step => step.description.trim()).join("., "),
+        calories: nutritionTotals.calories,
+        protein: nutritionTotals.protein,
+        fat: nutritionTotals.fat,
+        carbohydrate: nutritionTotals.carbohydrate,
+        fiber: nutritionTotals.fiber,
+        sodium: nutritionTotals.sodium,
+        sugar: nutritionTotals.sugar,
+        cholesterol: nutritionTotals.cholesterol,
+        tags: formattedTags
+    }
+    console.log("body", body);
+    const result = await recipesRepository.addRecipe(body);
+    const recipeId = result.recipe_id;
+    await recipesRepository.addRecipeIngredients(recipeId, allIngredientRelationships);
+    return result;
 }
 
 const searchIngredients = async (query) => {
@@ -105,5 +155,70 @@ const searchIngredients = async (query) => {
     return result;
 }
 
+const parseMaybeJson = (value) => {
+    if (Array.isArray(value) || (value && typeof value === "object")) {
+        return value;
+    }
+
+    if (typeof value === "string") {
+        try {
+            return JSON.parse(value);
+        } catch (error) {
+            return value;
+        }
+    }
+
+    return value;
+};
+
+const toHourMinute = (minutes) => {
+  if (minutes < 60) return `${minutes}m`;
+  
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+const calculateNutritionTotals = (ingredients = []) => {
+    const totals = {
+        calories: 0,
+        protein: 0,
+        fat: 0,
+        carbohydrate: 0,
+        fiber: 0,
+        sodium: 0,
+        sugar: 0,
+        cholesterol: 0,
+    };
+
+    for (const ingredient of ingredients) {
+        const qtyGram = Number(ingredient.qty);
+        if (qtyGram <= 0) {
+            continue;
+        }
+
+        const multiplier = qtyGram / 100;
+        totals.calories += Number(ingredient.calories) * multiplier;
+        totals.protein += Number(ingredient.protein) * multiplier;
+        totals.fat += Number(ingredient.fat) * multiplier;
+        totals.carbohydrate += Number(ingredient.carbohydrate) * multiplier;
+        totals.fiber += Number(ingredient.fiber) * multiplier;
+        totals.sodium += Number(ingredient.sodium) * multiplier;
+        totals.sugar += Number(ingredient.sugar) * multiplier;
+        totals.cholesterol += Number(ingredient.cholesterol) * multiplier;
+    }
+
+    return {
+        calories: Number(totals.calories.toFixed(2)),
+        protein: Number(totals.protein.toFixed(2)),
+        fat: Number(totals.fat.toFixed(2)),
+        carbohydrate: Number(totals.carbohydrate.toFixed(2)),
+        fiber: Number(totals.fiber.toFixed(2)),
+        sodium: Number(totals.sodium.toFixed(2)),
+        sugar: Number(totals.sugar.toFixed(2)),
+        cholesterol: Number(totals.cholesterol.toFixed(2)),
+    };
+};
 
 module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients };

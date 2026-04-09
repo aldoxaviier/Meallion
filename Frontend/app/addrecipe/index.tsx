@@ -22,6 +22,7 @@ const Index = () => {
         cookTime: "",
         prepTime: "",
         description: "",
+        recipeServings: 0,
     });
     const [image, setImage] = useState({
         uri: '',
@@ -167,6 +168,14 @@ const Index = () => {
                                 </Text>
                                 <FontAwesome name="clock-o" size={20} color="#9CA3AF" style={{ marginLeft: 'auto' }} />
                             </TouchableOpacity>
+                            <TextInput 
+                                placeholder="Servings (e.g. 4)" 
+                                placeholderTextColor="#9CA3AF" 
+                                keyboardType="numeric"
+                                className="bg-white border-b border-gray-200 px-6 font-brsegma-500"
+                                value={inputs.recipeServings === 0 ? "" : String(inputs.recipeServings)}
+                                onChangeText={(text) => setInputs(prev => ({ ...prev, recipeServings: Number.parseInt(text, 10) || 0 }))}
+                            />
                             <View className="bg-white border-b border-gray-200 px-6 py-3 flex-row">
                                 <Text className="font-brsegma-500 text-[#9CA3AF]">Photo</Text>
                                 <TouchableOpacity onPress={pickImage} className="ml-auto">

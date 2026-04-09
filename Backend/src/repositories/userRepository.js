@@ -63,6 +63,13 @@ const updateUser = async (user_id, user) => {
     return result[0];
 }
 
+const getUserById = async (userId) => {
+    const result = await sql`
+        SELECT name FROM users WHERE user_id = ${userId}
+    `;
+    return result[0].name;
+};
+
 module.exports = {
     createUser,
     findEmailUnique,
@@ -70,5 +77,6 @@ module.exports = {
     deleteRefreshToken,
     findUserByEmail,
     findUserRefreshToken,
-    updateUser
+    updateUser,
+    getUserById
 };

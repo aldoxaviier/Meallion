@@ -47,7 +47,7 @@ const Ingredients = () => {
         }
         try {
             const response = await api.get(`/recipes/search-ingredients?query=${query}`);
-            console.log("Suggestions response:", response.data.length);
+            console.log("Suggestions response:", response.data);
             setSuggestions(response.data);
         } catch (error) {
             setSuggestions([]);

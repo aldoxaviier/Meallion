@@ -35,6 +35,7 @@ interface recipeData {
   cookTime?: number;
   prepTime?: number;
   description?: string;
+  recipeServings?: number;
   image?: image;
   ingredients?: Ingredient[];
   tags?: string[];
@@ -55,13 +56,14 @@ const RecipeProvider = ({ children }: { children: React.ReactNode }) => {
     cookTime: 0,
     prepTime: 0,
     description: "",
+    recipeServings: 0,
     image: undefined,
     ingredients: [],
     steps: [],
     tags: [],
   });
 
-  const resetRecipeData = () => setRecipeData({ name: "", cookTime: 0, prepTime: 0, description: "", image: undefined, ingredients: [], steps: [], tags: []  });
+  const resetRecipeData = () => setRecipeData({ name: "", cookTime: 0, prepTime: 0, description: "", recipeServings: 0, image: undefined, ingredients: [], steps: [], tags: []  });
   return (
     <RecipeContext.Provider value={{ recipeData, setRecipeData, resetRecipeData }}>
       {children}

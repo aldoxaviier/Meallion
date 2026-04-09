@@ -28,5 +28,5 @@ router.post("/addRecipe", authorization, upload.single("image"), recipesControll
 router.post("/addLikes", authorization, recipesController.addLikes)
 router.post("/updateMealProgress", authorization, recipesController.updateMealProgress)
 router.get("/search-ingredients", recipesController.searchIngredients)
-
+router.get("/get-categories", recipesController.getCategories)
 module.exports = router;

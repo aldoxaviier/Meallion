@@ -64,4 +64,3 @@ def get_recommendations_service(user_id):
     recommended_recipes = recommended_recipes.reset_index()
     recommended_recipes = recommended_recipes.fillna(0.0)
     return recommended_recipes.to_dict(orient="records")
-    

@@ -1,5 +1,6 @@
 const Database = require("../config/db");
 const sql = require("../config/dbSql");
+const { get } = require("../routes/recipesRouter");
 
 const getAll = async () => {
     const result = await sql`
@@ -223,45 +224,65 @@ const deleteMealPlan = async (userId, mealId) => {
      return result;
 };
 
-const addRecipe = async (data) => {
-     const result = await sql`
-          INSERT INTO recipes (
-               user_id,
-               height,
-               weight,
-               activity_level,
-               goal_plan,
-               allergies,
-               diet_preferences,
-               birthdate,
-               gender,
-               health_condition,
-               target_calories,
-               target_carbs,
-               target_proteins,
-               target_fats,
-               updated_at
-          )
-          VALUES (
-               ${data.userId},
-               ${data.height},
-               ${data.weight},
-               ${data.activity_level},
-               ${data.goal_plan},
-               ${data.dislikes},
-               ${data.diet_preferences},
-               ${data.birthdate},
-               ${data.gender},
-               ${data.healthCondition},
-               ${data.target_calories},
-               ${data.target_carbs},
-               ${data.target_proteins},
-               ${data.target_fats},
-               ${data.updated_at}
-          )
-          RETURNING *;
-     `;
-     return result;
+const addRecipe = async ({ 
+    userId, name, authorName,
+    prepTime, cookTime, totalTime, 
+    description, recipeServings, 
+    image, steps,
+    calories, protein, 
+    fat,carbohydrate,
+    fiber,sodium,
+    sugar,cholesterol,
+    tags }) => {
+    const result = await sql`
+        INSERT INTO recipes (
+            user_id,
+            name,
+            author_name,
+            "CookTime",
+            "PrepTime",
+            "TotalTime",
+            "DatePublished",
+            "Description",
+            "Images",
+            "Calories",
+            "FatContent",
+            "CholesterolContent",
+            "SodiumContent",
+            "CarbohydrateContent",
+            "FiberContent",
+            "SugarContent",
+            "ProteinContent",
+            "RecipeServings",
+            "RecipeInstructions",
+            tags
+        )
+        VALUES (
+            ${userId},
+            ${name},
+            ${authorName},
+            ${cookTime},
+            ${prepTime},
+            ${totalTime},
+            NOW(),
+            ${description},
+            ${image},
+            ${calories},
+            ${fat},
+            ${cholesterol},
+            ${sodium},
+            ${carbohydrate},
+            ${fiber},
+            ${sugar},
+            ${protein},
+            ${recipeServings},
+            ${steps},
+            ${tags}
+        )
+        RETURNING *;
+    `;
+    console.log("addRecipe result:", result[0]);
+     return result[0];
 };
 
 const addLikes = async (userId, recipeId) => {
@@ -313,26 +334,76 @@ const updateMealProgress = async (userId, date, progress_cal, progress_pro, prog
     return result;
 };
 
+const getCategories = async () => {
+    const result = await sql`
+        SELECT * FROM categories
+    `;
+    return result;
+}
+
+const addIngredients = async (ingredients) => {
+    const result = await sql`
+    INSERT INTO ingredients_mapping (
+        fdc_id, original_name, simplified_name,
+        calories, protein, fat,
+        carbohydrate, fiber, sodium,
+        sugar, cholesterol
+    )
+    VALUES ${sql(ingredients.map(i => [
+        i.fdcId,
+        i.original_name,
+        i.simplified_name,
+        i.calories,
+        i.protein,
+        i.fat,
+        i.carbohydrate,
+        i.fiber,
+        i.sodium,
+        i.sugar,
+        i.cholesterol
+    ]))}
+    RETURNING *;
+    `;
+    return result;
+}
+
+const addRecipeIngredients = async (recipeId, ingredients) => {
+    const result = await sql`
+        INSERT INTO recipe_ingredients(recipe_id, ingredient_id, quantity, unit)
+        VALUES ${sql(ingredients.map(i => [
+            recipeId,
+            i.ingredientId,
+            i.quantity,
+            i.unit || 'g'
+        ]))}
+        RETURNING *;
+    `;
+    return result;
+}
+
 module.exports = {
-     getAll,
-     getIngredients,
-     getRecipesByNameCategory,
-     get10Recipes,
-     getRecipeByID,
-     addReview,
-     getRatingTotal,
-     updateRating,
-     getReview,
-     getMealPlan,
-     getProgressMeal,
-     getLikesByUserId,
-     addToMealPlan,
-     removeLikes,
-     deleteMealPlan,
-     addRecipe,
-     addLikes,
-     updateMealPlan,
-     addMealProgress,
-     updateMealProgress,
-     getMealPlanById,
+    getAll,
+    getIngredients,
+    getRecipesByNameCategory,
+    get10Recipes,
+    getRecipeByID,
+    addReview,
+    getRatingTotal,
+    updateRating,
+    getReview,
+    getMealPlan,
+    getProgressMeal,
+    getLikesByUserId,
+    addToMealPlan,
+    removeLikes,
+    deleteMealPlan,
+    addRecipe,
+    addLikes,
+    updateMealPlan,
+    addMealProgress,
+    updateMealProgress,
+    getMealPlanById,
+    getCategories,
+    addIngredients,
+    addRecipeIngredients
 };
