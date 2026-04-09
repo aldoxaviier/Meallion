@@ -8,19 +8,21 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def search_ingredients(ingredients_list):
+def search_ingredients(query):
     results = []
     logger.info("No ingredients found, querying USDA API")
     url = "https://api.nal.usda.gov/fdc/v1/foods/search"
     params = {
         "api_key": setting.USDA_API_KEY,
-        "query": ingredient["name"],
+        "query": query,
         "pageSize": 10,
         "dataType": ["Foundation", "SR Legacy"],
     }
     response = requests.get(url, params=params)
     response = response.json()
     usda_data = response.get("foods", [])
+    logger.info(f"foods : {usda_data}")
+    simplified_names = supabase_client.rpc('get_distinct_simplified_names').execute();
     # best_food = get_best_match(ingredient["name"], usda_data["foods"])
     for food in usda_data:
         nutrients = food.get("foodNutrients", [])
@@ -56,14 +58,14 @@ def search_ingredients(ingredients_list):
             (n["value"] for n in nutrients if n["nutrientName"] == "Cholesterol"),
             None
         )
-        unit = best_food.get("servingSizeUnit", None)
-        servingSize = best_food.get("servingSize", None)
-        householdServing = best_food.get("householdServingFullText", None)
-        simplified_name = get_best_simplified_name(ingredient["name"])
+        unit = food.get("servingSizeUnit", None)
+        servingSize = food.get("servingSize", None)
+        householdServing = food.get("householdServingFullText", None)
+        simplified_name = get_best_simplified_name(food["description"], simplified_names)
         results.append({
-            "original_name": best_food["description"],
+            "original_name": food["description"],
             "simplified_name": simplified_name,
-            "fdcId": best_food["fdcId"],
+            "fdcId": food["fdcId"],
             "calories": calories,
             "protein": protein,
             "fat": fat,
@@ -102,8 +104,7 @@ def get_best_match(query, foods):
 
     return best_food
 
-def get_best_simplified_name(name):
-    simplified_names = supabase_client.rpc('get_distinct_simplified_names').execute();
+def get_best_simplified_name(name, simplified_names):
     name_clened = clean(name)
     best_score = -1
     best_name = None

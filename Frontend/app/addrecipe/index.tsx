@@ -119,7 +119,7 @@ const Index = () => {
             await recipeSchema.validate(recipePayload);
             recipeContext?.setRecipeData((prev) => ({ ...prev, ...recipePayload }));
             setMessage("");
-            router.push("/addrecipe/ingredients");           
+            router.push("/addrecipe/category");           
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "An unknown error occurred during validation.");
         }
