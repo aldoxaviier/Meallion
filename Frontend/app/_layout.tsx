@@ -81,6 +81,7 @@ function LayoutContent() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="settings" options={{ headerShown: false }} />
           <Stack.Screen name="addrecipe" options={{ headerShown: false }} />
+          <Stack.Screen name="profile" options={{ headerShown: false }} />
         </Stack.Protected>
         <Stack.Protected guard={!refreshToken}>
           <Stack.Screen name="index" options={{ headerShown: false }} />

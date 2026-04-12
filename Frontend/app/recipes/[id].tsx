@@ -185,7 +185,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
                   Alert.alert("Error", "User not found");
                   return;
                 }
-                router.push({ pathname: '/(tabs)/profile', params: { user_id: recipeData.user_id } });
+                router.push(`/profiles/${recipeData.user_id}` as any);
               }}
               className="flex-row items-center mt-4 ml-1"
             >
