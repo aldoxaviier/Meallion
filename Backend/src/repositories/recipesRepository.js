@@ -51,7 +51,7 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage) 
 };
 
 const get10Recipes = async () => {
-    const ids = [3233, 1832, 4009, 3369, 3317, 3413, 809, 468, 547, 1415];
+    const ids = [280, 445, 524, 591, 604, 632, 667, 1157, 1317, 1612];
     const result = await sql`
         SELECT * FROM recipes
         WHERE recipe_id = ANY(${ids})
