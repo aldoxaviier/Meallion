@@ -17,7 +17,7 @@ const getIngredients = async (query) => {
     return result;
 }
 
-const getRecipesByNameCategory = async (query, categories, firstPage, nextPage) => {
+const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, isSocial = false) => {
     const conditions = [];
 
     if (query && query.trim() !== "") {
@@ -30,11 +30,15 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage) 
         });
     }
 
+    if (isSocial) {
+        conditions.push(sql`author_name != 'Meallion'`);
+    }
+
     let whereClause = sql``;
     if (conditions.length > 0) {
         whereClause = sql`WHERE ${conditions.reduce((prev, curr) => sql`${prev} AND ${curr}`)}`;
     }
-
+    
     const result = await sql`
         SELECT *, COUNT(*) OVER() AS total_count
         FROM recipes

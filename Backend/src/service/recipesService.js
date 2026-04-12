@@ -1,7 +1,7 @@
 const recipesRepository = require("../repositories/recipesRepository")
 const userRepository = require("../repositories/userRepository");
 
-const getRecipesByNameCategory = async (query, category, page = 1, limit = 10) => {
+const getRecipesByNameCategory = async (query, category, page = 1, limit = 10, isSocial) => {
     const firstPage = (page - 1) * limit;
     const nextPage = firstPage + limit - 1;
     
@@ -11,7 +11,8 @@ const getRecipesByNameCategory = async (query, category, page = 1, limit = 10) =
         query || "", 
         categories, 
         firstPage, 
-        nextPage
+        nextPage,
+        isSocial
     );
 };
 

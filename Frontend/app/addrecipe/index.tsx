@@ -116,6 +116,7 @@ const Index = () => {
                     name: image.name,
                     type: image.type,
                 },
+                recipeServings: inputs.recipeServings,
             };
             await recipeSchema.validate(recipePayload);
             recipeContext?.setRecipeData((prev) => ({ ...prev, ...recipePayload }));

@@ -14,10 +14,12 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [activeTab, setActiveTab] = useState('foryou');
+  const isSocial = true;
+  const url = process.env.EXPO_PUBLIC_API_URL;
 
   const fetchRecipes = async (pageNum: number) => {
     try {
-      const res = await api.get(`/recipes/getRecipesByNameCategory?query=&page=${pageNum}&limit=10&category=`);
+      const res = await api.get(`/recipes/getRecipesByNameCategory?query=&page=${pageNum}&limit=10&category=&isSocial=${isSocial}`);
       return res.data;
     } catch (err) {
       console.error(err);
@@ -79,6 +81,14 @@ export default function Index() {
     return tags.split('|').slice(0, 3).map(t => `#${t.trim()}`);
   };
 
+  const getImages = (images: string) => {
+    console.log("Image:", images);
+    if (images?.includes('https')) {
+      return images;
+    }
+    return `${url}/${images}`;
+  }
+
   const renderRecipePost = ({ item }: { item: any }) => (
     <TouchableOpacity activeOpacity={0.8} onPress={() => router.push(`../recipes/${item.recipe_id}`)} className="p-6 border-b-[0.5px] border-gray-400">
       <View className="flex-row justify-between items-start mb-3">
@@ -111,7 +121,7 @@ export default function Index() {
       {/* Post Image */}
       {item.Images && (
         <Image
-          source={{ uri: item.Images }}
+          source={{ uri: getImages(item.Images) }}
           className="w-full h-72 rounded-xl mb-3"
           resizeMode="cover"
         />

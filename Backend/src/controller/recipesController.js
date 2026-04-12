@@ -29,7 +29,8 @@ const getRecipesByNameCategory = async (req, res) => {
         const category = req.query.category;
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);
-        const result = await recipesService.getRecipesByNameCategory(query, category, page, limit)
+        const isSocial = req.query.isSocial === "true";
+        const result = await recipesService.getRecipesByNameCategory(query, category, page, limit, isSocial)
         const totalPage = Math.ceil(result.total/limit);
         res.json(ApiResponse.success("Recipe fetched successfully", {
             data: result.data,

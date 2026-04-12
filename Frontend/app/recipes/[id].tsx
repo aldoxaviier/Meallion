@@ -65,6 +65,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
   const tabs = ['Nutrition', 'Recipe', 'Reviews'];
   const recipeTags = recipeData?.tags?.split(' | ') || [];
   const tabWidth = (containerWidth - 8) / tabs.length;
+  const url = process.env.EXPO_PUBLIC_API_URL;
   const translateX = slideAnim.interpolate({
     inputRange: [0, 1, 2],
     outputRange: [0, tabWidth, tabWidth * 2],
@@ -99,6 +100,13 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
     }).start();
   };
 
+  const getImages = (images: string) => {
+    if (images?.includes('https')) {
+      return images;
+    }
+    return `${url}/${images}`;
+  }
+
   return (
     <View className="overflow-hidden bg-secondary-400">
       {/* Back button */}
@@ -110,7 +118,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
 
       {/* Recipe Image */}
       <AnimatedImageBackground
-        source={{uri: recipeData?.Images}}
+        source={{ uri: getImages(recipeData?.Images) }}
         style={{
           position: 'absolute',
           left: 0,
@@ -120,7 +128,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
         }} />
       
       <AnimatedImageBackground
-        source={{ uri: recipeData?.Images }}
+        source={{ uri: getImages(recipeData?.Images) }}
         blurRadius={20}
         style={{
           position: 'absolute',
