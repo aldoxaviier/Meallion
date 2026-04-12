@@ -43,7 +43,7 @@ const Allergies = () => {
     const timeout = setTimeout(async () => {
       if (searchTerm.length >= 2) {
         const res = await api.get(`/recipes/getIngredients?query=${searchTerm}`);
-        const raw = res.data.data;
+        const raw = res.data;
 
         const grouped = raw.reduce((acc: any, item: any) => {
           if (!acc[item.simplified_name]) {
