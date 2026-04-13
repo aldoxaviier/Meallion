@@ -213,6 +213,17 @@ const getCategories = async (req, res) => {
     }
 }
 
+const getRecIngByRecipeId = async (req, res) => {
+    try {
+        const recipeId = parseInt(req.query.recipeId);
+        const result = await recipesRepository.getRecIngByRecipeId(recipeId);
+        res.json(ApiResponse.success("Recipe Ingredients fetched successfully", result , 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+    }
+}
+
 
 module.exports = { 
     getAllRecipes, 
@@ -231,5 +242,6 @@ module.exports = {
     addLikes,
     updateMealProgress,
     searchIngredients,
-    getCategories
+    getCategories,
+    getRecIngByRecipeId
 };

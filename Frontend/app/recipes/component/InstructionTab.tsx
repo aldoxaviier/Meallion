@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { api } from '../../utils/api';
 
 export default function InstructionsTab({ recipeData }: { recipeData: any }) {
   
-  const quantities = recipeData?.RecipeIngredientQuantities?.split(', ') || [];
-  const parts = recipeData?.RecipeIngredientParts?.split(', ') || [];
+  const [ingredients, setIngredients] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      try {
+        const response = await api.get(`/recipes/getRecIngByRecipeId?recipeId=${recipeData?.recipe_id}`);
+        console.log("Fetched ingredients:", response.data);
+        if (response?.data) {
+          setIngredients(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching ingredients:", error);
+      }
+    };
+    if (recipeData?.recipe_id) {
+      fetchIngredients();
+    }
+  }, []);
   
   const steps = recipeData?.RecipeInstructions?.split('., ') || [];
 
@@ -18,14 +35,14 @@ export default function InstructionsTab({ recipeData }: { recipeData: any }) {
       </View>
 
       <View className="pb-6 border-b border-gray-100">
-        {parts.map((item: string, index: number) => (
+        {ingredients.map((item: any, index: number) => (
           <View key={index} className="flex-row items-start mb-4 px-1">
             <Text className="text-orange-400 mr-3 text-lg leading-5">•</Text>
             <Text className="font-brsegma-300 text-gray-900 text-sm leading-6 flex-1">
               <Text className="font-brsegma-600 text-black">
-                {quantities[index] ? `${quantities[index]}   ` : ''}
+                {item.quantity != null ? `${Math.round(item.quantity * 10) / 10} ${item.unit || ''}   ` : ''}
               </Text>
-              {item}
+              {item.original_name}
             </Text>
           </View>
         ))}

@@ -55,7 +55,7 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, 
 };
 
 const get10Recipes = async () => {
-    const ids = [280, 445, 524, 591, 604, 632, 667, 1157, 1317, 1612];
+    const ids = [3846, 4489, 4732, 4779, 4875, 4986, 5037, 5132, 5150, 5177];
     const result = await sql`
         SELECT * FROM recipes
         WHERE recipe_id = ANY(${ids})
@@ -385,6 +385,16 @@ const addRecipeIngredients = async (recipeId, ingredients) => {
     return result;
 }
 
+const getRecIngByRecipeId = async (recipeId) => {
+    const result = await sql`
+        SELECT ri.quantity, ri.unit, im.original_name
+        FROM recipe_ingredients ri
+        JOIN ingredients_mapping im ON ri.ingredient_id = im.id 
+        WHERE ri.recipe_id = ${recipeId}
+    `;
+    return result;
+}
+
 module.exports = {
     getAll,
     getIngredients,
@@ -409,5 +419,6 @@ module.exports = {
     getMealPlanById,
     getCategories,
     addIngredients,
-    addRecipeIngredients
+    addRecipeIngredients,
+    getRecIngByRecipeId
 };
