@@ -20,6 +20,7 @@ interface ProfileData {
   target_carbs: number | null
   target_fats: number | null
   profile_image: string | null
+  cloudinary_id: string | null
   users: UserInfo
 }
 

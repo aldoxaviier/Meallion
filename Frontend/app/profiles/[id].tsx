@@ -7,7 +7,6 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { RecipeCard } from '../components/RecipeCard';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router';
-
 interface UserProfile {
   activity_level: number;
   allergies: string[];
@@ -37,14 +36,14 @@ const Index = () => {
   const [recipes, setRecipes] = useState<any[]>([]);
   const router = useRouter();
   const {id} = useLocalSearchParams();
-  const [profileData, setProfileData] = useState<UserProfile>();
-  
+  const [profile, setProfile] = useState<UserProfile>();
+
   const getProfile = async () => {
     try {
         const response = await api.get(`/profile/getProfileFromID?user_id=${id}`);
         console.log("API Response:", response);
         const data = await response.data;
-        setProfileData(data);
+        setProfile(data);
     } catch (err) {
         console.error(err);
     }
@@ -57,8 +56,8 @@ const Index = () => {
 
 
   useEffect(() => {
-    console.log("Profile Data Updated:", profileData);
-  }, [profileData]);
+    console.log("Profile Data Updated:", profile);
+  }, [profile]);
 
   const getGoalLabel = (goal: string | null | undefined) => {
     if (!goal){
@@ -79,7 +78,13 @@ const Index = () => {
     <Stack.Screen options={{ headerShown: false }} />
     <SafeAreaView className="flex-1 bg-primary-600" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="bg-primary-600 h-28 relative">
+        <View className="bg-primary-600 h-32 relative">
+          <TouchableOpacity
+              className="absolute top-1 left-4 w-10 h-10 rounded-full bg-secondary-400/20 items-center justify-center"
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={22} color="#F2E8C6" />
+            </TouchableOpacity>
         </View>
 
         <View className="bg-secondary-400 min-h-screen rounded-t-3xl -mt-4 px-6 pb-8">
@@ -87,13 +92,13 @@ const Index = () => {
             <View className="w-24 h-24 rounded-full border-4 border-secondary-400 overflow-hidden bg-secondary-300">
               <Image
                 className="w-full h-full"
-                source={profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profile_image}` } : require('../../assets/images/android-icon-background.png')}
+                source={profile?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profile.profile_image}` } : require('../../assets/images/android-icon-background.png')}
               />
             </View>
           </View>
 
           <Text className="font-fogsta text-3xl text-primary-500 mb-1">
-            {profileData?.users.name || 'User'}
+            {profile?.users.name || 'User'}
           </Text>
 
           <Text className="font-brsegma-300 text-sm text-gray-600 mb-6 leading-5">
@@ -104,21 +109,21 @@ const Index = () => {
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700">Current weight</Text>
               <Text className="font-brsegma-600 text-primary-500">
-                {profileData?.weight || '--'} kg
+                {profile?.weight || '--'} kg
               </Text>
             </View>
 
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700">Goal</Text>
               <Text className="font-brsegma-600 text-primary-500">
-                {getGoalLabel(profileData?.goal_plan)}
+                {getGoalLabel(profile?.goal_plan)}
               </Text>
             </View>
 
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700">Diet</Text>
               <Text className="font-brsegma-600 text-primary-500">
-                {getDietLabel(profileData?.diet_preferences)}
+                {getDietLabel(profile?.diet_preferences)}
               </Text>
             </View>
           </View>

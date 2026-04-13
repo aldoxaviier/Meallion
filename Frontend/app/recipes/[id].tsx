@@ -2,13 +2,14 @@ import { useLocalSearchParams, Stack, router } from "expo-router";
 import { Animated, View, Text, TouchableOpacity, ImageBackground, Alert, Image } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { api } from "../utils/api";
 import { ScrollView } from "react-native";
 import NutritionTab from "./component/NutritionTab";
 import InstructionsTab from "./component/InstructionTab";
 import ReviewsTab from "./component/ReviewsTab";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ProfileDataContext } from "../store/profileDataContext";
 
 const HEADER_HEIGHT_NARROWED = 150;
 const HEADER_HEIGHT_EXPANDED = 35;
@@ -66,6 +67,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
   const recipeTags = recipeData?.tags?.split(' | ') || [];
   const tabWidth = (containerWidth - 8) / tabs.length;
   const url = process.env.EXPO_PUBLIC_API_URL;
+  const profileData = useContext(ProfileDataContext);
   const translateX = slideAnim.interpolate({
     inputRange: [0, 1, 2],
     outputRange: [0, tabWidth, tabWidth * 2],
@@ -181,8 +183,8 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => {
-                if (!recipeData?.user_id) {
-                  Alert.alert("Error", "User not found");
+                if (recipeData?.user_id === profileData?.profileData?.user_id) {
+                  router.push("/profile" as any);
                   return;
                 }
                 router.push(`/profiles/${recipeData.user_id}` as any);

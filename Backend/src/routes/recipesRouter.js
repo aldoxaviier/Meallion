@@ -3,7 +3,7 @@ const recipesController = require("../controller/recipesController");
 const authorization = require("../middleware/authorization");
 const multer = require("multer");
 const path = require("path");
-const storage = multer.diskStorage({
+const storage = multer.memoryStorage({
     destination: "assets/recipe/",
     filename: (req,file,cb) => {
         cb(null,Date.now() + path.extname(file.originalname));

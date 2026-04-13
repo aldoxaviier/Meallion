@@ -46,7 +46,7 @@ def get_recommendations_service(user_id):
          "RecipeIngredientParts","Calories","FatContent",
          "SaturatedFatContent","CholesterolContent","SodiumContent",
          "CarbohydrateContent","FiberContent","SugarContent","ProteinContent",
-         "RecipeServings","RecipeInstructions","rating_score","rating_total"
+         "RecipeServings","RecipeInstructions","rating_score","rating_total","cloudinary_id"
          ], axis=1)
     
     user_profile = user_tags_df.T.dot(ratings_df.score)
@@ -58,7 +58,7 @@ def get_recommendations_service(user_id):
         "RecipeIngredientParts","Calories","FatContent",
         "SaturatedFatContent","CholesterolContent","SodiumContent",
         "CarbohydrateContent","FiberContent","SugarContent","ProteinContent",
-        "RecipeServings","RecipeInstructions","rating_score","rating_total"], axis=1)
+        "RecipeServings","RecipeInstructions","rating_score","rating_total","cloudinary_id"], axis=1)
     
 
     recommendation_table_df = (recipes_with_tags.dot(user_profile)) / user_profile.sum()

@@ -3,7 +3,7 @@ const profileRepository = require("../repositories/profileRepository");
 const fs = require('fs');
 const path = require('path');
 const userRepository = require("../repositories/userRepository");
-
+const cloudinary = require("../config/cloudinary");
 const addInteraction = async (userId, interactions) => {
     const results = [];
     console.log("service", interactions);
@@ -86,19 +86,22 @@ const tdeeCalculator = (height, weight, activity_level, birthdate, gender) => {
 }
 
 const updateProfile = async (userId, profile, req) => {
+    let imageUrl;
+    let cloudinaryId;
     if(req.file){
-        profile.profile_image = `assets/avatar/${req.file.filename}`;
+        const result = await cloudinary.uploadCloudinary(req.file.buffer, "profiles");
+        imageUrl = result.secure_url;
+        cloudinaryId = result.public_id;
         const existingProfile = await profileRepository.getProfile(userId);
         console.log("existing profile:", existingProfile);
         if(existingProfile.profile_image){
-            console.log("ada lama");
-            const oldpath = path.join(__dirname,"../../",existingProfile.profile_image);
-            console.log("oldpath:", oldpath);
-            if (fs.existsSync(oldpath)) {
-                fs.unlinkSync(oldpath);
-            }
+            await cloudinary.deleteFromCloudinary(existingProfile.cloudinary_id);
         }
     }
+
+    if (imageUrl) profile.profile_image = imageUrl;
+    if (cloudinaryId) profile.cloudinary_id = cloudinaryId;
+
 
     const updateData = {};
     for(const [key, value] of Object.entries(profile)){

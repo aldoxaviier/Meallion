@@ -4,7 +4,7 @@ const validation = require("../middleware/validations");
 const authorization = require("../middleware/authorization");
 const multer = require("multer");
 const path = require("path");
-const storage = multer.diskStorage({
+const storage = multer.memoryStorage({
     destination: "assets/avatar/",
     filename: (req,file,cb) => {
         cb(null,Date.now() + path.extname(file.originalname));

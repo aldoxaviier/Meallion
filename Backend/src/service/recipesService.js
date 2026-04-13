@@ -1,5 +1,7 @@
 const recipesRepository = require("../repositories/recipesRepository")
 const userRepository = require("../repositories/userRepository");
+const cloudinary = require("../config/cloudinary");
+
 
 const getRecipesByNameCategory = async (query, category, page = 1, limit = 10, isSocial) => {
     const firstPage = (page - 1) * limit;
@@ -86,7 +88,9 @@ const deleteMealPlan = async (userId, mealId, date, cal, pro, fat, carbs) => {
 }
 
 const addRecipe = async (userId, {name, prepTime, cookTime, description, recipeServings, ingredients, steps, tags}, req) => {
-    const recipeImage = `assets/recipe/${req.file.filename}`;
+    const image = await cloudinary.uploadCloudinary(req.file.buffer, "recipes");
+    const imageUrl = image.secure_url;
+    const cloudinaryId = image.public_id;
     const parsedIngredients = parseMaybeJson(ingredients);
     const existingIngredients = parsedIngredients
         .filter(i => i.ingredientId)
@@ -121,7 +125,7 @@ const addRecipe = async (userId, {name, prepTime, cookTime, description, recipeS
         totalTime: toHourMinute(Number(prepTime) + Number(cookTime)),
         description,
         recipeServings,
-        image: recipeImage,
+        image: imageUrl,
         steps: parsedSteps.map(step => step.description.trim()).join("., "),
         calories: nutritionTotals.calories,
         protein: nutritionTotals.protein,
@@ -131,7 +135,8 @@ const addRecipe = async (userId, {name, prepTime, cookTime, description, recipeS
         sodium: nutritionTotals.sodium,
         sugar: nutritionTotals.sugar,
         cholesterol: nutritionTotals.cholesterol,
-        tags: formattedTags
+        tags: formattedTags,
+        cloudinary_id: cloudinaryId
     }
     console.log("body", body);
     const result = await recipesRepository.addRecipe(body);

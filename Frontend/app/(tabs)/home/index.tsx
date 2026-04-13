@@ -368,7 +368,7 @@ export default function Index() {
       </Animated.View>
     </>
   );
-
+  console.log("profileeimage", profileData?.profileData?.profile_image)
   return (
     <SafeAreaView className="bg-secondary-400 flex-1" edges={['top']}>
       {isSearchMode ? (
@@ -386,7 +386,7 @@ export default function Index() {
               <View className="flex flex-row gap-3 items-center">
                 <Image 
                   className="w-16 h-16 rounded-full"
-                  source={profileData?.profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profileData.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
+                  source={profileData?.profileData?.profile_image ? { uri: profileData.profileData.profile_image } : require('../../../assets/images/android-icon-background.png')}
                 />
                 <View>
                   <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
@@ -451,7 +451,7 @@ export default function Index() {
                 <View className="flex flex-row gap-3 items-center">
                   <Image 
                     className="w-16 h-16 rounded-full"
-                    source={profileData?.profileData?.profile_image ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${profileData.profileData.profile_image}` } : require('../../../assets/images/android-icon-background.png')}
+                    source={profileData?.profileData?.profile_image ? { uri: profileData.profileData.profile_image } : require('../../../assets/images/android-icon-background.png')}
                   />
                   <View >
                     <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
