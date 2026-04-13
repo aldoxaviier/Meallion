@@ -6,12 +6,12 @@ import { api } from '../../utils/api';
 export default function InstructionsTab({ recipeData }: { recipeData: any }) {
   
   const [ingredients, setIngredients] = useState<any[]>([]);
-  
+
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
         const response = await api.get(`/recipes/getRecIngByRecipeId?recipeId=${recipeData?.recipe_id}`);
-        console.log("Fetched ingredients:", response.data);
+        
         if (response?.data) {
           setIngredients(response.data);
         }

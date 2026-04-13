@@ -82,7 +82,6 @@ export default function Index() {
   };
 
   const getImages = (images: string) => {
-    console.log("Image:", images);
     if (images?.includes('https')) {
       return images;
     }
@@ -94,7 +93,7 @@ export default function Index() {
       <View className="flex-row justify-between items-start mb-3">
         <View className="flex-row items-center gap-3">
           <Image
-            source={item.profile_image ? { uri: item.profile_image } : require('../../../assets/avatar/profile_dumb.jpg')}
+            source={item.profile_image ? { uri: item.profile_image } : require('../../../assets/images/android-icon-background.png')}
             className="w-10 h-10 rounded-full"
           />
           <View>
@@ -147,7 +146,7 @@ export default function Index() {
       </View>
     </TouchableOpacity>
   );
-
+  console.log("Recipes:", recipes?.[0]?.Images);
   return (
     <>
     <SocialHeader onPressBtn={handleActiveTab} />

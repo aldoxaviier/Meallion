@@ -27,8 +27,9 @@ const Index = () => {
       const fetchProfile = async () => {
         try {
           const response = await api.get(`/profile/getProfileFromID?user_id=${user_id}`);
-          if (response.data?.data) {
-            setViewedProfile(response.data.data);
+          console.log("Fetched profile data:", response.data);
+          if (response.data) {
+            setViewedProfile(response.data);
           }
         } catch (error) {
           console.error("Error fetching profile:", error);

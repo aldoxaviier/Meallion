@@ -194,7 +194,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
               <Image
                 source={
                   recipeData?.profile_image
-                    ? { uri: `${process.env.EXPO_PUBLIC_API_URL}/${recipeData.profile_image}` }
+                    ? { uri: recipeData.profile_image }
                     : require('../../assets/avatar/profile_dumb.jpg')
                 }
                 className="w-9 h-9 rounded-full"

@@ -2,11 +2,13 @@ import { View, Text, Image, TouchableHighlight, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { router } from "expo-router";
 import { api } from '../utils/api';
+import { useEffect } from 'react';
 
 interface RecipeCardProps {
   recipe: {
     recipe_id: number | string;
     Images: string;
+    profile_image?: string;
     author_name?: string;
     name: string;
     rating_score?: number | string;
@@ -53,7 +55,7 @@ export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
             <View className="absolute top-24 -ml-1 w-10 h-10 bg-white rounded-full items-center justify-center">
               <Image 
                 className="w-8 h-8 rounded-full" 
-                source={require('../../assets/images/android-icon-background.png')} 
+                source={recipe.profile_image ? { uri: recipe.profile_image } : require('../../assets/images/android-icon-background.png')}
               />
             </View>
           </View>
