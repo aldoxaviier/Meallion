@@ -5,10 +5,18 @@ import { useEffect, useState } from "react";
 import { api } from "@/app/utils/api";
 import { useRouter } from 'expo-router';
 
+import ConfirmationModal from '../../components/ConfirmationModal';
+
 export default function Likes() {
   const router = useRouter();
   const { mealType, selectedDate } = useLocalSearchParams();
   const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{ type: 'add' | 'delete' | null, recipeId: number | null }>({
+    type: null,
+    recipeId: null
+  });
 
   const refreshLikedRecipes = async () => {
     try {
@@ -25,7 +33,7 @@ export default function Likes() {
 
   const handleAddToMealplan = async (recipeId: number) => {
     try {
-      const body = {recipeId, mealType, date: selectedDate}
+      const body = { recipeId, mealType, date: selectedDate };
       await api.post(`/recipes/addToMealPlan`, body);
       router.back();
     } catch (err) {
@@ -41,6 +49,22 @@ export default function Likes() {
     } catch (err) {
       console.error('Error removing like:', err);
     }
+  };
+
+  const showConfirmation = (type: 'add' | 'delete', recipeId: number) => {
+    setModalConfig({ type, recipeId });
+    setModalVisible(true);
+  };
+
+  const handleConfirm = () => {
+    if (modalConfig.recipeId !== null) {
+      if (modalConfig.type === 'add') {
+        handleAddToMealplan(modalConfig.recipeId);
+      } else if (modalConfig.type === 'delete') {
+        handleRemoveLike(modalConfig.recipeId);
+      }
+    }
+    setModalVisible(false);
   };
 
   const renderFood = ({ item }: { item: any }) => {
@@ -64,25 +88,32 @@ export default function Likes() {
         </View>
         <View className="flex-row items-center">
           <TouchableOpacity
-            className="p-1.5 rounded-full mr-2 bg-emerald-50"
-            onPress={() => handleAddToMealplan(recipeId)}
+            className="p-1.5 rounded-full mr-2 bg-third-500/30"
+            onPress={() => showConfirmation('add', recipeId)}
           >
             <Ionicons name="add-outline" size={20} color="#10b981" />
           </TouchableOpacity>
           <TouchableOpacity
-            className="p-1.5 rounded-full bg-red-50"
-            onPress={() => handleRemoveLike(recipeId)}
+            className="p-1.5 rounded-full bg-primary-400"
+            onPress={() => showConfirmation('delete', recipeId)}
           >
-            <Ionicons name="trash-outline" size={20} color="#ef4444" />
+            <Ionicons name="trash-outline" size={20} color="white" />
           </TouchableOpacity>
         </View>
       </View>
-    )
-  }
-
+    );
+  };
+  
   return (
     <View className="flex-1 bg-secondary-400 p-5">
-      <FlatList data={likedRecipes} renderItem={renderFood}/>
+      <FlatList data={likedRecipes} renderItem={renderFood} />
+      
+      <ConfirmationModal 
+        visible={modalVisible}
+        type={modalConfig.type}
+        onClose={() => setModalVisible(false)}
+        onConfirm={handleConfirm}
+      />
     </View>
   );
 }

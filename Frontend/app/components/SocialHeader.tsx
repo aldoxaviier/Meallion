@@ -12,7 +12,7 @@ const SocialHeader = ({ onPressBtn }: { onPressBtn: (tab: string) => void }) => 
     }
     return (
         <>
-        <SafeAreaView  edges={['top']}>
+        <SafeAreaView  className="bg-secondary-400" edges={['top']}>
         <View className="w-full pt-4 flex gap-4 ">
             <View className="flex-row justify-between items-center h-12 px-6">
             <Text className="text-4xl text-primary-500 font-fogsta">

@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5, Feather, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useCallback } from "react";
@@ -37,7 +37,6 @@ export default function Index() {
     }
     setIsLoading(false);
   };
-
 
   useFocusEffect(
     useCallback(() => {
@@ -89,7 +88,12 @@ export default function Index() {
   }
 
   const renderRecipePost = ({ item }: { item: any }) => (
-    <TouchableOpacity activeOpacity={0.8} onPress={() => router.push(`../recipes/${item.recipe_id}`)} className="p-6 border-b-[0.5px] border-gray-400">
+    // UBAH DISINI: Ganti border dengan bg-white, rounded, dan margin
+    <TouchableOpacity 
+      activeOpacity={0.8} 
+      onPress={() => router.push(`../recipes/${item.recipe_id}`)} 
+      className="bg-white p-5 mx-4 mb-4 rounded-2xl shadow-sm"
+    >
       <View className="flex-row justify-between items-start mb-3">
         <View className="flex-row items-center gap-3">
           <Image
@@ -146,10 +150,12 @@ export default function Index() {
       </View>
     </TouchableOpacity>
   );
-  console.log("Recipes:", recipes?.[0]?.Images);
+  
   return (
-    <>
-    <SocialHeader onPressBtn={handleActiveTab} />
+    // UBAH DISINI: Bungkus semuanya dengan View background secondary-400
+    <View className="flex-1 bg-secondary-400">
+      <SocialHeader onPressBtn={handleActiveTab} />
+      
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#4a2c2a" />
@@ -158,6 +164,7 @@ export default function Index() {
         <FlatList
           data={recipes}
           className="flex-1"
+          contentContainerStyle={{ paddingTop: 16, paddingBottom: 80 }} // Tambahkan padding agar card pertama dan terakhir tidak terlalu nempel
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.recipe_id?.toString()}
           onEndReached={handleLoadMore}
@@ -173,11 +180,11 @@ export default function Index() {
 
       <TouchableOpacity
         activeOpacity={0.9}
-        className="absolute bottom-2 right-6 h-14 w-14 rounded-full bg-primary-500 items-center justify-center shadow-lg"
+        className="absolute bottom-4 right-6 h-14 w-14 rounded-full bg-primary-500 items-center justify-center shadow-lg"
         onPress={() => router.push("/addrecipe")}
       >
         <Feather name="plus" size={24} color="#FFFFFF" />
       </TouchableOpacity>
-    </>
+    </View>
   );
 }
