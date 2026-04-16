@@ -30,5 +30,6 @@ router.post("/updateMealProgress", authorization, recipesController.updateMealPr
 router.get("/search-ingredients", recipesController.searchIngredients)
 router.get("/get-categories", recipesController.getCategories)
 router.get("/getRecIngByRecipeId", recipesController.getRecIngByRecipeId)
+router.post("/mealplan-generate", authorization, recipesController.generateMealPlan)
 
 module.exports = router;

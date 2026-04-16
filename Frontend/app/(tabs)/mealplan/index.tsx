@@ -5,7 +5,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { format, addDays, startOfToday, eachDayOfInterval, subDays } from 'date-fns';
-
 import { api } from '../../utils/api';
 import { ProfileDataContext } from '@/app/store/profileDataContext';
 
@@ -126,7 +125,7 @@ export default function MealPlan() {
   };
 
   return (
-    <SafeAreaView className='bg-secondary-400'>
+    <SafeAreaView className='bg-secondary-400' edges={['top']}>
       <ScrollView className='h-full w-full px-6 pt-7' showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
         <Text className="text-4xl text-primary-500 font-fogsta">My Plan</Text>
         

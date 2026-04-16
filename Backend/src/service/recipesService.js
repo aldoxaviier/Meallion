@@ -227,4 +227,17 @@ const calculateNutritionTotals = (ingredients = []) => {
     };
 };
 
-module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients };
+const generateMealplan = async (userId, token, { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats, days }) => {
+    const response = await fetch(`${process.env.FAST_API_URL}/recommendation/`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+    });
+    const data = await response.json();
+    console.log("Meal plan generation response:", data);
+    return data.data;
+}
+
+module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients, generateMealplan };

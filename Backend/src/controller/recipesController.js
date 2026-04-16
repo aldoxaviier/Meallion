@@ -224,6 +224,20 @@ const getRecIngByRecipeId = async (req, res) => {
     }
 }
 
+const generateMealPlan = async (req, res) => {
+    try {
+        const userId = req.user;
+        const token = req.token;
+        console.log("User ID in generateMealPlan:", userId);
+        const { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats, days } = req.body;
+        const result = await recipesService.generateMealplan(userId, token, { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats, days });
+        res.status(200).json(ApiResponse.success("Meal Plan Generated Successfully", result, 201));
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+    }
+}
+
 
 module.exports = { 
     getAllRecipes, 
@@ -243,5 +257,6 @@ module.exports = {
     updateMealProgress,
     searchIngredients,
     getCategories,
-    getRecIngByRecipeId
+    getRecIngByRecipeId,
+    generateMealPlan
 };
