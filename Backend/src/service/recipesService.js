@@ -227,7 +227,7 @@ const calculateNutritionTotals = (ingredients = []) => {
     };
 };
 
-const generateMealplan = async (userId, token, { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats, days }) => {
+const generateMealplan = async (userId, token, { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats,health_condition, days }) => {
     const response = await fetch(`${process.env.FAST_API_URL}/recommendation/`, {
         method: "GET",
         headers: {
@@ -236,7 +236,7 @@ const generateMealplan = async (userId, token, { allergies, diet_preferences, ta
         },
     });
     const data = await response.json();
-    console.log("Meal plan generation response:", data);
+
     return data.data;
 }
 

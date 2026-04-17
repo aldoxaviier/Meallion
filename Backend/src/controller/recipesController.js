@@ -229,8 +229,8 @@ const generateMealPlan = async (req, res) => {
         const userId = req.user;
         const token = req.token;
         console.log("User ID in generateMealPlan:", userId);
-        const { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats, days } = req.body;
-        const result = await recipesService.generateMealplan(userId, token, { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats, days });
+        const { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats,health_condition, days } = req.body;
+        const result = await recipesService.generateMealplan(userId, token, { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats,health_condition, days });
         res.status(200).json(ApiResponse.success("Meal Plan Generated Successfully", result, 201));
     } catch (error) {
         console.error(error.message);
