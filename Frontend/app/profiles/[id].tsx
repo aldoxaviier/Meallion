@@ -33,10 +33,33 @@ interface UserProfile {
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<'grid' | 'favorites'>('grid');
-  const [recipes, setRecipes] = useState<any[]>([]);
+  const [postrecipes, setPostRecipes] = useState<any[]>([]);
+  const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
   const router = useRouter();
   const {id} = useLocalSearchParams();
   const [profile, setProfile] = useState<UserProfile>();
+
+  const getPostRecipes = async () => {
+    try {
+      const response = await api.get('/recipes/get-recipes-by-user');
+      if (response.data) {
+        setPostRecipes(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+    }
+  };
+
+  const getLikedRecipes = async () => {
+    try {
+      const response = await api.get('/recipes/getLikesByUserId');
+      if (response.data) {
+        setLikedRecipes(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching liked recipes:', error);
+    }
+  };
 
   const getProfile = async () => {
     try {
@@ -52,6 +75,8 @@ const Index = () => {
   useEffect(() => {
     console.log("id:", id);
     getProfile();
+    getPostRecipes();
+    getLikedRecipes();
   }, [id]);
 
 
@@ -71,6 +96,8 @@ const Index = () => {
     if (!diets || diets.length === 0) return 'Not Set';
     return diets.join(', ');
   };
+
+  const displayedRecipes = activeTab === 'favorites' ? likedRecipes : postrecipes;
 
 
   return (
@@ -152,12 +179,12 @@ const Index = () => {
           </View>
 
           <View className="flex-row flex-wrap justify-between">
-            {recipes.slice(0, 6).map((item, index) => (
+            {displayedRecipes.slice(0, 6).map((item, index) => (
               <View key={item.recipe_id || index} className="w-[48%] mb-4">
                 <RecipeCard
                   recipe={{
                     recipe_id: item.recipe_id,
-                    Images: item.Images,
+                    Images: item.Images || item.image,
                     author_name: item.author_name || item.AuthorName,
                     name: item.name,
                     rating_score: item.rating_score,
@@ -171,11 +198,15 @@ const Index = () => {
             ))}
           </View>
 
-          {recipes.length === 0 && (
+          {displayedRecipes.length === 0 && (
             <View className="items-center py-12">
-              <Ionicons name="restaurant-outline" size={48} color="#9CA3AF" />
+              <Ionicons
+                name={activeTab === 'favorites' ? 'heart-outline' : 'restaurant-outline'}
+                size={48}
+                color="#9CA3AF"
+              />
               <Text className="font-brsegma-500 text-gray-500 mt-4">
-                No recipes to display
+                {activeTab === 'favorites' ? 'No liked recipes to display' : 'No recipes to display'}
               </Text>
             </View>
           )}

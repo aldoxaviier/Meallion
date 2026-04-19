@@ -73,7 +73,7 @@ const addReview = async (req, res) => {
         const { review, selectedRating, recipeId, name } = req.body
         const userId = req.user
         await recipesService.addReview(userId, recipeId, name, selectedRating, review)
-        res.status(201).json(ApiResponse.success("Review Added Succesfully", null, 201));
+        res.status(200).json(ApiResponse.success("Review Added Succesfully", null, 200));
     } catch (err) {
         console.error(err.message)
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
@@ -118,9 +118,9 @@ const getLikesByUserId = async (req, res) => {
 const addToMealPlan = async (req, res) => {
     try {            
         const userId = req.user
-        const { recipeId, mealType, date } = req.body
-        await recipesRepository.addToMealPlan(userId, recipeId, mealType, date)
-        res.status(201).json(ApiResponse.success("Added to Meal Plan Successfull", null, 201))
+        const data = req.body
+        await recipesRepository.addToMealPlan(data)
+        res.status(200).json(ApiResponse.success("Added to Meal Plan Successfull", null, 200))
     } catch (err) {
         console.error(err.message)
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
@@ -148,7 +148,7 @@ const addLikes = async (req, res) => {
         if (result.isDuplicate) {
             return res.status(200).json(ApiResponse.success(result.message, { isDuplicate: true }, 200));
         }
-        res.status(201).json(ApiResponse.success("Added Like Successfully", result.data, 201));
+        res.status(200).json(ApiResponse.success("Added Like Successfully", result.data, 200));
     } catch (err) {
         console.error(err.message)
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
@@ -173,7 +173,7 @@ const addRecipe = async (req, res) => {
         const recipeData = req.body
         console.log("recipeData", recipeData);
         const result = await recipesService.addRecipe(userId, recipeData, req)
-        res.status(201).json(ApiResponse.success("Recipe Added Successfully", result, 200))
+        res.status(200).json(ApiResponse.success("Recipe Added Successfully", result, 200))
     } catch (err) {
         console.error(err.message)
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
@@ -231,9 +231,20 @@ const generateMealPlan = async (req, res) => {
         console.log("User ID in generateMealPlan:", userId);
         const { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats,health_condition, days } = req.body;
         const result = await recipesService.generateMealplan(userId, token, { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats,health_condition, days });
-        res.status(200).json(ApiResponse.success("Meal Plan Generated Successfully", result, 201));
+        res.status(200).json(ApiResponse.success("Meal Plan Generated Successfully", result, 200));
     } catch (error) {
         console.error(error.message);
+        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+    }
+}
+
+const getRecipesByUser = async (req, res) => {
+    try {
+        const userId = req.user;
+        const recipes = await recipesRepository.getRecipesByUser(userId);
+        res.json(ApiResponse.success("User's Recipes fetched successfully",  recipes , 200));
+    } catch (err) {
+        console.error(err.message);
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
     }
 }
@@ -258,5 +269,6 @@ module.exports = {
     searchIngredients,
     getCategories,
     getRecIngByRecipeId,
-    generateMealPlan
+    generateMealPlan,
+    getRecipesByUser
 };

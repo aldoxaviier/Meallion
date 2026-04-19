@@ -8,9 +8,10 @@ export default function NutritionTab({ recipeData }: { recipeData: any} ) {
     { label: 'Protein', value: recipeData?.ProteinContent, unit: 'g', color: '#FF5A5F' },
     { label: 'Fiber', value: recipeData?.FiberContent, unit: 'g', color: '#FF9F1C' },
     { label: 'Sugar', value: recipeData?.SugarContent, unit: 'g', color: '#33A1FD', border: true },
+    { label: 'Sodium', value: recipeData?.SodiumContent, unit: 'mg', color: '#3F8CFF' },
     { label: 'Fat', value: recipeData?.FatContent, unit: 'g', color: '#40C9A2' },
     { label: 'Saturated fat', value: recipeData?.SaturatedFatContent, unit: 'g', color: '#5E4AE3', border: true },
-    { label: 'Cholesterol', value: recipeData?.CholesterolContent, unit: 'g', color: '#A07A6D' },
+    { label: 'Cholesterol', value: recipeData?.CholesterolContent, unit: 'mg', color: '#A07A6D' },
   ];
 
   return (

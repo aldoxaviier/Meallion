@@ -1,10 +1,10 @@
 import { View, Text, TouchableOpacity, Image, ScrollView, FlatList } from 'react-native';
-import { Link, useRouter, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { api } from '../../utils/api';
 import { AuthContext } from '../../store/authContext';
 import { ProfileDataContext } from '../../store/profileDataContext';
 import { TenRecipeContext } from '../../store/tenRecipeContext';
-import { useEffect, useState, useContext } from 'react';
+import { useCallback, useState, useContext } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { RecipeCard } from '../../components/RecipeCard';
@@ -14,36 +14,40 @@ const Index = () => {
   const profileData = useContext(ProfileDataContext);
   const tenRecipe = useContext(TenRecipeContext);
   const [activeTab, setActiveTab] = useState<'grid' | 'favorites'>('grid');
-  const [recipes, setRecipes] = useState<any[]>([]);
-  const [viewedProfile, setViewedProfile] = useState<any>(null);
-  const { user_id } = useLocalSearchParams<{ user_id?: string }>();
-  const isOwnProfile = !user_id || user_id === profileData?.profileData?.user_id;
-  const displayProfile = isOwnProfile ? profileData?.profileData : viewedProfile;
-  console.log("user_id:", user_id);
+  const [postrecipes, setPostRecipes] = useState<any[]>([]);
+  const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
+  const displayProfile =  profileData?.profileData;
   const router = useRouter();
 
-  useEffect(() => {
-    if (user_id && !isOwnProfile) {
-      const fetchProfile = async () => {
-        try {
-          const response = await api.get(`/profile/getProfileFromID?user_id=${user_id}`);
-          console.log("Fetched profile data:", response.data);
-          if (response.data) {
-            setViewedProfile(response.data);
-          }
-        } catch (error) {
-          console.error("Error fetching profile:", error);
-        }
-      };
-      fetchProfile();
+  const getPostRecipes = async () => {
+    try {
+      const response = await api.get('/recipes/get-recipes-by-user');
+      console.log("Fetched recipes:", response.data);
+      if (response.data) {
+        setPostRecipes(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching recipes:", error);
     }
-  }, [user_id]);
+  };
 
-  useEffect(() => {
-    if (tenRecipe?.TenRecipe) {
-      setRecipes(tenRecipe.TenRecipe);
+  const getLikedRecipes = async () => {
+    try {
+      const response = await api.get('/recipes/getLikesByUserId');
+      if (response.data) {
+        setLikedRecipes(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching liked recipes:", error);
     }
-  }, [tenRecipe?.TenRecipe]);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getPostRecipes();
+      getLikedRecipes();
+    }, [])
+  );
 
   const getGoalLabel = (goal: string | null | undefined) => {
     if (!goal){
@@ -58,19 +62,19 @@ const Index = () => {
     return diets.join(', ');
   };
 
+  const displayedRecipes = activeTab === 'favorites' ? likedRecipes : postrecipes;
+
 
   return (
     <SafeAreaView className="flex-1 bg-primary-600" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="bg-primary-600 h-28 relative">
-          {isOwnProfile && (
             <TouchableOpacity
               className="absolute top-2 right-4 w-10 h-10 rounded-full bg-secondary-400/20 items-center justify-center"
               onPress={() => router.push("/settings/" as any)}
             >
               <Ionicons name="settings-outline" size={22} color="#F2E8C6" />
             </TouchableOpacity>
-          )}
         </View>
 
         <View className="bg-secondary-400 min-h-screen rounded-t-3xl -mt-4 px-6 pb-8">
@@ -138,12 +142,12 @@ const Index = () => {
           </View>
 
           <View className="flex-row flex-wrap justify-between">
-            {recipes.slice(0, 6).map((item, index) => (
+            {displayedRecipes.slice(0, 6).map((item, index) => (
               <View key={item.recipe_id || index} className="w-[48%] mb-4">
                 <RecipeCard
                   recipe={{
                     recipe_id: item.recipe_id,
-                    Images: item.Images,
+                    Images: item.Images || item.image,
                     author_name: item.author_name || item.AuthorName,
                     name: item.name,
                     rating_score: item.rating_score,
@@ -157,11 +161,15 @@ const Index = () => {
             ))}
           </View>
 
-          {recipes.length === 0 && (
+          {displayedRecipes.length === 0 && (
             <View className="items-center py-12">
-              <Ionicons name="restaurant-outline" size={48} color="#9CA3AF" />
+              <Ionicons
+                name={activeTab === 'favorites' ? 'heart-outline' : 'restaurant-outline'}
+                size={48}
+                color="#9CA3AF"
+              />
               <Text className="font-brsegma-500 text-gray-500 mt-4">
-                No recipes to display
+                {activeTab === 'favorites' ? 'No liked recipes to display' : 'No recipes to display'}
               </Text>
             </View>
           )}

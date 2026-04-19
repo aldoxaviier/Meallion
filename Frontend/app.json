@@ -8,10 +8,20 @@
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+        "image": "./assets/images/batman.jpeg",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "splash": {
+        "image": "./assets/images/batman.jpeg",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      },
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

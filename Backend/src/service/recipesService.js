@@ -146,20 +146,35 @@ const addRecipe = async (userId, {name, prepTime, cookTime, description, recipeS
 }
 
 const searchIngredients = async (query) => {
-    let result = await recipesRepository.getIngredients(query);
-    if (!result || result.length === 0) {
-        const response = await fetch(`${process.env.FAST_API_URL}/recipes/search-ingredients`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify( query )
-        });
+    let localResults = await recipesRepository.getIngredients(query);
+    let usdaResults = [];
+
+    if (localResults.length <= 4) {
+        const response = await fetch(
+            `${process.env.FAST_API_URL}/recipes/search-ingredients`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify( query )
+            }
+        );
+
         const data = await response.json();
-        return data.data;
+        usdaResults = data.data || [];
     }
-    return result;
-}
+    const localFdcIds = new Set(
+        localResults
+            .map(item => item.fdc_id)
+            .filter(Boolean)
+    );
+    const filteredUsda = usdaResults.filter(item => {
+        return item.fdcId && !localFdcIds.has(item.fdcId);
+    });
+    const combined = [...localResults, ...filteredUsda];
+    return combined;
+};
 
 const parseMaybeJson = (value) => {
     if (Array.isArray(value) || (value && typeof value === "object")) {
@@ -227,17 +242,69 @@ const calculateNutritionTotals = (ingredients = []) => {
     };
 };
 
-const generateMealplan = async (userId, token, { allergies, diet_preferences, target_calories, target_proteins, target_carbs, target_fats,health_condition, days }) => {
-    const response = await fetch(`${process.env.FAST_API_URL}/recommendation/`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
+const generateMealplan = async (
+  userId,
+  token,
+  {
+    allergies,
+    diet_preferences,
+    target_calories,
+    target_proteins,
+    target_carbs,
+    target_fats,
+    health_condition,
+    days
+  }
+) => {
+    console.log("Generating meal plan with params:", {
+    userId,
+    allergies,
+    diet_preferences,
+    target_calories,
+    target_proteins,
+    target_carbs,
+    target_fats,
+    health_condition,
+    days
     });
-    const data = await response.json();
 
+    const response = await fetch(
+    `${process.env.FAST_API_URL}/recommendation/generate-meal-plan`,
+    {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+        allergies,
+        diet_preferences,
+        target_calories,
+        target_proteins,
+        target_carbs,
+        target_fats,
+        health_condition,
+        days
+        })
+    }
+    );
+    const data = await response.json();
+    const mealPlan = data.data;
+    const rows = [];
+    console.log("Received meal plan from API:", mealPlan);
+    for (const dayPlan of mealPlan) {
+        for (const [mealTime, meal] of Object.entries(dayPlan.meals)) {
+            rows.push({
+            user_id: userId,
+            recipe_id: meal.recipe_id,
+            meal_time: mealTime,
+            date: new Date().toLocaleDateString("en-CA"),
+            is_eaten: false
+            });
+        }
+    }
+    const result = await recipesRepository.addToMealPlan(rows);
     return data.data;
-}
+};
 
 module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients, generateMealplan };

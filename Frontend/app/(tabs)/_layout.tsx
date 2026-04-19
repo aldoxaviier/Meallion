@@ -1,14 +1,18 @@
 import { useState,useContext } from "react";
 import { View, TouchableOpacity } from "react-native";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { Ionicons, Octicons } from "@expo/vector-icons";
 import GeneratePlanSheet, { PlanPreferences } from "../generatemealplan/components/generateplansheet";
 import { api } from "../utils/api";
 import { ProfileDataContext } from "../store/profileDataContext";
+
 const Layout = () => {
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const profileData = useContext(ProfileDataContext);
+  const router = useRouter();
   const handleGenerate = async (prefs: PlanPreferences) => {
+    setIsGenerating(true);
     try {
       const body ={
         allergies: profileData?.profileData?.allergies ,
@@ -19,9 +23,17 @@ const Layout = () => {
         target_fats: profileData?.profileData?.target_fats,
         days: prefs.days,
       }
-      const response = await api.post("/recipes/mealplan-generate", { body });
+      console.log("Generating meal plan with preferences:", body);
+      const response:any = await api.post("/recipes/mealplan-generate", body );
+      console.log("Meal plan generation response:", response);
+      setSheetVisible(false);
+      if (response.statusCode === 200) {
+        router.push("/(tabs)/mealplan");
+      }
     } catch (error) {
       console.error("Error generating meal plan:", error);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -106,8 +118,11 @@ const Layout = () => {
       {/* Sheet */}
       <GeneratePlanSheet
         visible={sheetVisible}
-        onClose={() => setSheetVisible(false)}
+        onClose={() => {
+          if (!isGenerating) setSheetVisible(false);
+        }}
         onGenerate={handleGenerate}
+        isLoading={isGenerating}
       />
     </View>
   );

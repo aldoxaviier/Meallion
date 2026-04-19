@@ -58,7 +58,7 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, 
 };
 
 const get10Recipes = async () => {
-    const ids = [3846, 4489, 4732, 4779, 4875, 4986, 5037, 5132, 5150, 5177];
+    const ids = [11078, 13678, 19859, 16849, 25815, 24747, 9557, 12339, 20480, 40857];
     const result = await sql`
         SELECT * FROM recipes
         WHERE recipe_id = ANY(${ids})
@@ -202,13 +202,22 @@ const getLikesByUserId = async (userId, recipeId) => {
     return result;
 };
 
-const addToMealPlan = async (userId, recipeId, mealType, date) => {
-     const result = await sql`
-          INSERT INTO mealplan (user_id, recipe_id, meal_time, date)
-          VALUES (${userId}, ${recipeId}, ${mealType}, ${date})
-          RETURNING *;
-     `;
-     return result;
+const addToMealPlan = async (data) => {
+  const items = Array.isArray(data) ? data : [data];
+
+  const values = items.map(item => [
+    item.user_id,
+    item.recipe_id,
+    item.meal_time,
+    item.date
+  ]);
+
+  const result = await sql`
+    INSERT INTO mealplan (user_id, recipe_id, meal_time, date)
+    VALUES ${sql(values)}
+    RETURNING *;
+  `;
+  return result;
 };
 
 const removeLikes = async (userId, recipeId) => {
@@ -398,6 +407,29 @@ const getRecIngByRecipeId = async (recipeId) => {
     return result;
 }
 
+const getRecipesByUser = async (userId) => {
+    const result = await sql`
+        SELECT * FROM recipes
+        WHERE user_id = ${userId}
+    `;
+    return result;
+}
+
+const bulkAddMealPlan = async (mealPlanRows) => {
+    const result = await sql`
+        INSERT INTO mealplan (user_id, recipe_id, meal_time, date)
+        VALUES ${sql(mealPlanRows.map(row => [
+            row.user_id,
+            row.recipe_id,
+            row.meal_time,
+            row.date
+        ]))}
+        RETURNING *;
+    `;
+    return result;
+};
+
+
 module.exports = {
     getAll,
     getIngredients,
@@ -423,5 +455,7 @@ module.exports = {
     getCategories,
     addIngredients,
     addRecipeIngredients,
-    getRecIngByRecipeId
+    getRecIngByRecipeId,
+    getRecipesByUser,
+    bulkAddMealPlan
 };

@@ -109,9 +109,9 @@ def get_recommendations_service(user_id, limit=20):
 
 MEAL_SLOT_MAP = {
     "breakfast": ["Breakfast"],
-    "lunch":     ["Lunch", "Lunch/Dinner"],
+    "lunch":     ["Lunch", "Lunch/Dinner", "Lunch/Snacks"],
     "dinner":    ["Dinner", "Lunch/Dinner"],
-    "snack":     ["Snack"],
+    "snack":     ["Snack", "Snacks", "Lunch/Snacks"],
 }
 
 def get_meal_slot_columns(df_columns, slot: str) -> list[str]:
@@ -137,13 +137,19 @@ def generate_meal_plan_service(
     target_proteins,
     target_carbs,
     target_fats,
-    health_condition
+    health_condition,
+    allergies,
 ):
     recommended_recipes = get_recommendations_service(user_id, limit=100)
     df = pd.DataFrame(recommended_recipes)
 
     if df.empty:
         return []
+
+    if allergies:
+        df = apply_allergy_filter(df, allergies)
+        if df.empty:
+            return []
 
     df = apply_health_filter(df, health_condition)
     if df.empty:
@@ -158,7 +164,7 @@ def generate_meal_plan_service(
     df["score"] = df.apply(lambda row: score_recipe(row, targets), axis=1)
     df = df.sort_values("score").reset_index(drop=True)
 
-    slots = ["breakfast", "lunch", "dinner"]
+    slots = ["breakfast", "lunch", "snack", "dinner"]
     slot_pools = {}
     for slot in slots:
         pool = filter_by_slot(df, slot)
@@ -190,7 +196,37 @@ def generate_meal_plan_service(
 
     return mealplan
 
+def apply_allergy_filter(df: pd.DataFrame, allergies: list[str]) -> pd.DataFrame:
+    if not allergies:
+        return df
 
+    ingredient_resp = (
+        supabase_client
+        .table("ingredients_mapping")
+        .select("id")
+        .in_("simplified_name", allergies)
+        .execute()
+        .model_dump()
+    )
+    allergen_ingredient_ids = [row["id"] for row in ingredient_resp["data"]]
+
+    if not allergen_ingredient_ids:
+        return df  
+
+    recipe_ing_resp = (
+        supabase_client
+        .table("recipe_ingredients")
+        .select("recipe_id")
+        .in_("ingredient_id", allergen_ingredient_ids)
+        .execute()
+        .model_dump()
+    )
+    excluded_recipe_ids = {row["recipe_id"] for row in recipe_ing_resp["data"]}
+
+    if not excluded_recipe_ids:
+        return df
+
+    return df[~df["recipe_id"].isin(excluded_recipe_ids)]
 
 def apply_health_filter(df: pd.DataFrame, health_condition: str):
     if not health_condition:

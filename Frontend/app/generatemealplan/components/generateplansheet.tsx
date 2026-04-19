@@ -10,6 +10,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -20,7 +21,8 @@ const SHEET_HEIGHT = SCREEN_HEIGHT * 0.35;
 interface GeneratePlanSheetProps {
   visible: boolean;
   onClose: () => void;
-  onGenerate: (prefs: PlanPreferences) => void;
+  onGenerate: (prefs: PlanPreferences) => Promise<void> | void;
+  isLoading?: boolean;
 }
 
 export interface PlanPreferences {
@@ -44,6 +46,7 @@ export default function GeneratePlanSheet({
   visible,
   onClose,
   onGenerate,
+  isLoading = false,
 }: GeneratePlanSheetProps) {
   const slideAnim = useRef(new Animated.Value(SHEET_HEIGHT)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -89,9 +92,8 @@ export default function GeneratePlanSheet({
     );
   };
 
-  const handleGenerate = () => {
-    onGenerate({ days });
-    onClose();
+  const handleGenerate = async () => {
+    await onGenerate({ days });
   };
 
   return (
@@ -99,7 +101,9 @@ export default function GeneratePlanSheet({
       visible={visible}
       transparent
       animationType="slide"
-      onRequestClose={onClose}
+      onRequestClose={() => {
+        if (!isLoading) onClose();
+      }}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -109,7 +113,9 @@ export default function GeneratePlanSheet({
         <Animated.View
           className="absolute inset-0 bg-black/45"
           style={{ opacity: fadeAnim }}
-          onTouchEnd={onClose}
+          onTouchEnd={() => {
+            if (!isLoading) onClose();
+          }}
         />
 
         {/* sheet */}
@@ -126,7 +132,11 @@ export default function GeneratePlanSheet({
                 Personalise your plan below
               </Text>
             </View>
-            <TouchableOpacity onPress={onClose} className="h-8 w-8 items-center justify-center rounded-full bg-[#F0E8DD]">
+            <TouchableOpacity
+              onPress={onClose}
+              disabled={isLoading}
+              className="h-8 w-8 items-center justify-center rounded-full bg-[#F0E8DD]"
+            >
               <Ionicons name="close" size={20} color="#660B05" />
             </TouchableOpacity>
           </View>
@@ -171,15 +181,25 @@ export default function GeneratePlanSheet({
             <TouchableOpacity
               className="flex-row items-center justify-center rounded-2xl bg-primary-500 py-4"
               onPress={handleGenerate}
+              disabled={isLoading}
               activeOpacity={0.85}
             >
-              <Ionicons
-                name="sparkles"
-                size={18}
-                color="#FFF0C4"
-                style={{ marginRight: 8 }}
-              />
-              <Text className="text-base font-bold tracking-[0.3px] text-secondary-300">Generate Plan</Text>
+              {isLoading ? (
+                <>
+                  <ActivityIndicator size="small" color="#FFF0C4" style={{ marginRight: 8 }} />
+                  <Text className="text-base font-bold tracking-[0.3px] text-secondary-300">Generating...</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons
+                    name="sparkles"
+                    size={18}
+                    color="#FFF0C4"
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text className="text-base font-bold tracking-[0.3px] text-secondary-300">Generate Plan</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
         </Animated.View>
