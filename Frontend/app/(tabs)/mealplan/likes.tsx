@@ -34,7 +34,7 @@ export default function Likes() {
   const handleAddToMealplan = async (recipeId: number) => {
     try {
       const body = { recipeId, mealType, date: selectedDate };
-      await api.post(`/recipes/addToMealPlan`, body);
+      await api.post(`/recipes/addToMealPlan`, [body]);
       router.back();
     } catch (err) {
       console.error('Error adding to meal plan:', err);

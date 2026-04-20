@@ -202,22 +202,25 @@ const getLikesByUserId = async (userId, recipeId) => {
     return result;
 };
 
-const addToMealPlan = async (data) => {
-  const items = Array.isArray(data) ? data : [data];
-
-  const values = items.map(item => [
-    item.user_id,
-    item.recipe_id,
-    item.meal_time,
-    item.date
-  ]);
-
-  const result = await sql`
-    INSERT INTO mealplan (user_id, recipe_id, meal_time, date)
-    VALUES ${sql(values)}
-    RETURNING *;
-  `;
-  return result;
+const addToMealPlan = async (data, userId) => {
+    console.log("Data received in addToMealPlan repository:", data);
+    const items = Array.isArray(data) ? data : [data];
+    const normalizedItems = items.map(item => ({
+        ...item,
+        user_id: item.user_id ?? userId
+    }));
+    const values = normalizedItems.map(item => [
+        item.user_id,
+        item.recipe_id || item.recipeId,
+        item.meal_time || item.mealType,
+        item.date
+    ]);
+    const result = await sql`
+        INSERT INTO mealplan (user_id, recipe_id, meal_time, date)
+        VALUES ${sql(values)}
+        RETURNING *;
+    `;
+    return result;
 };
 
 const removeLikes = async (userId, recipeId) => {

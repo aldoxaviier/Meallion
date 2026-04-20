@@ -92,7 +92,7 @@ const Index = () => {
           </Text>
 
           <Text className="font-brsegma-300 text-sm text-gray-600 mb-6 leading-5">
-            Passionate about healthy, halal cooking and fitness tracking.
+            {displayProfile?.bio || ''}
           </Text>
 
           <View className="border-t border-b border-gray-300 py-4 mb-6">

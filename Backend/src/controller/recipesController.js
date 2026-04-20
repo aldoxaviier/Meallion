@@ -119,7 +119,7 @@ const addToMealPlan = async (req, res) => {
     try {            
         const userId = req.user
         const data = req.body
-        await recipesRepository.addToMealPlan(data)
+        await recipesRepository.addToMealPlan(data, userId)
         res.status(200).json(ApiResponse.success("Added to Meal Plan Successfull", null, 200))
     } catch (err) {
         console.error(err.message)

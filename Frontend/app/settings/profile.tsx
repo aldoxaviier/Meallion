@@ -1,4 +1,4 @@
-import { View, Image, Text, TextInput, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Image, Text, TextInput, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useState, useRef, useMemo, useCallback, useContext, useEffect } from "react";
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -31,6 +31,7 @@ const Profile = () => {
     });
     const url = process.env.EXPO_PUBLIC_API_URL;
     const [displayImage, setDisplayImage] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     const renderBackdrop = useCallback((props: any) => (
         <BottomSheetBackdrop
@@ -122,6 +123,9 @@ const Profile = () => {
     }, [profileContext?.profileData]);
 
     const onSave = async () => {
+        if (isSaving) return;
+
+        setIsSaving(true);
         const formdata = new FormData();
         if(image.uri){
             formdata.append("image", {
@@ -145,6 +149,8 @@ const Profile = () => {
         } catch (err) {
             console.error('Error saving profile:', err);
             Alert.alert('Error', 'An error occurred while saving your profile. Please try again.');
+        } finally {
+            setIsSaving(false);
         }
     }
 
@@ -222,12 +228,17 @@ const Profile = () => {
                 </ScrollView>
                 <View className="px-6 py-4 bg-secondary-400">
                     <TouchableOpacity
-                        className="py-4 px-10 self-center rounded-full bg-primary-500"
+                        className={`py-4 px-10 self-center rounded-full ${isSaving ? 'bg-primary-500/70' : 'bg-primary-500'}`}
                         onPress={onSave}
+                        disabled={isSaving}
                         >
-                        <Text className="text-center font-brsegma-600 text-secondary-400">
-                            Save
-                        </Text>
+                        {isSaving ? (
+                            <ActivityIndicator color="#F7F9F4" size="small" />
+                        ) : (
+                            <Text className="text-center font-brsegma-600 text-secondary-400">
+                                Save
+                            </Text>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>

@@ -24,38 +24,52 @@ interface MealSectionProps {
   onAdd: () => void;
   onDelete: (meal: any) => void;
   isComplete: boolean;
+  canDeleteMeals: boolean;
 }
 
 export default function MealPlan() {
   const router = useRouter();
   const profileData = useContext(ProfileDataContext);
   const flatListRef = useRef<FlatList<Date>>(null);
+  const latestMealPlanRequestRef = useRef(0);
 
   const today = startOfToday();
   const [selectedDate, setSelectedDate] = useState(today);
+  const [previousSelectedDate, setPreviousSelectedDate] = useState(today);
+  const [isMealPlanLoading, setIsMealPlanLoading] = useState(false);
+  const [loadedMealPlanDate, setLoadedMealPlanDate] = useState<string | null>(null);
   const [mealPlanData, setMealPlanData] = useState<any>({
     mealPlanData: [],
     progressMeal: {} 
   });
-
+console.log("MealPlanData:", mealPlanData);
   const dates = eachDayOfInterval({
     start: subDays(today, 7),
     end: addDays(today, 7),
   });
 
   // main API calls
-  const getMealPlan = async () => {
+  const getMealPlan = async (dateToFetch: Date) => {
+    const requestId = ++latestMealPlanRequestRef.current;
+    setIsMealPlanLoading(true);
     try {
-      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+      const formattedDate = format(dateToFetch, 'yyyy-MM-dd');
       const response = await api.get(`/recipes/getMealPlan?date=${formattedDate}`);
+      if (requestId !== latestMealPlanRequestRef.current) return;
+
       if (response.data) {
         setMealPlanData({
           mealPlanData: response.data.mealPlanData || [],
           progressMeal: response.data.progressMeal || {}
         });
+        setLoadedMealPlanDate(formattedDate);
       }
     } catch (error) {
       console.error("Error getting meal plan data: ", error);
+    } finally {
+      if (requestId === latestMealPlanRequestRef.current) {
+        setIsMealPlanLoading(false);
+      }
     }
   };
 
@@ -63,7 +77,7 @@ export default function MealPlan() {
     try {
       const body = { mealId, date, cal, pro, fat, carbs };
       await api.delete(`/recipes/deleteMealPlan`, { params: body });
-      await getMealPlan(); 
+      await getMealPlan(selectedDate); 
       console.log('Deleted meal:', mealId);
     } catch (error) {
       console.error("Gagal menghapus:", error);
@@ -73,8 +87,8 @@ export default function MealPlan() {
   // screenfocus
   useFocusEffect(
     useCallback(() => {
-      getMealPlan();
       setSelectedDate(today);
+      getMealPlan(today);
       
       const timeout = setTimeout(() => {
         flatListRef.current?.scrollToIndex({ index: 7, animated: true });
@@ -85,11 +99,12 @@ export default function MealPlan() {
   );
 
   useEffect(() => {
-    getMealPlan();
+    getMealPlan(selectedDate);
   }, [selectedDate]);
 
   // --- Handlers & Helpers ---
   const handleDatePress = (item: Date, index: number) => {
+    setPreviousSelectedDate(selectedDate);
     setSelectedDate(item);
     flatListRef.current?.scrollToIndex({ index, animated: true });
   };
@@ -105,14 +120,21 @@ export default function MealPlan() {
   const isDailyGoalCompleted = profileData?.profileData?.target_calories
     ? (mealPlanData.progressMeal?.progress_cal || 0) >= profileData.profileData.target_calories
     : false;
+  const selectedDateKey = format(selectedDate, 'yyyy-MM-dd');
+  const isSelectedDateDeletable = selectedDate >= today;
+  const wasPreviousDatePast = previousSelectedDate < today;
+  const mustWaitForDateSync = isSelectedDateDeletable && wasPreviousDatePast;
+  const isSelectedDateSynced = !isMealPlanLoading && loadedMealPlanDate === selectedDateKey;
+  const canDeleteMeals = isSelectedDateDeletable && (!mustWaitForDateSync || isSelectedDateSynced);
 
   // --- Render Sub-Components ---
   const renderDateItem = ({ item, index }: { item: Date; index: number }) => {
     const isSelected = format(item, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+    const isToday = format(item, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
     return (
       <TouchableOpacity
         onPress={() => handleDatePress(item, index)}
-        className={`mr-3 w-16 h-24 rounded-2xl items-center justify-center ${isSelected ? 'bg-primary-400' : 'bg-white'}`}
+        className={`mr-3 w-16 h-24 rounded-2xl items-center justify-center ${isSelected ? 'bg-primary-400' : 'bg-white'} ${isToday ? 'border-2 border-primary-500' : ''}`}
       >
         <Text className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-400'}`}>
           {format(item, 'EEE')}
@@ -184,6 +206,7 @@ export default function MealPlan() {
                 type={mealType}
                 data={mealPlanData.mealPlanData}
                 isComplete={isDailyGoalCompleted}
+                canDeleteMeals={canDeleteMeals}
                 onAdd={() => handleAddMeal(mealType)}
                 
                 onDelete={(meal) => handleDeletePlan({
@@ -203,7 +226,7 @@ export default function MealPlan() {
   );
 }
 
-const MealSection = ({ title, type, data, onAdd, onDelete, isComplete }: MealSectionProps) => {
+const MealSection = ({ title, type, data, onAdd, onDelete, isComplete, canDeleteMeals }: MealSectionProps) => {
   const filteredMeals = data.filter((meal) => meal.meal_time === type);
 
   return (
@@ -240,11 +263,13 @@ const MealSection = ({ title, type, data, onAdd, onDelete, isComplete }: MealSec
                 </View>
               </View>
 
-              <View className="flex-row items-center">
-                <TouchableOpacity className="p-2 rounded-full bg-white" onPress={() => onDelete(meal)}>
-                  <Ionicons name="trash-outline" size={12} color="gray" />
-                </TouchableOpacity>
-              </View>
+              {canDeleteMeals && !meal.is_eaten && (
+                <View className="flex-row items-center">
+                  <TouchableOpacity className="p-2 rounded-full bg-white" onPress={() => onDelete(meal)}>
+                    <Ionicons name="trash-outline" size={12} color="gray" />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           ))
         ) : (

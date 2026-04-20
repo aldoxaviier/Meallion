@@ -292,13 +292,19 @@ const generateMealplan = async (
     const mealPlan = data.data;
     const rows = [];
     console.log("Received meal plan from API:", mealPlan);
-    for (const dayPlan of mealPlan) {
+    for (const [dayIndex, dayPlan] of mealPlan.entries()) {
+        const planDate = new Date();
+        planDate.setDate(planDate.getDate() + dayIndex);
+        const formattedDate = planDate.toLocaleDateString("en-CA");
+
         for (const [mealTime, meal] of Object.entries(dayPlan.meals)) {
+            if (!meal) continue;
+
             rows.push({
             user_id: userId,
             recipe_id: meal.recipe_id,
             meal_time: mealTime,
-            date: new Date().toLocaleDateString("en-CA"),
+            date: formattedDate,
             is_eaten: false
             });
         }
