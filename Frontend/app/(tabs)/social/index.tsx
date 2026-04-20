@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5, Feather, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { router, useFocusEffect } from "expo-router";
 import SocialHeader from "../../components/SocialHeader";
 import { api } from "@/app/utils/api";
@@ -15,11 +15,23 @@ export default function Index() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [activeTab, setActiveTab] = useState('foryou');
   const isSocial = true;
+  const [recipesByTab, setRecipesByTab] = useState<Record<string, any[]>>({ foryou: [], following: [] });
+  const [pageByTab, setPageByTab] = useState<Record<string, number>>({ foryou: 1, following: 1 });
+  const [totalPageByTab, setTotalPageByTab] = useState<Record<string, number>>({ foryou: 1, following: 1 });
+  const fetchedTabs = useRef<Set<string>>(new Set());
   const url = process.env.EXPO_PUBLIC_API_URL;
 
-  const fetchRecipes = async (pageNum: number) => {
+  const fetchRecipes = async (pageNum: number, tab: string) => {
     try {
-      const res = await api.get(`/recipes/getRecipesByNameCategory?query=&page=${pageNum}&limit=10&category=&isSocial=${isSocial}`);
+      let endpoint = '';
+      
+      if (tab === 'foryou') {
+        endpoint = `/recipes/getRecipesByNameCategory?query=&page=${pageNum}&limit=10&category=&isSocial=true`;
+      } else if (tab === 'following') {
+        endpoint = `/recipes/recipes-by-following?page=${pageNum}&limit=10`;
+      }
+
+      const res = await api.get(endpoint);
       return res.data;
     } catch (err) {
       console.error(err);
@@ -27,52 +39,57 @@ export default function Index() {
     }
   };
 
-  const loadInitial = async () => {
+  const loadInitialForTab = async (tab: string) => {
+    if (fetchedTabs.current.has(tab)) return;
     setIsLoading(true);
-    const data = await fetchRecipes(1);
+    const data = await fetchRecipes(1, tab);
     if (data) {
-      setRecipes(data.data || []);
-      setPage(1);
-      setTotalPage(data.info?.totalPage || 1);
+      setRecipesByTab(prev => ({ ...prev, [tab]: data.data || [] }));
+      setPageByTab(prev => ({ ...prev, [tab]: 1 }));
+      setTotalPageByTab(prev => ({ ...prev, [tab]: data.info?.totalPage || 1 }));
+      fetchedTabs.current.add(tab); // mark as fetched
     }
     setIsLoading(false);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      loadInitial();
-
-      return () => {
-        setRecipes([]); 
-        setPage(1);
-      };
-    }, [])
-  );
-
   const handleLoadMore = async () => {
-    if (isLoadingMore || page >= totalPage) return;
-    console.log("Trigger")
+    const currentPage = pageByTab[activeTab];
+    const currentTotalPage = totalPageByTab[activeTab];
+    
+    if (isLoadingMore || currentPage >= currentTotalPage) return;
     setIsLoadingMore(true);
     
-    const nextPage = page + 1;
-    const data = await fetchRecipes(nextPage);
+    const nextPage = currentPage + 1;
+    const data = await fetchRecipes(nextPage, activeTab);
     
     if (data?.data?.length > 0) {
-      setRecipes(prev => {
-        const newRecipes = data.data.filter(
-          (newItem: any) => !prev.some((prevItem) => prevItem.recipe_id === newItem.recipe_id)
-        );
-        return [...prev, ...newRecipes];
-      });
-      setPage(nextPage);
+      setRecipesByTab(prev => ({
+        ...prev,
+        [activeTab]: [
+          ...prev[activeTab],
+          ...data.data.filter(
+            (newItem: any) => !prev[activeTab].some((p) => p.recipe_id === newItem.recipe_id)
+          ),
+        ],
+      }));
+      setPageByTab(prev => ({ ...prev, [activeTab]: nextPage }));
     }
     setIsLoadingMore(false);
   };
 
-  const handleActiveTab = async (selectedTab: string) => {
-    console.log("Tab: ", selectedTab);
+  const handleActiveTab = (selectedTab: string) => {
     setActiveTab(selectedTab);
+    loadInitialForTab(selectedTab);
   };
+  useFocusEffect(
+    useCallback(() => {
+      fetchedTabs.current.clear();
+      loadInitialForTab('foryou');
+      return () => {
+        setRecipesByTab({ foryou: [], following: [] });
+      };
+    }, [])
+  );
 
   const getFirstTag = (tags: string | string[] | undefined) => {
     if (!tags) return [];
@@ -88,7 +105,6 @@ export default function Index() {
   }
 
   const renderRecipePost = ({ item }: { item: any }) => (
-    // UBAH DISINI: Ganti border dengan bg-white, rounded, dan margin
     <TouchableOpacity 
       activeOpacity={0.8} 
       onPress={() => router.push(`../recipes/${item.recipe_id}`)} 
@@ -162,7 +178,7 @@ export default function Index() {
         </View>
       ) : (
         <FlatList
-          data={recipes}
+          data={recipesByTab[activeTab]}
           className="flex-1"
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 80 }} // Tambahkan padding agar card pertama dan terakhir tidak terlalu nempel
           showsVerticalScrollIndicator={false}

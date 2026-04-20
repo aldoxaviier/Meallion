@@ -10,4 +10,6 @@ router.post("/sendOTP", validation(otpSchema), userController.reqOTP);
 router.post("/refresh", userController.refresh);
 router.get("/logout", authorization, userController.logout);
 
+router.get("/user-relationship", authorization, userController.getUserRelationship);
+router.post("/update-follow", authorization, userController.updateFollowStatus);
 module.exports = router;

@@ -1,17 +1,17 @@
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { api } from "@/app/utils/api";
 import { useRouter } from 'expo-router';
-
 import ConfirmationModal from '../../components/ConfirmationModal';
+import { ProfileDataContext } from '@/app/store/profileDataContext';
 
 export default function Likes() {
   const router = useRouter();
   const { mealType, selectedDate } = useLocalSearchParams();
   const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
-
+  const profileData = useContext(ProfileDataContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState<{ type: 'add' | 'delete' | null, recipeId: number | null }>({
     type: null,
@@ -20,7 +20,7 @@ export default function Likes() {
 
   const refreshLikedRecipes = async () => {
     try {
-      const response = await api.get(`/recipes/getLikesByUserId`);
+      const response = await api.get(`/recipes/getLikesByUserId`, { params: { user_id: profileData?.profileData?.user_id } });
       setLikedRecipes(response.data || []);
     } catch (err) {
       console.error('Error fetching liked meals:', err);

@@ -188,15 +188,11 @@ const getLikesByUserId = async (userId, recipeId) => {
         : await sql`
             SELECT 
                 l.recipe_id,
-                r.name,
-                r."Images",
-                r."Calories",
-                r."TotalTime",
-                r."FatContent",
-                r."CarbohydrateContent",
-                r."ProteinContent"
+                r.*,
+                up.profile_image
             FROM likes l
             JOIN recipes r ON l.recipe_id = r.recipe_id
+            LEFT JOIN user_profiles up ON r.user_id = up.user_id
             WHERE l.user_id = ${userId}
         `;
     return result;
@@ -412,8 +408,12 @@ const getRecIngByRecipeId = async (recipeId) => {
 
 const getRecipesByUser = async (userId) => {
     const result = await sql`
-        SELECT * FROM recipes
-        WHERE user_id = ${userId}
+        SELECT 
+        r.*,
+        up.profile_image 
+        FROM recipes r
+        join user_profiles up on r.user_id = up.user_id
+        WHERE r.user_id = ${userId}
     `;
     return result;
 }
@@ -432,6 +432,42 @@ const bulkAddMealPlan = async (mealPlanRows) => {
     return result;
 };
 
+const getRecipesByFollowing = async (query, categories, firstPage, nextPage, userId) => {
+    const conditions = [];
+
+    if (query && query.trim() !== "") {
+        conditions.push(sql`name ILIKE ${'%' + query + '%'}`);
+    }
+
+    let whereClause = sql``;
+    if (conditions.length > 0) {
+        whereClause = sql`WHERE ${conditions.reduce((prev, curr) => sql`${prev} AND ${curr}`)}`;
+    }
+    
+    const result = await sql`
+        with recipes_owners as (
+            SELECT
+            *
+            from user_relationships
+            where follower_id = ${userId}
+        )
+        SELECT 
+            recipes.*, 
+            user_profiles.profile_image 
+        FROM recipes
+        JOIN recipes_owners ON recipes.user_id = recipes_owners.following_id
+        LEFT JOIN user_profiles ON recipes.user_id = user_profiles.user_id
+        ${whereClause}
+        ORDER BY "DatePublished" DESC
+        LIMIT ${nextPage - firstPage + 1}
+        OFFSET ${firstPage}
+    `;
+
+    return {
+        data: result,
+        total: result.length > 0 ? Number(result[0].total_count) : 0
+    };
+};
 
 module.exports = {
     getAll,
@@ -460,5 +496,6 @@ module.exports = {
     addRecipeIngredients,
     getRecIngByRecipeId,
     getRecipesByUser,
-    bulkAddMealPlan
+    bulkAddMealPlan,
+    getRecipesByFollowing
 };

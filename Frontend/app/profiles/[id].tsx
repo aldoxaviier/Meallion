@@ -1,12 +1,13 @@
-import { View, Text, TouchableOpacity, Image, ScrollView, FlatList } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity, Image, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
 import { api } from '../utils/api';
-import { useEffect, useState, useContext, use } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { RecipeCard } from '../components/RecipeCard';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router';
+import { ProfileDataContext } from '../store/profileDataContext';
 interface UserProfile {
   activity_level: number;
   allergies: string[];
@@ -35,13 +36,17 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<'grid' | 'favorites'>('grid');
   const [postrecipes, setPostRecipes] = useState<any[]>([]);
   const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
   const router = useRouter();
   const {id} = useLocalSearchParams();
   const [profile, setProfile] = useState<UserProfile>();
+  const profileContext = useContext(ProfileDataContext);
+  const viewedUserId = Array.isArray(id) ? id[0] : id;
 
   const getPostRecipes = async () => {
     try {
-      const response = await api.get('/recipes/get-recipes-by-user');
+      const response = await api.get('/recipes/get-recipes-by-user',{ params: { user_id: viewedUserId } });
       if (response.data) {
         setPostRecipes(response.data);
       }
@@ -52,7 +57,7 @@ const Index = () => {
 
   const getLikedRecipes = async () => {
     try {
-      const response = await api.get('/recipes/getLikesByUserId');
+      const response = await api.get('/recipes/getLikesByUserId', { params: { user_id: viewedUserId } });
       if (response.data) {
         setLikedRecipes(response.data);
       }
@@ -63,7 +68,7 @@ const Index = () => {
 
   const getProfile = async () => {
     try {
-        const response = await api.get(`/profile/getProfileFromID?user_id=${id}`);
+        const response = await api.get(`/profile/getProfileFromID?user_id=${viewedUserId}`);
         console.log("API Response:", response);
         const data = await response.data;
         setProfile(data);
@@ -72,17 +77,25 @@ const Index = () => {
     }
   }
 
+  const getIsfollowing = async () => {
+    try {
+      const response = await api.get(`/user/user-relationship?target_user_id=${viewedUserId}`);
+      console.log("Follow Status Response:", response);
+      if (response.data) {
+        setIsFollowing(true);
+      }
+    } catch (error) {
+      console.error('Error fetching follow status:', error);
+    }
+  };
+
+
   useEffect(() => {
-    console.log("id:", id);
     getProfile();
     getPostRecipes();
     getLikedRecipes();
-  }, [id]);
-
-
-  useEffect(() => {
-    console.log("Profile Data Updated:", profile);
-  }, [profile]);
+    getIsfollowing();
+  }, [viewedUserId]);
 
   const getGoalLabel = (goal: string | null | undefined) => {
     if (!goal){
@@ -99,6 +112,42 @@ const Index = () => {
 
   const displayedRecipes = activeTab === 'favorites' ? likedRecipes : postrecipes;
 
+  const applyFollowChange = async (nextState: boolean) => {
+    try {
+      setIsFollowLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 250));
+      setIsFollowing(nextState);
+      await api.post('/user/update-follow', { target_user_id: viewedUserId, follow: nextState });
+    } catch (error) {
+      console.error('Failed to update follow state:', error);
+      Alert.alert('Something went wrong', 'Please try again.');
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
+  const onFollowPress = async () => {
+    if (isFollowLoading) {
+      return;
+    }
+
+    if (isFollowing) {
+      Alert.alert('Unfollow this user?', 'You will stop seeing their latest recipe updates in your feed.', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Unfollow',
+          style: 'destructive',
+          onPress: () => {
+            void applyFollowChange(false);
+          },
+        },
+      ]);
+      return;
+    }
+
+    await applyFollowChange(true);
+  };
+
 
   return (
     <>
@@ -114,7 +163,7 @@ const Index = () => {
             </TouchableOpacity>
         </View>
 
-        <View className="bg-secondary-400 min-h-screen rounded-t-3xl -mt-4 px-6 pb-8">
+        <View className="bg-secondary-400 min-h-screen rounded-t-3xl -mt-4 px-6 pb-8 flex ">
           <View className="-mt-14 mb-4">
             <View className="w-24 h-24 rounded-full border-4 border-secondary-400 overflow-hidden bg-secondary-300">
               <Image
@@ -123,14 +172,49 @@ const Index = () => {
               />
             </View>
           </View>
+          <View className='flex flex-row justify-between'>
+            <Text className="font-fogsta text-3xl text-primary-500 mb-1">
+              {profile?.users.name || 'User'}
+            </Text>
+            <Pressable
+              className={`h-10 min-w-[116px] rounded-full px-4 flex-row items-center justify-center gap-2 ${
+                isFollowing
+                  ? 'border border-primary-500 bg-secondary-400'
+                  : 'bg-primary-500'
+              } ${isFollowLoading ? 'opacity-80' : 'opacity-100'}`}
+              disabled={isFollowLoading}
+              onPress={() => {
+                void onFollowPress();
+              }}
+              android_ripple={{ color: 'rgba(255,255,255,0.18)', borderless: false }}
+              accessibilityRole="button"
+              accessibilityLabel={isFollowing ? 'Unfollow user' : 'Follow user'}
+              accessibilityHint={isFollowing ? 'Double tap to unfollow this profile' : 'Double tap to follow this profile'}
+              accessibilityState={{ busy: isFollowLoading, disabled: isFollowLoading }}
+            >
+              {isFollowLoading ? (
+                <ActivityIndicator size="small" color={isFollowing ? '#660B05' : '#F2E8C6'} />
+              ) : (
+                <Ionicons
+                  name={isFollowing ? 'checkmark-circle' : 'person-add'}
+                  size={16}
+                  color={isFollowing ? '#660B05' : '#F2E8C6'}
+                />
+              )}
+              <Text
+                className={`font-brsegma-600 text-sm ${
+                  isFollowing ? 'text-primary-500' : 'text-secondary-400'
+                }`}
+              >
+                {isFollowing ? 'Following' : 'Follow'}
+              </Text>
+            </Pressable>
+          </View>
 
-          <Text className="font-fogsta text-3xl text-primary-500 mb-1">
-            {profile?.users.name || 'User'}
+          <Text className="font-brsegma-300 text-sm text-gray-600 leading-5 pt-2 pb-1">
+            {profile?.bio != "null" ? profile?.bio : 'Passionate about healthy, halal cooking and fitness tracking.'}
           </Text>
 
-          <Text className="font-brsegma-300 text-sm text-gray-600 mb-6 leading-5">
-            Passionate about healthy, halal cooking and fitness tracking.
-          </Text>
 
           <View className="border-t border-b border-gray-300 py-4 mb-6">
             <View className="flex-row justify-between items-center py-2">
@@ -185,6 +269,7 @@ const Index = () => {
                   recipe={{
                     recipe_id: item.recipe_id,
                     Images: item.Images || item.image,
+                    profile_image: item.profile_image,
                     author_name: item.author_name || item.AuthorName,
                     name: item.name,
                     rating_score: item.rating_score,

@@ -21,7 +21,7 @@ const Index = () => {
 
   const getPostRecipes = async () => {
     try {
-      const response = await api.get('/recipes/get-recipes-by-user');
+      const response = await api.get('/recipes/get-recipes-by-user',{ params: { user_id: profileData?.profileData?.user_id } });
       console.log("Fetched recipes:", response.data);
       if (response.data) {
         setPostRecipes(response.data);
@@ -33,7 +33,7 @@ const Index = () => {
 
   const getLikedRecipes = async () => {
     try {
-      const response = await api.get('/recipes/getLikesByUserId');
+      const response = await api.get('/recipes/getLikesByUserId', { params: { user_id: profileData?.profileData?.user_id } });
       if (response.data) {
         setLikedRecipes(response.data);
       }
@@ -148,6 +148,7 @@ const Index = () => {
                   recipe={{
                     recipe_id: item.recipe_id,
                     Images: item.Images || item.image,
+                    profile_image: item.profile_image,
                     author_name: item.author_name || item.AuthorName,
                     name: item.name,
                     rating_score: item.rating_score,

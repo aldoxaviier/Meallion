@@ -106,7 +106,7 @@ const getMealPlan = async (req, res) => {
 
 const getLikesByUserId = async (req, res) => {
     try {
-        const userId = req.user
+        const userId = req.query.user_id;
         const likedRecipes = await recipesRepository.getLikesByUserId(userId)
         res.json(ApiResponse.success("Get Liked Recipes Successfull", likedRecipes, 200))
     } catch (err) {
@@ -240,9 +240,33 @@ const generateMealPlan = async (req, res) => {
 
 const getRecipesByUser = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.query.user_id;
         const recipes = await recipesRepository.getRecipesByUser(userId);
         res.json(ApiResponse.success("User's Recipes fetched successfully",  recipes , 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+    }
+}
+
+const getRecipesByFollowing = async (req, res) => {
+    try {
+        const userId = req.user;
+        const query = req.query.query;
+        const category = req.query.category;
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+        const result = await recipesService.getRecipesByFollowing(query, category, page, limit, userId);
+        const totalPage = Math.ceil(result.total/limit);
+        res.json(ApiResponse.success("Recipe fetched successfully", {
+            data: result.data,
+            info: {
+                page: page,
+                limit: limit,
+                totalData: result.total,
+                totalPage: totalPage
+            }
+        }, 200));
     } catch (err) {
         console.error(err.message);
         res.status(500).json(ApiResponse.error("Internal Server Error", 500));
@@ -270,5 +294,7 @@ module.exports = {
     getCategories,
     getRecIngByRecipeId,
     generateMealPlan,
-    getRecipesByUser
+    getRecipesByUser,
+    getRecipesByFollowing
+
 };

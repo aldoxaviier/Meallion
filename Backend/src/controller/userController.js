@@ -62,4 +62,28 @@ const logout = async (req, res) => {
     }
 }
 
-module.exports = { reqOTP, login, register, refresh, logout };
+const getUserRelationship = async (req, res) => {
+    try {
+        const userId = req.user;
+        const targetUserId = req.query.target_user_id;
+        const relationship = await userRepository.getUserRelationship(userId, targetUserId);
+        res.status(200).json(ApiResponse.success("User relationship retrieved successfully", relationship, 200));
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+const updateFollowStatus = async (req, res) => {
+    try {
+        const userId = req.user;
+        const { target_user_id, follow } = req.body;
+        await userRepository.updateFollowStatus(userId, target_user_id, follow);
+        res.status(200).json(ApiResponse.success("Follow status updated successfully", {}, 200));
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+module.exports = { reqOTP, login, register, refresh, logout, getUserRelationship, updateFollowStatus };

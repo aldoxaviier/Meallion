@@ -70,6 +70,27 @@ const getUserById = async (userId) => {
     return result[0].name;
 };
 
+const getUserRelationship = async (userId, targetUserId) => {
+    const result = await sql`
+        SELECT * FROM user_relationships 
+        WHERE follower_id = ${userId} AND following_id = ${targetUserId}
+    `;
+    return result[0];
+};
+
+const updateFollowStatus = async (userId, targetUserId, follow) => {
+    if (follow) {
+        await sql`
+            INSERT INTO user_relationships (follower_id, following_id) VALUES (${userId}, ${targetUserId})
+        `;
+    } else {
+        await sql`
+            DELETE FROM user_relationships WHERE follower_id = ${userId} AND following_id = ${targetUserId}
+        `;
+    }
+};
+
+
 module.exports = {
     createUser,
     findEmailUnique,
@@ -78,5 +99,7 @@ module.exports = {
     findUserByEmail,
     findUserRefreshToken,
     updateUser,
-    getUserById
+    getUserById,
+    getUserRelationship,
+    updateFollowStatus
 };

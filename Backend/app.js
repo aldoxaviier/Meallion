@@ -11,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/auth", require("./src/routes/userRouter"));
+app.use("/user", require("./src/routes/userRouter"));
 app.use("/recipes", require("./src/routes/recipesRouter"));
 app.use("/profile", require("./src/routes/profileRouter"));
 app.use("/assets", express.static("assets"));

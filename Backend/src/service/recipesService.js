@@ -313,4 +313,20 @@ const generateMealplan = async (
     return data.data;
 };
 
-module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients, generateMealplan };
+const getRecipesByFollowing = async (query, category, page = 1, limit = 10, userId) => {
+    const firstPage = (page - 1) * limit;
+    const nextPage = firstPage + limit - 1;
+    
+    const categories = category ? category.split(',') : [];
+
+    return await recipesRepository.getRecipesByFollowing(
+        query || "", 
+        categories, 
+        firstPage, 
+        nextPage,
+        userId
+    );
+};
+
+
+module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients, generateMealplan, getRecipesByFollowing };
