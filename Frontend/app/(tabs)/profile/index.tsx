@@ -31,6 +31,15 @@ const Index = () => {
     }
   };
 
+  const fetchProfile = async () => {
+        try {
+          const response = await api.get('/profile/getProfile')
+          profileData?.setProfileData(response.data)
+        } catch (err: any) {
+            console.log(err)
+        }
+    }
+
   const getLikedRecipes = async () => {
     try {
       const response = await api.get('/recipes/getLikesByUserId', { params: { user_id: profileData?.profileData?.user_id } });
@@ -46,6 +55,7 @@ const Index = () => {
     useCallback(() => {
       getPostRecipes();
       getLikedRecipes();
+      fetchProfile();
     }, [])
   );
 

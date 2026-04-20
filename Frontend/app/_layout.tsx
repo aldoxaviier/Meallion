@@ -1,10 +1,10 @@
 // app/_layout.tsx
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router"; // <-- TAMBAHAN: useRouter
 import AuthProvider, { AuthContext } from "./store/authContext";
 import ProfileDataProvider from "./store/profileDataContext";
 import TenRecipeProvider from "./store/tenRecipeContext";
 import "./globals.css";
-import { useContext, useEffect, useState, useCallback } from "react";
+import { useContext, useEffect, useState, useCallback, useRef } from "react"; // <-- TAMBAHAN: useRef
 import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { Asset } from "expo-asset";
@@ -12,7 +12,19 @@ import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 
+import * as Notifications from "expo-notifications";
+
 SplashScreen.preventAutoHideAsync();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true, 
+    shouldShowList: true,
+  }),
+})
 
 function LayoutContent() {
   const authContext = useContext(AuthContext);
@@ -22,12 +34,43 @@ function LayoutContent() {
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
+  const router = useRouter(); 
+  const notificationListener = useRef<Notifications.Subscription | null>(null);
+  const responseListener = useRef<Notifications.Subscription | null>(null);
+
   const [fontsLoaded] = useFonts({
     "Fogsta": require("../assets/fonts/Fogsta.ttf"),
     "BRSegma-600": require("../assets/fonts/BRSegma-600.otf"),
     "BRSegma-500": require("../assets/fonts/BRSegma-500.otf"),
     "BRSegma-300": require("../assets/fonts/BRSegma-300.otf"),
   });
+
+  //listener notification
+  useEffect(() => {
+    
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notifications:', notification.request.content.title);
+    });
+
+    // when user clicks notification
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+      console.log('User clicked notification. Data:', data);
+      
+      if (data?.route) {
+        router.push(data.route as any); 
+      }
+    });
+
+    return () => {
+      if (notificationListener.current) {
+        notificationListener.current.remove();
+      }
+      if (responseListener.current) {
+        responseListener.current.remove();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const loadAppResources = async () => {

@@ -15,12 +15,9 @@ const SocialHeader = ({ onPressBtn }: { onPressBtn: (tab: string) => void }) => 
         <SafeAreaView  className="bg-secondary-400" edges={['top']}>
         <View className="w-full pt-4 flex gap-4 ">
             <View className="flex-row justify-between items-center h-12 px-6">
-            <Text className="text-4xl text-primary-500 font-fogsta">
-                Socials
-            </Text>
-            <TouchableOpacity>
-                <FontAwesome5 name="bell" size={24} color="#4a2c2a" />
-            </TouchableOpacity>
+                <Text className="text-4xl text-primary-500 font-fogsta">
+                    Socials
+                </Text>
             </View>
 
             <View className="flex-row justify-center items-center gap-8 pt-2 border-b-[0.5px] border-gray-400 px-6">

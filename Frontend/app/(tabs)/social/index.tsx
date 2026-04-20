@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5, Feather, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -14,6 +14,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [activeTab, setActiveTab] = useState('foryou');
+  const [searchSocial, setSearchSocial] = useState('');
   const isSocial = true;
   const [recipesByTab, setRecipesByTab] = useState<Record<string, any[]>>({ foryou: [], following: [] });
   const [pageByTab, setPageByTab] = useState<Record<string, number>>({ foryou: 1, following: 1 });
@@ -26,7 +27,7 @@ export default function Index() {
       let endpoint = '';
       
       if (tab === 'foryou') {
-        endpoint = `/recipes/getRecipesByNameCategory?query=&page=${pageNum}&limit=10&category=&isSocial=true`;
+        endpoint = `/recipes/getRecipesByNameCategory?query=${searchSocial}&page=${pageNum}&limit=10&category=&isSocial=true`;
       } else if (tab === 'following') {
         endpoint = `/recipes/recipes-by-following?page=${pageNum}&limit=10`;
       }
@@ -47,10 +48,31 @@ export default function Index() {
       setRecipesByTab(prev => ({ ...prev, [tab]: data.data || [] }));
       setPageByTab(prev => ({ ...prev, [tab]: 1 }));
       setTotalPageByTab(prev => ({ ...prev, [tab]: data.info?.totalPage || 1 }));
-      fetchedTabs.current.add(tab); // mark as fetched
+      fetchedTabs.current.add(tab);
     }
     setIsLoading(false);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadInitialForTab(activeTab);
+
+      return () => {
+        setRecipes([]); 
+        setPage(1);
+      };
+    }, [])
+  );
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (searchSocial.length === 0 || searchSocial.length > 3) {
+        loadInitialForTab(activeTab);
+      }
+    }, 500); 
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchSocial]);
 
   const handleLoadMore = async () => {
     const currentPage = pageByTab[activeTab];
@@ -168,10 +190,17 @@ export default function Index() {
   );
   
   return (
-    // UBAH DISINI: Bungkus semuanya dengan View background secondary-400
     <View className="flex-1 bg-secondary-400">
       <SocialHeader onPressBtn={handleActiveTab} />
-      
+      <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm mx-4 mt-4">
+        <FontAwesome5 name="search" size={20} color="gray" />
+        <TextInput 
+          className="flex-1 ml-3 text-base text-gray-700" 
+          placeholder="Find your meal..." 
+          value={searchSocial}
+          onChangeText={setSearchSocial}
+        />
+      </View>
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#4a2c2a" />
@@ -180,7 +209,7 @@ export default function Index() {
         <FlatList
           data={recipesByTab[activeTab]}
           className="flex-1"
-          contentContainerStyle={{ paddingTop: 16, paddingBottom: 80 }} // Tambahkan padding agar card pertama dan terakhir tidak terlalu nempel
+          contentContainerStyle={{ paddingTop: 16, paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.recipe_id?.toString()}
           onEndReached={handleLoadMore}

@@ -21,7 +21,12 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, 
     const conditions = [];
 
     if (query && query.trim() !== "") {
-        conditions.push(sql`name ILIKE ${'%' + query + '%'}`);
+        const searchTerm = '%' + query.trim() + '%';
+        if (isSocial) {
+            conditions.push(sql`(recipes.name ILIKE ${searchTerm} OR recipes.author_name ILIKE ${searchTerm})`);
+        } else {
+            conditions.push(sql`recipes.name ILIKE ${searchTerm}`);
+        }
     }
 
     if (Array.isArray(categories) && categories.length > 0) {

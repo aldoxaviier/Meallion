@@ -54,6 +54,7 @@ const refresh = async (req, res) => {
 const logout = async (req, res) => {
     try {
         const userId = req.user;
+        await userRepository.removeExpoToken(userId);
         await userRepository.deleteRefreshToken(userId);
         res.status(200).json(ApiResponse.success("User logged out successfully", {}, 200));
     } catch (err) {
@@ -86,4 +87,18 @@ const updateFollowStatus = async (req, res) => {
     }
 }
 
-module.exports = { reqOTP, login, register, refresh, logout, getUserRelationship, updateFollowStatus };
+const updatePushToken = async (req, res) => {
+    try {
+        const userId = req.user;
+        const { expo_push_token } = req.body; 
+
+        await userRepository.updateExpoToken(userId, expo_push_token);
+
+        res.status(200).json(ApiResponse.success("Push token updated successfully", {}, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+};
+
+module.exports = { reqOTP, login, register, refresh, logout, getUserRelationship, updateFollowStatus, updatePushToken };

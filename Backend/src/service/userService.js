@@ -5,6 +5,9 @@ const userRepository = require("../repositories/userRepository");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
 const jwt = require("jsonwebtoken");
+const { Expo } = require('expo-server-sdk');
+
+const expo = new Expo();
 
 const reqOTP = async (email, res) => {
     const user = await userRepository.findEmailUnique(email);
@@ -66,9 +69,71 @@ const refresh = async (refreshToken) => {
     }
 }
 
+const pushNotifications = async () => {
+    try {
+        const currentDate = new Date();
+        const formattedTime = currentDate.toLocaleString('en-GB', { 
+            timeZone: 'Asia/Jakarta', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: false 
+        });
+        
+        const notifications = await userRepository.getNotifications(formattedTime);
+        console.log(`[${formattedTime}] Finding notifications:`, notifications);
+        
+        for (const notification of notifications) {
+            if (notification.expo_push_token) {
+                
+                const title = `Time for ${notification.meal_type}!`; 
+                const content = `Dont forget to have your ${notification.meal_type}!`;
+                const notifType = 'meal_reminder';
+
+                await sendPushNotification(notification.expo_push_token, title, content);
+
+                await userRepository.saveNotificationHistory(notification.user_id, notifType, title, content);
+                
+                console.log(`Notif ${notification.meal_type}: ${notification.user_id}`);
+            }
+        }
+    } catch (err) {
+        console.error("Error in pushNotifications service:", err.message);
+    }
+}
+
+const sendPushNotification = async (expoPushToken, title, messageBody) => {
+    try {
+        // Token Validation
+        if (!Expo.isExpoPushToken(expoPushToken)) {
+            console.error(`Token invalid: ${expoPushToken}`);
+            return;
+        }
+
+        // messages
+        const messages = [{ 
+            to: expoPushToken, 
+            sound: 'default', 
+            title: title, 
+            body: messageBody,
+            data: { route: '/(tabs)/home' },
+        }];
+        const chunks = expo.chunkPushNotifications(messages);
+        
+        // Send the chunks to the Expo push notification service
+        for (const chunk of chunks) {
+            const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+        }
+
+    } catch (error) {
+        console.error("Failed to send push notification:", error);
+    }
+};
+
+
 module.exports = {
     reqOTP,
     register,
     login,
-    refresh
+    refresh,
+    pushNotifications
 };

@@ -1,5 +1,6 @@
 const Database = require("../config/db");
 const sql = require("../config/dbSql");
+const { get } = require("../routes/recipesRouter");
 
 const createUser = async (email, name, password) => {
     const result = await sql`
@@ -90,6 +91,44 @@ const updateFollowStatus = async (userId, targetUserId, follow) => {
     }
 };
 
+const updateExpoToken = async (userId, token) => {
+    const result = await sql`
+        UPDATE users SET expo_push_token = ${token} WHERE user_id = ${userId}
+    `;
+    return result;
+};
+
+const removeExpoToken = async (userId) => {
+    const result = await sql`
+        UPDATE users SET expo_push_token = null WHERE user_id = ${userId}
+    `;
+    return result;
+};
+
+const getNotifications = async (timeString) => {
+    
+    const result = await sql`
+        SELECT 
+            u.user_id,
+            u.expo_push_token,
+            CASE 
+                WHEN to_char(p.breakfast_time, 'HH24:MI') = ${timeString} THEN 'Breakfast '
+                WHEN to_char(p.lunch_time, 'HH24:MI') = ${timeString} THEN 'Lunch '
+                WHEN to_char(p.snack_time, 'HH24:MI') = ${timeString} THEN 'Snack '
+                WHEN to_char(p.dinner_time, 'HH24:MI') = ${timeString} THEN 'Dinner '
+            END as meal_type
+        FROM users u
+        JOIN user_profiles p ON u.user_id = p.user_id
+        WHERE u.expo_push_token IS NOT NULL
+        AND (
+            to_char(p.breakfast_time, 'HH24:MI') = ${timeString} OR
+            to_char(p.lunch_time, 'HH24:MI') = ${timeString} OR
+            to_char(p.snack_time, 'HH24:MI') = ${timeString} OR
+            to_char(p.dinner_time, 'HH24:MI') = ${timeString}
+        )
+    `;
+    return result;
+};
 
 module.exports = {
     createUser,
@@ -101,5 +140,8 @@ module.exports = {
     updateUser,
     getUserById,
     getUserRelationship,
-    updateFollowStatus
+    updateFollowStatus,
+    updateExpoToken,
+    removeExpoToken,
+    getNotifications
 };

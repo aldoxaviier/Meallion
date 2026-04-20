@@ -366,7 +366,7 @@ export default function Index() {
       </Animated.View>
     </>
   );
-  console.log("profileeimage", profileData?.profileData?.profile_image)
+  
   return (
     <SafeAreaView className="bg-secondary-400 flex-1" edges={['top']}>
       {isSearchMode ? (
@@ -391,7 +391,7 @@ export default function Index() {
                   <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
                 </View>
               </View>
-              <TouchableHighlight onPress={() => router.push('/profile')} className="rounded-full">
+              <TouchableHighlight onPress={() => router.push('/home/notification')} className="rounded-full">
                 <FontAwesome5 name="bell" size={24} color="#4a2c2a" />
               </TouchableHighlight>
             </View>
@@ -456,7 +456,7 @@ export default function Index() {
                     <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
                   </View>
                 </View>
-                <TouchableHighlight onPress={() => router.push('/profile')} className="rounded-full">
+                <TouchableHighlight onPress={() => router.push('/home/notification')} className="rounded-full">
                   <FontAwesome5 name="bell" size={24} color="#4a2c2a" />
                 </TouchableHighlight>
               </View>
