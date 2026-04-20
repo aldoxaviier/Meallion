@@ -91,6 +91,21 @@ const Index = () => {
             {displayProfile?.users?.name || 'User'}
           </Text>
 
+          <View className='flex flex-row gap-7 mb-2'>
+            <View>
+              <Text className='font-brsegma-600 text-primary-500'>{displayProfile?.recipes_count}</Text>
+              <Text className='font-brsegma-500 text-gray-700'>Recipes</Text>
+            </View>
+            <View>
+              <Text className='font-brsegma-600 text-primary-500'>{displayProfile?.followers}</Text>
+              <Text className='font-brsegma-500 text-gray-700'>Followers</Text>
+            </View>
+            <View>
+              <Text className='font-brsegma-600 text-primary-500'>{displayProfile?.followings}</Text>
+              <Text className='font-brsegma-500 text-gray-700'>Following</Text>
+            </View>
+          </View>
+
           <Text className="font-brsegma-300 text-sm text-gray-600 mb-6 leading-5">
             {displayProfile?.bio || ''}
           </Text>

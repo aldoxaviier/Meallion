@@ -53,8 +53,26 @@ const updateInteraction = async ({ userId, recipeId, score }) => {
 
 const getProfile = async (userId) => {
     const result = await sql`
+        with user_followers as (
+            select follower_id 
+            from user_relationships 
+            where following_id = ${userId}
+        ),
+        user_following as (
+            select following_id 
+            from user_relationships 
+            where follower_id = ${userId}
+        ),
+        recipes_total as (
+            select count(*) as total
+            from recipes
+            where user_id = ${userId}
+        )
         SELECT 
             up.*,
+            (SELECT COUNT(*) FROM user_followers) AS followers,
+            (SELECT COUNT(*) FROM user_following) AS followings,
+            (SELECT total FROM recipes_total) AS recipes_count,
             json_build_object(
                 'name', u.name,
                 'email', u.email

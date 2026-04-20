@@ -25,6 +25,9 @@ interface UserProfile {
   target_proteins: number;
   updated_at: string; // ISO date string
   user_id: string;
+  followers: number;
+  followings: number;
+  recipes_count: number;
   users: {
     email: string;
     name: string;
@@ -209,6 +212,21 @@ const Index = () => {
                 {isFollowing ? 'Following' : 'Follow'}
               </Text>
             </Pressable>
+          </View>
+
+          <View className='flex flex-row gap-7 mb-2'>
+            <View>
+              <Text className='font-brsegma-600 text-primary-500'>{profile?.recipes_count}</Text>
+              <Text className='font-brsegma-500 text-gray-700'>Recipes</Text>
+            </View>
+            <View>
+              <Text className='font-brsegma-600 text-primary-500'>{profile?.followers}</Text>
+              <Text className='font-brsegma-500 text-gray-700'>Followers</Text>
+            </View>
+            <View>
+              <Text className='font-brsegma-600 text-primary-500'>{profile?.followings}</Text>
+              <Text className='font-brsegma-500 text-gray-700'>Following</Text>
+            </View>
           </View>
 
           <Text className="font-brsegma-300 text-sm text-gray-600 leading-5 pt-2 pb-1">

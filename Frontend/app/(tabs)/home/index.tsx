@@ -3,10 +3,8 @@ import { Text, View, Image, TextInput, ScrollView, Pressable, Button, TouchableH
 import { useEffect, useState, useContext, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileDataContext } from "../../store/profileDataContext";
-import Feather from "@expo/vector-icons/Feather";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { FontAwesome6 } from "@expo/vector-icons";
-import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from "expo-router";
 import "../../globals.css"

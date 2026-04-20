@@ -21,6 +21,9 @@ interface ProfileData {
   target_fats: number | null
   profile_image: string | null
   cloudinary_id: string | null
+  followers: number
+  followings: number
+  recipes_count: number
   users: UserInfo
 }
 
