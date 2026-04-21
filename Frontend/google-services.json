@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "854152908116",
+    "project_id": "meallion-46801",
+    "storage_bucket": "meallion-46801.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:854152908116:android:ef88405564540cac7f8cc1",
+        "android_client_info": {
+          "package_name": "com.aldoxavier.Frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCebnlGsHrVEnSsagBIOP8AOiCwRZD7lO4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:854152908116:android:a1ac9d5aa2f6e45b7f8cc1",
+        "android_client_info": {
+          "package_name": "com.meallion.meallion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCebnlGsHrVEnSsagBIOP8AOiCwRZD7lO4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
