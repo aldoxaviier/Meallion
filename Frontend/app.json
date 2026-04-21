@@ -17,6 +17,7 @@
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "splash": {
         "image": "./assets/images/batman.jpeg",
         "resizeMode": "contain",
