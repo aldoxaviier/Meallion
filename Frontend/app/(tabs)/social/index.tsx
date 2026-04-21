@@ -125,6 +125,10 @@ export default function Index() {
     }
     return `${url}/${images}`;
   }
+  
+  const handleSearchPress = () => {
+    router.push("/social/search");
+  }
 
   const renderRecipePost = ({ item }: { item: any }) => (
     <TouchableOpacity 
@@ -191,16 +195,7 @@ export default function Index() {
   
   return (
     <View className="flex-1 bg-secondary-400">
-      <SocialHeader onPressBtn={handleActiveTab} />
-      <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm mx-4 mt-4">
-        <FontAwesome5 name="search" size={20} color="gray" />
-        <TextInput 
-          className="flex-1 ml-3 text-base text-gray-700" 
-          placeholder="Find your meal..." 
-          value={searchSocial}
-          onChangeText={setSearchSocial}
-        />
-      </View>
+      <SocialHeader onPressBtn={handleActiveTab} onSearchPress={handleSearchPress} />
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#4a2c2a" />

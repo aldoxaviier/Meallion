@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { api } from '../utils/api';
 import { useEffect, useState, useContext } from 'react';
@@ -40,7 +40,7 @@ const Index = () => {
   const [postrecipes, setPostRecipes] = useState<any[]>([]);
   const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(true);
   const router = useRouter();
   const {id} = useLocalSearchParams();
   const [profile, setProfile] = useState<UserProfile>();
@@ -81,19 +81,33 @@ const Index = () => {
   }
 
   const getIsfollowing = async () => {
+    setIsFollowLoading(true);
     try {
       const response = await api.get(`/user/user-relationship?target_user_id=${viewedUserId}`);
       console.log("Follow Status Response:", response);
-      if (response.data) {
-        setIsFollowing(true);
-      }
+      const followState =
+        typeof response.data === 'boolean'
+          ? response.data
+          : Boolean(
+              response.data?.isFollowing ??
+                response.data?.is_following ??
+                response.data?.following ??
+                response.data?.follow
+            );
+
+      setIsFollowing(followState);
     } catch (error) {
       console.error('Error fetching follow status:', error);
+      setIsFollowing(false);
+    } finally {
+      setIsFollowLoading(false);
     }
   };
 
 
   useEffect(() => {
+    setIsFollowLoading(true);
+    setIsFollowing(false);
     getProfile();
     getPostRecipes();
     getLikedRecipes();
@@ -181,10 +195,12 @@ const Index = () => {
             </Text>
             <Pressable
               className={`h-10 min-w-[116px] rounded-full px-4 flex-row items-center justify-center gap-2 ${
-                isFollowing
+                isFollowLoading
+                  ? 'bg-gray-300'
+                  : isFollowing
                   ? 'border border-primary-500 bg-secondary-400'
                   : 'bg-primary-500'
-              } ${isFollowLoading ? 'opacity-80' : 'opacity-100'}`}
+              } ${isFollowLoading ? 'opacity-100' : 'opacity-100'}`}
               disabled={isFollowLoading}
               onPress={() => {
                 void onFollowPress();
@@ -195,9 +211,7 @@ const Index = () => {
               accessibilityHint={isFollowing ? 'Double tap to unfollow this profile' : 'Double tap to follow this profile'}
               accessibilityState={{ busy: isFollowLoading, disabled: isFollowLoading }}
             >
-              {isFollowLoading ? (
-                <ActivityIndicator size="small" color={isFollowing ? '#660B05' : '#F2E8C6'} />
-              ) : (
+              {!isFollowLoading && (
                 <Ionicons
                   name={isFollowing ? 'checkmark-circle' : 'person-add'}
                   size={16}
@@ -206,10 +220,14 @@ const Index = () => {
               )}
               <Text
                 className={`font-brsegma-600 text-sm ${
-                  isFollowing ? 'text-primary-500' : 'text-secondary-400'
+                  isFollowLoading
+                    ? 'text-gray-500'
+                    : isFollowing
+                    ? 'text-primary-500'
+                    : 'text-secondary-400'
                 }`}
               >
-                {isFollowing ? 'Following' : 'Follow'}
+                {isFollowLoading ? 'Loading...' : isFollowing ? 'Following' : 'Follow'}
               </Text>
             </Pressable>
           </View>

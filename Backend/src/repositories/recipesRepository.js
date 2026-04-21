@@ -19,19 +19,20 @@ const getIngredients = async (query) => {
 
 const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, isSocial = false) => {
     const conditions = [];
-
+    console.log("isSocial in getRecipesByNameCategory:", isSocial);
     if (query && query.trim() !== "") {
         const searchTerm = '%' + query.trim() + '%';
+        console.log("Search term in getRecipesByNameCategory:", searchTerm);
         if (isSocial) {
-            conditions.push(sql`(recipes.name ILIKE ${searchTerm} OR recipes.author_name ILIKE ${searchTerm})`);
+            conditions.push(sql`(recipes.name ILIKE '${searchTerm}' OR recipes.author_name ILIKE '${searchTerm}')`);
         } else {
-            conditions.push(sql`recipes.name ILIKE ${searchTerm}`);
+            conditions.push(sql`recipes.name ILIKE '${searchTerm}'`);
         }
     }
 
     if (Array.isArray(categories) && categories.length > 0) {
         categories.forEach(tag => {
-            conditions.push(sql`tags ILIKE ${'%' + tag + '%'}`);
+            conditions.push(sql`tags ILIKE '${'%' + tag + '%'}'`);
         });
     }
 
@@ -39,11 +40,10 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, 
         conditions.push(sql`author_name != 'Meallion'`);
     }
 
-    let whereClause = sql``;
+    let whereClause;
     if (conditions.length > 0) {
         whereClause = sql`WHERE ${conditions.reduce((prev, curr) => sql`${prev} AND ${curr}`)}`;
     }
-    
     const result = await sql`
         SELECT 
             recipes.*, 
@@ -55,7 +55,8 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, 
         LIMIT ${nextPage - firstPage + 1}
         OFFSET ${firstPage}
     `;
-
+    console.log("query:", );
+    console.log("getRecipesByNameCategory result:", result);
     return {
         data: result,
         total: result.length > 0 ? Number(result[0].total_count) : 0

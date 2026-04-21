@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5, Feather, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-const SocialHeader = ({ onPressBtn }: { onPressBtn: (tab: string) => void }) => {
+const SocialHeader = ({ onPressBtn, onSearchPress }: { onPressBtn: (tab: string) => void; onSearchPress: () => void }) => {
     const [activeTab, setActiveTab] = useState<"foryou" | "following">("foryou");
     const handleTabPress = (tab: "foryou" | "following") => {
         setActiveTab(tab);
@@ -14,12 +14,16 @@ const SocialHeader = ({ onPressBtn }: { onPressBtn: (tab: string) => void }) => 
         <>
         <SafeAreaView  className="bg-secondary-400" edges={['top']}>
         <View className="w-full pt-4 flex gap-4 ">
-            <View className="flex-row justify-between items-center h-12 px-6">
-                <Text className="text-4xl text-primary-500 font-fogsta">
-                    Socials
-                </Text>
+            <View className="flex flex-row justify-between px-6">
+                <View className="flex-row justify-between items-center h-12">
+                    <Text className="text-4xl text-primary-500 font-fogsta">
+                        Socials
+                    </Text>
+                </View>
+                <TouchableOpacity onPress={onSearchPress}>
+                    <FontAwesome5 name="search" size={24} color="black" />
+                </TouchableOpacity>
             </View>
-
             <View className="flex-row justify-center items-center gap-8 pt-2 border-b-[0.5px] border-gray-400 px-6">
             <TouchableOpacity onPress={() => handleTabPress("foryou")}>
                 <Text className={`text-lg font-brsegma-600 ${activeTab === "foryou" ? "text-primary-500" : "text-gray-400"}`}>
