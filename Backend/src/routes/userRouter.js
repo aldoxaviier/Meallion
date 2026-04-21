@@ -7,7 +7,7 @@ const authorization = require("../middleware/authorization");
 
 const cron = require("node-cron");
 
-cron.schedule('*/2 * * * * *', () => {
+cron.schedule('* * * * *', () => {
   userService.pushNotifications();
 });
 

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Frontend",
-    "slug": "Frontend",
+    "name": "Meallion",
+    "slug": "meallion",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "meallion",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -30,7 +30,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.aldoxavier.Frontend"
+      "package": "com.aldoxavier.meallion"
     },
     "web": {
       "output": "static",
