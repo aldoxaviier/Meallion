@@ -9,9 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-        "image": "./assets/images/batman.jpeg",
-        "resizeMode": "contain",
-        "backgroundColor": "#ffffff"
+      "image": "./assets/images/batman.jpeg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true
@@ -30,7 +30,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.aldoxavier.meallion"
+      "package": "com.meallion.meallion"
     },
     "web": {
       "output": "static",
@@ -59,8 +59,9 @@
     "extra": {
       "router": {},
       "eas": {
-        
+        "projectId": "e2827cf0-a29d-4929-a83c-09e55986a609"
       }
-    }
+    },
+    "owner": "meallion"
   }
 }
