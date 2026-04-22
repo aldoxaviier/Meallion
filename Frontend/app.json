@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/batman.jpeg",
+      "image": "./assets/images/vegan.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,7 +19,7 @@
     "android": {
       "googleServicesFile": "./google-services.json",
       "splash": {
-        "image": "./assets/images/batman.jpeg",
+        "image": "./assets/images/vegan.png",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
       },
@@ -42,7 +42,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/vegan.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
