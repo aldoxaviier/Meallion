@@ -24,7 +24,7 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, 
         if (isSocial) {
             conditions.push(sql`(recipes.name ILIKE ${searchTerm} OR recipes.author_name ILIKE ${searchTerm})`);
         } else {
-            conditions.push(sql`(recipes.name ILIKE ${searchTerm})`);
+            conditions.push(sql`recipes.name ILIKE ${searchTerm}`);
         }
     }
 
@@ -43,35 +43,21 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, 
         whereClause = sql`WHERE ${conditions.reduce((prev, curr) => sql`${prev} AND ${curr}`)}`;
     }
     
-    if (isSocial) {
-        result = await sql`
-            SELECT DISTINCT ON (user_profiles.user_id)
-                user_profiles.*, 
-                recipes."DatePublished"
-            FROM recipes
-            LEFT JOIN user_profiles ON recipes.user_id = user_profiles.user_id
-            ${whereClause}
-            ORDER BY user_profiles.user_id, recipes."DatePublished" DESC
-            LIMIT ${nextPage - firstPage + 1}
-            OFFSET ${firstPage}
-        `;
-    } else {
-        result = await sql`
-            SELECT DISTINCT ON (recipes.recipe_id)
-                recipes.*, user_profiles.profile_image
-            FROM recipes
-            LEFT JOIN user_profiles ON recipes.user_id = user_profiles.user_id
-            ${whereClause}
-            ORDER BY recipes.recipe_id, recipes."DatePublished" DESC
-            LIMIT ${nextPage - firstPage + 1}
-            OFFSET ${firstPage}
-        `;
-    }
+    const result = await sql`
+        SELECT 
+            recipes.*, 
+            user_profiles.profile_image 
+        FROM recipes
+        LEFT JOIN user_profiles ON recipes.user_id = user_profiles.user_id
+        ${whereClause}
+        ORDER BY "DatePublished" DESC
+        LIMIT ${nextPage - firstPage + 1}
+        OFFSET ${firstPage}
+    `;
 
-    console.log("Total data: ", result.length)
     return {
         data: result,
-        total: result.length
+        total: result.length > 0 ? Number(result[0].total_count) : 0
     };
 };
 

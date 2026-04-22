@@ -25,6 +25,13 @@ export default function _Layout() {
                     header: () => <CustomHeader title="Dietary Requirements" />
                 }}
             />
+            <Stack.Screen 
+                name="dislikesandallergies" 
+                options={{ 
+                    headerShown: true,
+                    header: () => <CustomHeader title="Dislikes and Allergies" />
+                }}
+            />
         </Stack>
     )
 }

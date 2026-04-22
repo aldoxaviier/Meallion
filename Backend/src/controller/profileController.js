@@ -54,17 +54,6 @@ const updateProfile = async (req, res) => {
         res.status(500).json(ApiResponse.error(err.message, 500));
     }
 }
-const updateDietPreferences = async (req, res) => {
-    try {
-        const userId = req.user;
-        const { diet_preferences } = req.body;
-        const updatedProfile = await profileRepository.updateDietPreferences(userId, diet_preferences);
-        res.status(200).json(ApiResponse.success("Diet preferences updated successfully", updatedProfile, 200));
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json(ApiResponse.error(err.message, 500));
-    }
-}
 
 const getProfileFromID = async (req, res) => {
     try {
@@ -83,4 +72,15 @@ const getProfileFromID = async (req, res) => {
     }
 }
 
-module.exports = { addProfile, addInteraction, getProfile, getProfileFromID, updateProfile, updateDietPreferences }
+const searchProfiles = async (req, res) => {
+    try {
+        const { query } = req.query;
+        const profiles = await profileRepository.searchProfiles(query);
+        res.status(200).json(ApiResponse.success("Profiles found", profiles, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+module.exports = { addProfile, addInteraction, getProfile, getProfileFromID, updateProfile, searchProfiles }

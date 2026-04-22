@@ -29,7 +29,11 @@ const Index = () => {
 
     const onPressDiateryRequirements = () => {
         router.push('/settings/dietaryRequirements' as any);
-     }
+    }
+
+    const onPressDislikesAndAllergies = () => {
+        router.push('/settings/dislikesandallergies' as any);
+    }
 
     return (
         <View className="h-full bg-secondary-400 px-6">
@@ -117,7 +121,7 @@ const Index = () => {
                             <Ionicons name="chevron-forward" size={20} color="#999" />
                         </TouchableOpacity>
                         
-                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3">
+                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3" onPress={onPressDislikesAndAllergies}>
                             <View className="flex-row items-center">
                                 <Ionicons name="warning" size={20} color="#3E0703" />
                                 <Text className="ml-3 text-base font-brsegma-500">Dislikes & allergies</Text>

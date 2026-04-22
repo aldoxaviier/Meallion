@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, FlatList,Image } from "react-native";
+import { View, Text, TouchableOpacity, FlatList,Image, ActivityIndicator } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -16,6 +16,7 @@ const DietaryRequirements = () => {
     "Pork-free",
   ];
   const [selectedChoices, setSelectedChoices] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const profileDataContext = useContext(ProfileDataContext);
 
   const imageMap: { [key: string]: any } = {
@@ -62,16 +63,23 @@ const DietaryRequirements = () => {
   }, []);
 
   const onSave = async() => {
+    if (isLoading) return;
+
+    setIsLoading(true);
     try {
-      const response: any = await api.put('/profile/updateDietPreferences', { diet_preferences: selectedChoices });
+      const response: any = await api.put('/profile/updateProfile', { diet_preferences: selectedChoices });
         if (response.statusCode === 200 && profileDataContext?.profileData) {
             await profileDataContext.setProfileData({
                 ...profileDataContext.profileData,
                 diet_preferences: selectedChoices,
             });
         }
+
+        router.back();
     } catch (err) {
       console.error("Navigation error:", err);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -103,10 +111,15 @@ const DietaryRequirements = () => {
         <TouchableOpacity
           className="bg-primary-500 rounded-full self-center py-4 px-10"
           onPress={onSave}
+          disabled={isLoading}
         >
-          <Text className="text-white text-center font-brsegma-600 ">
-            Save
-          </Text>
+          {isLoading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text className="text-white text-center font-brsegma-600 ">
+              Save
+            </Text>
+          )}
         </TouchableOpacity>
         </View>
       </View>

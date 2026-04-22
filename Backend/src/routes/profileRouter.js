@@ -15,11 +15,11 @@ const upload = multer({storage});
 
 router.get("/getProfileFromID", profileController.getProfileFromID);
 router.get("/getProfile", authorization, profileController.getProfile);
+router.get("/search-profiles", profileController.searchProfiles);
 
 router.post("/addProfile", authorization, profileController.addProfile);
 router.post("/addInteraction", authorization, profileController.addInteraction);
 
 router.put("/updateProfile", authorization,upload.single("image"), profileController.updateProfile);
-router.put("/updateDietPreferences", authorization, profileController.updateDietPreferences);
 
 module.exports = router;

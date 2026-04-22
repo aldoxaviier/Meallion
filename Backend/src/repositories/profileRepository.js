@@ -87,7 +87,7 @@ const getProfile = async (userId) => {
 
 const updateProfile = async (userId, updateData) => {
     const keys = Object.keys(updateData);
-
+    console.log("updateProfile - updateData:", updateData);
     if (keys.length === 0) return null;
 
     const result = await sql`
@@ -99,17 +99,21 @@ const updateProfile = async (userId, updateData) => {
 
     return result[0];
 }
-const updateDietPreferences = async (userId, diet_preferences) => {
+
+const searchProfiles = async (query) => {
     const result = await sql`
-        UPDATE user_profiles
-        SET diet_preferences = ${diet_preferences}
-        WHERE user_id = ${userId}
-        RETURNING *
+        SELECT
+            up.*,
+            json_build_object(
+                'name', u.name,
+                'email', u.email
+            ) as users
+        FROM user_profiles up
+        JOIN users u ON up.user_id = u.user_id
+        WHERE u.name ILIKE ${'%' + query + '%'}
     `;
 
-    console.log("updateDietPreferences result:", result);
-
-    return result[0] || null;
+    return result;
 }
 
-module.exports =  { addProfile, getInteractionByUserAndRecipe, addInteraction, updateInteraction, getProfile, updateProfile, updateDietPreferences };
+module.exports =  { addProfile, getInteractionByUserAndRecipe, addInteraction, updateInteraction, getProfile, updateProfile, searchProfiles };

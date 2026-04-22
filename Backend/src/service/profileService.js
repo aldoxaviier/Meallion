@@ -109,11 +109,12 @@ const updateProfile = async (userId, profile, req) => {
             updateData[key] = value;
         }
     }
-
     updateData.updated_at = new Date();
     const { name, ...updateDataPrev } = updateData;
-    const userUpdateData = {name};
-    await userRepository.updateUser(userId, userUpdateData);
+    if(name){
+        const userUpdateData = {name};
+        await userRepository.updateUser(userId, userUpdateData);
+    }
     await profileRepository.updateProfile(userId, updateDataPrev);
     const fullProfile = await profileRepository.getProfile(userId);
     return fullProfile;

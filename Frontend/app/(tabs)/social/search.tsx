@@ -18,11 +18,10 @@ export default function Search() {
             setResults([]);
             return;
         }
-
-        setIsLoading(true);
         try {
             const res: any = await api.get(
-                `/recipes/getRecipesByNameCategory?query=${trimmed}&page=1&limit=20&category=&isSocial=true`
+                `/profile/search-profiles`,
+                { params: { query: trimmed } }
             );
             console.log("Search results:", res.data);
             setResults(res?.data || []);
@@ -35,11 +34,21 @@ export default function Search() {
     };
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            handleFetchResults(query);
-        }, 2000);
+    const trimmed = query.trim();
 
-        return () => clearTimeout(timer);
+    if (!trimmed) {
+        setResults([]);
+        setIsLoading(false); // reset if input is cleared
+        return;
+    }
+
+    setIsLoading(true); // ← move this here, fires immediately on type
+
+    const timer = setTimeout(() => {
+        handleFetchResults(query);
+    }, 2000);
+
+    return () => clearTimeout(timer);
     }, [query]);
 
     const getImage = (image: string | null | undefined) => {
@@ -85,18 +94,19 @@ export default function Search() {
                     ListEmptyComponent={
                         <View className="items-center pt-16">
                             <Text className="text-gray-600 font-brsegma-500">
-                                {query.trim() ? "No recipes found" : "Start typing to search"}
+                                {query.trim() ? "No profiles found" : "Start typing to search"}
                             </Text>
                         </View>
                     }
                     renderItem={({ item }) => {
-                        const imageUri = getImage(item.Images);
+                        const imageUri = getImage(item.profile_image);
 
                         return (
                             <TouchableOpacity
                                 activeOpacity={0.85}
-                                onPress={() => router.push(`../recipes/${item.recipe_id}`)}
+                                onPress={() => router.push(`/profiles/${item.user_id}`)}
                                 className="flex-row items-center gap-3 rounded-2xl bg-white p-3"
+
                             >
                                 <Image
                                     source={
@@ -104,14 +114,14 @@ export default function Search() {
                                             ? { uri: imageUri }
                                             : require("../../../assets/images/android-icon-background.png")
                                     }
-                                    className="h-16 w-16 rounded-xl"
+                                    className="h-16 w-16 rounded-full"
                                 />
                                 <View className="flex-1">
                                     <Text className="font-brsegma-600 text-base text-gray-800" numberOfLines={1}>
-                                        {item.name}
+                                        {item.users.name}
                                     </Text>
                                     <Text className="font-brsegma-500 text-sm text-gray-500" numberOfLines={2}>
-                                        {item.Description || "No description"}
+                                        {item.bio === "null" ? "No bio yet" : item.bio}
                                     </Text>
                                 </View>
                             </TouchableOpacity>
