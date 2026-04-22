@@ -1,6 +1,5 @@
 const Database = require("../config/db");
 const sql = require("../config/dbSql");
-const { get } = require("../routes/recipesRouter");
 
 const createUser = async (email, name, password) => {
     const result = await sql`
@@ -66,9 +65,9 @@ const updateUser = async (user_id, user) => {
 
 const getUserById = async (userId) => {
     const result = await sql`
-        SELECT name FROM users WHERE user_id = ${userId}
+        SELECT name, expo_push_token FROM users WHERE user_id = ${userId}
     `;
-    return result[0].name;
+    return result[0];
 };
 
 const getUserRelationship = async (userId, targetUserId) => {
@@ -130,6 +129,14 @@ const getNotifications = async (timeString) => {
     return result;
 };
 
+const saveNotificationHistory = async (userId, notifType, title, content) => {
+    const result = await sql`
+        INSERT INTO notification (user_id, notif_type, title, content, timestamp) 
+        VALUES (${userId}, ${notifType}, ${title}, ${content}, NOW())
+    `;
+    return result;
+};
+
 module.exports = {
     createUser,
     findEmailUnique,
@@ -143,5 +150,6 @@ module.exports = {
     updateFollowStatus,
     updateExpoToken,
     removeExpoToken,
-    getNotifications
+    getNotifications,
+    saveNotificationHistory
 };

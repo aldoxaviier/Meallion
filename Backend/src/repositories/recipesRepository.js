@@ -1,6 +1,5 @@
 const Database = require("../config/db");
 const sql = require("../config/dbSql");
-const { get } = require("../routes/recipesRouter");
 
 const getAll = async () => {
     const result = await sql`
@@ -19,20 +18,19 @@ const getIngredients = async (query) => {
 
 const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, isSocial = false) => {
     const conditions = [];
-    console.log("isSocial in getRecipesByNameCategory:", isSocial);
+
     if (query && query.trim() !== "") {
         const searchTerm = '%' + query.trim() + '%';
-        console.log("Search term in getRecipesByNameCategory:", searchTerm);
         if (isSocial) {
-            conditions.push(sql`(recipes.name ILIKE '${searchTerm}' OR recipes.author_name ILIKE '${searchTerm}')`);
+            conditions.push(sql`(recipes.name ILIKE ${searchTerm} OR recipes.author_name ILIKE ${searchTerm})`);
         } else {
-            conditions.push(sql`recipes.name ILIKE '${searchTerm}'`);
+            conditions.push(sql`(recipes.name ILIKE ${searchTerm})`);
         }
     }
 
     if (Array.isArray(categories) && categories.length > 0) {
         categories.forEach(tag => {
-            conditions.push(sql`tags ILIKE '${'%' + tag + '%'}'`);
+            conditions.push(sql`tags ILIKE ${'%' + tag + '%'}`);
         });
     }
 
@@ -40,26 +38,40 @@ const getRecipesByNameCategory = async (query, categories, firstPage, nextPage, 
         conditions.push(sql`author_name != 'Meallion'`);
     }
 
-    let whereClause;
+    let whereClause = sql``;
     if (conditions.length > 0) {
         whereClause = sql`WHERE ${conditions.reduce((prev, curr) => sql`${prev} AND ${curr}`)}`;
     }
-    const result = await sql`
-        SELECT 
-            recipes.*, 
-            user_profiles.profile_image 
-        FROM recipes
-        LEFT JOIN user_profiles ON recipes.user_id = user_profiles.user_id
-        ${whereClause}
-        ORDER BY "DatePublished" DESC
-        LIMIT ${nextPage - firstPage + 1}
-        OFFSET ${firstPage}
-    `;
-    console.log("query:", );
-    console.log("getRecipesByNameCategory result:", result);
+    
+    if (isSocial) {
+        result = await sql`
+            SELECT DISTINCT ON (user_profiles.user_id)
+                user_profiles.*, 
+                recipes."DatePublished"
+            FROM recipes
+            LEFT JOIN user_profiles ON recipes.user_id = user_profiles.user_id
+            ${whereClause}
+            ORDER BY user_profiles.user_id, recipes."DatePublished" DESC
+            LIMIT ${nextPage - firstPage + 1}
+            OFFSET ${firstPage}
+        `;
+    } else {
+        result = await sql`
+            SELECT DISTINCT ON (recipes.recipe_id)
+                recipes.*, user_profiles.profile_image
+            FROM recipes
+            LEFT JOIN user_profiles ON recipes.user_id = user_profiles.user_id
+            ${whereClause}
+            ORDER BY recipes.recipe_id, recipes."DatePublished" DESC
+            LIMIT ${nextPage - firstPage + 1}
+            OFFSET ${firstPage}
+        `;
+    }
+
+    console.log("Total data: ", result.length)
     return {
         data: result,
-        total: result.length > 0 ? Number(result[0].total_count) : 0
+        total: result.length
     };
 };
 

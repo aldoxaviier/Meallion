@@ -26,7 +26,6 @@ const getIngredients = async (req, res) => {
 const getRecipesByNameCategory = async (req, res) => {
     try {
         const query = req.query.query;
-        console.log("Query in getRecipesByNameCategory:", query);
         const category = req.query.category;
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);

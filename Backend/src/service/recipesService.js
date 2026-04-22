@@ -1,7 +1,7 @@
 const recipesRepository = require("../repositories/recipesRepository")
 const userRepository = require("../repositories/userRepository");
 const cloudinary = require("../config/cloudinary");
-
+const userService = require("./userService");
 
 const getRecipesByNameCategory = async (query, category, page = 1, limit = 10, isSocial) => {
     const firstPage = (page - 1) * limit;
@@ -36,12 +36,32 @@ const addReview = async (userId, recipeId, name, rating, review) => {
     if (ratingResult && ratingResult.length > 0) {
         const ratingTotal = ratingResult.reduce((curr, next) => curr + next.rating, 0);
         rating_score = parseFloat((ratingTotal / ratingResult.length).toFixed(1));
-        console.log("Rating Total:", ratingTotal);
-        console.log("Rating Score:", rating_score);
         await recipesRepository.updateRating(recipeId, rating_score, ratingResult.length);
     } 
     else {
         await recipesRepository.updateRating(recipeId, rating, 1)
+    }
+
+    const recipe = await recipesRepository.getRecipeByID(recipeId); 
+    const ownerId = recipe?.user_id;
+
+    if (ownerId && ownerId !== userId) {
+        
+        const owner = await userRepository.getUserById(ownerId);
+        const pushToken = owner?.expo_push_token;
+        console.log("Owner data:", pushToken);
+        if (pushToken) {
+            console.log("Masuk push notification");
+            const notifTitle = "New  Review!";
+            const notifBody = `${name} just added ${rating} stars to your recipe.`;
+            const notifType = "review";
+            
+            const payloadData = { route: `/recipes/${recipeId}` }; 
+
+            await userService.sendPushNotification(pushToken, notifTitle, notifBody, payloadData);
+
+            await userRepository.saveNotificationHistory(ownerId, notifType, notifTitle, notifBody);
+        }
     }
 }
 
@@ -111,7 +131,6 @@ const addRecipe = async (userId, {name, prepTime, cookTime, description, recipeS
     }
 
     const allIngredientRelationships = [...existingIngredients, ...newIngredientIds];
-    console.log("allIngredientRelationships", allIngredientRelationships);
     const parsedSteps = parseMaybeJson(steps);
     const formattedTags = tags.split(',').map(tag => tag.trim()).join(' | ');
     const nutritionTotals = calculateNutritionTotals(parsedIngredients);
@@ -119,7 +138,7 @@ const addRecipe = async (userId, {name, prepTime, cookTime, description, recipeS
     const body ={
         userId,
         name,
-        authorName: authorData,
+        authorName: authorData.name,
         prepTime: toHourMinute(Number(prepTime)),
         cookTime: toHourMinute(Number(cookTime)),
         totalTime: toHourMinute(Number(prepTime) + Number(cookTime)),

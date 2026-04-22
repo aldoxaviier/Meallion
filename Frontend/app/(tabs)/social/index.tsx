@@ -206,7 +206,7 @@ export default function Index() {
           className="flex-1"
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
-          keyExtractor={(item) => item.recipe_id?.toString()}
+          keyExtractor={(item) => item.recipe_id?.toString() || item.user_id.toString()}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
           renderItem={renderRecipePost}

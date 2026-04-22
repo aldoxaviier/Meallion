@@ -79,7 +79,7 @@ const updateFollowStatus = async (req, res) => {
     try {
         const userId = req.user;
         const { target_user_id, follow } = req.body;
-        await userRepository.updateFollowStatus(userId, target_user_id, follow);
+        await userService.updateFollowStatus(userId, target_user_id, follow);
         res.status(200).json(ApiResponse.success("Follow status updated successfully", {}, 200));
     } catch (err) {
         console.error(err.message)

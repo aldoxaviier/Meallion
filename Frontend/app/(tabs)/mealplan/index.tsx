@@ -127,7 +127,7 @@ export default function MealPlan() {
       getMealPlan(today);
 
       const timeout = setTimeout(() => {
-        flatListRef.current?.scrollToIndex({ index: 7, animated: true });
+        flatListRef.current?.scrollToIndex({ index: 7, animated: true, viewPosition: 0.5 });
       }, 100);
 
       return () => clearTimeout(timeout);
@@ -141,7 +141,7 @@ export default function MealPlan() {
   const handleDatePress = (item: Date, index: number) => {
     setPreviousSelectedDate(selectedDate);
     setSelectedDate(item);
-    flatListRef.current?.scrollToIndex({ index, animated: true });
+    flatListRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
   };
 
   const handleAddMeal = (mealType: string) => {
@@ -165,17 +165,19 @@ export default function MealPlan() {
     const isSelected = format(item, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
     const isToday = format(item, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
     return (
-      <TouchableOpacity
-        onPress={() => handleDatePress(item, index)}
-        className={`mr-3 w-16 h-24 rounded-2xl items-center justify-center ${isSelected ? 'bg-primary-400' : 'bg-white'} ${isToday ? 'border-2 border-primary-500' : ''}`}
-      >
-        <Text className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-400'}`}>
-          {format(item, 'EEE')}
-        </Text>
-        <Text className={`text-2xl font-bold mt-1 ${isSelected ? 'text-white' : 'text-black'}`}>
-          {format(item, 'dd')}
-        </Text>
-      </TouchableOpacity>
+      <View style={{ width: 76, alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => handleDatePress(item, index)}
+          className={`w-16 h-24 rounded-2xl items-center justify-center ${isSelected ? 'bg-primary-400' : 'bg-white'} ${isToday ? 'border-2 border-primary-500' : ''}`}
+        >
+          <Text className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+            {format(item, 'EEE')}
+          </Text>
+          <Text className={`text-2xl font-bold mt-1 ${isSelected ? 'text-white' : 'text-black'}`}>
+            {format(item, 'dd')}
+          </Text>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -218,7 +220,11 @@ export default function MealPlan() {
             horizontal
             showsHorizontalScrollIndicator={false}
             initialScrollIndex={7}
-            getItemLayout={(data, index) => ({ length: 44, offset: 44 * index, index })}
+            getItemLayout={(data, index) => ({ 
+              length: 76, 
+              offset: 76 * index, 
+              index 
+            })}
           />
         </View>
 

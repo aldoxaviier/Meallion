@@ -88,8 +88,9 @@ const pushNotifications = async () => {
                 const title = `Time for ${notification.meal_type}!`; 
                 const content = `Dont forget to have your ${notification.meal_type}!`;
                 const notifType = 'meal_reminder';
+                const payloadData = { route: '/(tabs)/home' };
 
-                await sendPushNotification(notification.expo_push_token, title, content);
+                await sendPushNotification(notification.expo_push_token, title, content, payloadData);
 
                 await userRepository.saveNotificationHistory(notification.user_id, notifType, title, content);
                 
@@ -101,7 +102,7 @@ const pushNotifications = async () => {
     }
 }
 
-const sendPushNotification = async (expoPushToken, title, messageBody) => {
+const sendPushNotification = async (expoPushToken, title, messageBody, payloadData) => {
     try {
         // Token Validation
         if (!Expo.isExpoPushToken(expoPushToken)) {
@@ -115,7 +116,7 @@ const sendPushNotification = async (expoPushToken, title, messageBody) => {
             sound: 'default', 
             title: title, 
             body: messageBody,
-            data: { route: '/(tabs)/home' },
+            data: payloadData,
         }];
         const chunks = expo.chunkPushNotifications(messages);
         
@@ -129,11 +130,44 @@ const sendPushNotification = async (expoPushToken, title, messageBody) => {
     }
 };
 
+const updateFollowStatus = async (userId, targetUserId, follow) => {
+    // 1. Eksekusi query database via repository (Follow / Unfollow)
+    await userRepository.updateFollowStatus(userId, targetUserId, follow);
+
+    if (follow) {
+        try {
+            const [followerUser, targetUser] = await Promise.all([
+                userRepository.getUserById(userId),
+                userRepository.getUserById(targetUserId)
+            ]);
+
+            const followerName = followerUser?.name || followerUser?.name || 'Someone'; 
+            const pushToken = targetUser?.expo_push_token;
+
+            if (pushToken) {
+                const notifTitle = "New Follower!";
+                const notifBody = `${followerName} just followed you.`;
+                const notifType = "follow";
+
+                const payloadData = { route: `/(tabs)/profile` };
+
+                await sendPushNotification(pushToken, notifTitle, notifBody, payloadData);
+
+                await userRepository.saveNotificationHistory(targetUserId, notifType, notifTitle, notifBody);
+            }
+        } catch (error) {
+            console.error("Gagal mengirim notifikasi follow:", error);
+        }
+    }
+};
+
 
 module.exports = {
     reqOTP,
     register,
     login,
     refresh,
-    pushNotifications
+    pushNotifications,
+    sendPushNotification,
+    updateFollowStatus
 };
