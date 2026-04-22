@@ -26,6 +26,13 @@ export default function _Layout() {
                 }}
             />
             <Stack.Screen 
+                name="mealTime" 
+                options={{ 
+                    headerShown: true,
+                    header: () => <CustomHeader title="Update My Meal Time" />
+                }}
+            />
+            <Stack.Screen 
                 name="dislikesandallergies" 
                 options={{ 
                     headerShown: true,

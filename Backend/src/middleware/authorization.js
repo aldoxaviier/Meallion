@@ -17,6 +17,7 @@ module.exports = async(req,res,next) =>{
 
         // Keep backward compatibility: most controllers expect req.user to be the plain userId string.
         req.user = userId;
+        // console.log("Bearer ", token)
 
         // Expose normalized auth context for endpoints that also need the token.
         req.userId = userId;

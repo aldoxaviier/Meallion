@@ -62,21 +62,24 @@ const Index = () => {
               <View className="w-full mt-8 items-center">
                 <TextInput
                   placeholder="First name"
-                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 text-black"
+                  placeholderTextColor="#6B7280"
                   onChangeText={setName}
                   value={name}
                 />
 
                 <TextInput
                   placeholder="Email"
-                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500  mt-4"
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500  mt-4 text-black"
+                  placeholderTextColor="#6B7280"
                   onChangeText={setEmail}
                   value={email}
                 />
 
                 <TextInput
                   placeholder="Password"
-                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 mt-4"
+                  className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 mt-4 text-black"
+                  placeholderTextColor="#6B7280"
                   onChangeText={setPassword}
                   secureTextEntry={true}
                   value={password}

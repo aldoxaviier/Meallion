@@ -89,6 +89,7 @@ const profile = () => {
                                 value={height}
                                 onChangeText={setHeight}
                                 placeholder="e.g. 170"
+                                placeholderTextColor="#6B7280"
                                 keyboardType="numeric"
                                 className="w-full border text-lg border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
                             />
@@ -99,6 +100,7 @@ const profile = () => {
                                 value={weight}
                                 onChangeText={setWeight}
                                 placeholder="e.g. 70"
+                                placeholderTextColor="#6B7280"
                                 keyboardType="numeric"
                                 className="w-full border text-lg  border-gray-400 rounded-xl px-4 py-4 font-brsegma-500"
                             />
@@ -114,7 +116,7 @@ const profile = () => {
                                 value={activity}
                                 onChange={item => setActivity(item.value)}
                                 style={styles.dropdown}
-                                placeholderStyle={styles.placeholderStyle}
+                                placeholderStyle={[styles.placeholderStyle, { color: '#6B7280' }]}
                                 selectedTextStyle={styles.selectedTextStyle}
                                 itemContainerStyle={styles.containerItem}
                                 containerStyle={styles.dropdownStyle}

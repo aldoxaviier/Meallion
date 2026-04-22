@@ -16,6 +16,7 @@ const upload = multer({storage});
 router.get("/getProfileFromID", profileController.getProfileFromID);
 router.get("/getProfile", authorization, profileController.getProfile);
 router.get("/search-profiles", profileController.searchProfiles);
+router.get("/getMealTimes", authorization, profileController.getMealTimes);
 
 router.post("/addProfile", authorization, profileController.addProfile);
 router.post("/addInteraction", authorization, profileController.addInteraction);
