@@ -4,71 +4,41 @@ import { useRouter } from "expo-router";
 const Onboard = () => {
   const router = useRouter();
 
-  const handleSignUp = () => {
-    // Navigate to sign up screen
-    router.push("/register/" as any);
-  };
-
-  const handleSignIn = () => {
-    // Navigate to sign in screen
-    router.push("/login");
-  };
-
   return (
-    <View className="bg-secondary-400 h-full w-full flex justify-center items-center">
-      
-      <View className="w-full px-6 pb-8 flex-col gap-2">
-        <TouchableOpacity 
-          onPress={handleSignUp}
-          className="bg-white rounded-full py-4 w-full"
+    <View className="flex-1 bg-black">
+      {/* Hero image */}
+      <Image
+        source={require("../assets/images/onboarding-hero.jpeg")}
+        className="w-full flex-1"
+        resizeMode="cover"
+      />
+
+      {/* Bottom sheet */}
+      <View className="bg-white px-6 pt-6 pb-10 gap-3 rounded-t-3xl -mt-5">
+        <TouchableOpacity
+          onPress={() => router.push("/register")}
+          className="bg-primary-500 rounded-full py-4 w-full"
         >
-          <Text className="text-center text-primary-500 font-semibold text-lg">
-            Create an Account
+          <Text className="text-center text-white font-semibold text-base">
+            Register
           </Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={handleSignIn}
-          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
+
+        <TouchableOpacity
+          onPress={() => router.push("/login")}
+          className="bg-white border border-gray-300 rounded-full py-4 w-full"
         >
-          <Text className="text-center text-secondary-400 font-semibold text-lg">
-            Sign In
+          <Text className="text-center text-black font-medium text-base">
+            Sign in
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-          onPress={() => router.push("/register/profileonboard")}
-          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
-        >
-          <Text className="text-center text-secondary-400 font-semibold text-lg">
-            Profile Onboard
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          onPress={() => router.push("/register/otp")
-            
-          }
-          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
-        >
-          <Text className="text-center text-secondary-400 font-semibold text-lg">
-            OTP
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          onPress={() => router.push("/(tabs)/profile")}
-          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
-        >
-          <Text className="text-center text-secondary-400 font-semibold text-lg">
-            test break
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          onPress={() => router.push("/register/allergies")}
-          className="py-4 w-full border border-secondary-400 rounded-full bg-primary-500"
-        >
-          <Text className="text-center text-secondary-400 font-semibold text-lg">
-            test allergies
-          </Text>
-        </TouchableOpacity>
+
+        <Text className="text-center text-gray-400 text-xs mt-1">
+          By continuing, you agree to 7-Eleven's{"\n"}
+          <Text className="underline">Privacy Policy</Text>
+          {" and "}
+          <Text className="underline">Terms of Use</Text>
+        </Text>
       </View>
     </View>
   );
