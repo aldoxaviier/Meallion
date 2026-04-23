@@ -24,6 +24,10 @@ interface ProfileData {
   followers: number
   followings: number
   recipes_count: number
+  breakfast_time: string | null
+  lunch_time: string | null
+  snack_time: string | null
+  dinner_time: string | null
   users: UserInfo
 }
 

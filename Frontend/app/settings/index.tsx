@@ -31,6 +31,10 @@ const Index = () => {
         router.push('/settings/dietaryRequirements' as any);
     }
 
+    const onPressMealTime = () => {
+        router.push('/settings/mealTime' as any);
+    }
+
     const onPressDislikesAndAllergies = () => {
         router.push('/settings/dislikesandallergies' as any);
     }
@@ -90,21 +94,6 @@ const Index = () => {
                             />
                         </View>
                         
-                        <View className="flex-row items-center justify-between px-4 py-3">
-                            <View className="flex-row items-center">
-                                <Ionicons name="mail" size={20} color="#3E0703" />
-                                <View className="ml-3">
-                                    <Text className="text-base font-brsegma-500">Email Notification</Text>
-                                    <Text className="text-xs text-gray-500 font-brsegma-300">Get email notifications</Text>
-                                </View>
-                            </View>
-                            <Switch
-                                value={emailNotifications}
-                                onValueChange={setEmailNotifications}
-                                trackColor={{ false: '#E5E5E5', true: '#FF6B6B' }}
-                                thumbColor="#fff"
-                            />
-                        </View>
                     </View>
                 </View>
 
@@ -125,6 +114,13 @@ const Index = () => {
                             <View className="flex-row items-center">
                                 <Ionicons name="warning" size={20} color="#3E0703" />
                                 <Text className="ml-3 text-base font-brsegma-500">Dislikes & allergies</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color="#999" />
+                        </TouchableOpacity>
+                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3" onPress={onPressMealTime}>
+                            <View className="flex-row items-center">
+                                <Ionicons name="time" size={20} color="#3E0703" />
+                                <Text className="ml-3 text-base font-brsegma-500">Update My Meal Time</Text>
                             </View>
                             <Ionicons name="chevron-forward" size={20} color="#999" />
                         </TouchableOpacity>

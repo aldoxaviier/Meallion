@@ -116,4 +116,14 @@ const searchProfiles = async (query) => {
     return result;
 }
 
-module.exports =  { addProfile, getInteractionByUserAndRecipe, addInteraction, updateInteraction, getProfile, updateProfile, searchProfiles };
+const getMealTimes = async (userId) => {
+    const result = await sql`
+        SELECT breakfast_time, lunch_time, snack_time,dinner_time
+        FROM user_profiles
+        WHERE user_id = ${userId}
+    `;
+
+    return result[0] || null;
+}
+
+module.exports =  { addProfile, getInteractionByUserAndRecipe, addInteraction, updateInteraction, getProfile, updateProfile, getMealTimes, searchProfiles };

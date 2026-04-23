@@ -71,13 +71,13 @@ const Login = () => {
               {/* Email Input */}
               <View className="flex-col gap-1">
                 <Text className="text-gray-700 font-brsegma-600">Email</Text>
-                <TextInput placeholder='Enter your email' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500' onChangeText={setEmail}/>
+                <TextInput placeholder='Enter your email' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500 text-black' placeholderTextColor="#6B7280" onChangeText={setEmail}/>
               </View>
 
               {/* Password Input */}
               <View className="flex-col gap-1">
                 <Text className="text-gray-700 font-brsegma-600">Password</Text>
-                <TextInput placeholder='Password' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500' secureTextEntry onChangeText={setPassword}/>
+                <TextInput placeholder='Password' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500 text-black' placeholderTextColor="#6B7280" secureTextEntry onChangeText={setPassword}/>
               </View>
 
               {/* Forgot Password */}

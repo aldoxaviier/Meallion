@@ -72,6 +72,20 @@ const getProfileFromID = async (req, res) => {
     }
 }
 
+const getMealTimes = async (req, res) => {
+    try {
+        const userId = req.user;
+        const mealTimes = await profileRepository.getMealTimes(userId);
+        if (!mealTimes) {
+            return res.status(404).json(ApiResponse.error("Meal times not found", 404));
+        }
+        res.status(200).json(ApiResponse.success("Meal times found", mealTimes, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
 const searchProfiles = async (req, res) => {
     try {
         const { query } = req.query;
@@ -83,4 +97,4 @@ const searchProfiles = async (req, res) => {
     }
 }
 
-module.exports = { addProfile, addInteraction, getProfile, getProfileFromID, updateProfile, searchProfiles }
+module.exports = { addProfile, addInteraction, getProfile, getProfileFromID, updateProfile, searchProfiles, getMealTimes };

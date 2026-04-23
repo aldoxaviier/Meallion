@@ -22,7 +22,7 @@ const Index = () => {
   const getPostRecipes = async () => {
     try {
       const response = await api.get('/recipes/get-recipes-by-user',{ params: { user_id: profileData?.profileData?.user_id } });
-      console.log("Fetched recipes:", response.data);
+      
       if (response.data) {
         setPostRecipes(response.data);
       }

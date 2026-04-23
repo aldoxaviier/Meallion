@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { ProfileDataContext } from "../store/profileDataContext";
 import { WheelPicker, ITEM_HEIGHT } from "../components/WheelPicker";
 import { api } from "../utils/api";
+import profile from "../register/profile";
 
 const goalOptions = ['Lose weight', 'Maintain weight', 'Gain weight'];
 
@@ -87,18 +88,16 @@ const Profile = () => {
     };
 
     const getPicture = async () => {
-        if(profileContext?.profileData?.profile_image){
-            const imageUrl = `${url}/${profileContext.profileData.profile_image}`;
-            setDisplayImage(imageUrl);
+        const dbImage = profileContext?.profileData?.profile_image;
+        console.log("dbImage:", dbImage);
+        if (dbImage) {
+            if (dbImage.startsWith('http')) {
+                setDisplayImage(dbImage);
+            } else {
+                setDisplayImage(`${url}/${dbImage}`);
+            }
         }
     }
-
-    useEffect(() => {
-        console.log('image state updated:', image);
-        console.log('displayImage state:', displayImage);
-    }, [image]);
-
-
 
     useEffect(() => {
         if (profileContext?.profileData) {
@@ -161,7 +160,9 @@ const Profile = () => {
                     <View className="w-full flex items-center justify-center pt-8 pb-6 gap-2">
                         <Image
                             className="w-24 h-24 rounded-full"
-                            source={displayImage ? { uri: displayImage } : require('../../assets/images/android-icon-background.png')}
+                            source={
+                                displayImage ? { uri: displayImage } : require('../../assets/images/android-icon-background.png')
+                            }
                         />
                         <TouchableOpacity className="" onPress={pickImage}>
                             <Text className="text-base font-brsegma-600 text-primary-500">CHANGE AVATAR</Text>
