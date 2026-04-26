@@ -59,9 +59,10 @@ export default function Index() {
     const fetchProfile = async () => {
         try {
           const response = await api.get('/profile/getProfile')
+          console.log('getProfile success:', response.status, response.data)
           profileData?.setProfileData(response.data)
         } catch (err: any) {
-            console.log(err)
+            console.log('getProfile error:', err.response?.status, err.response?.data || err.message)
         } finally {
             setLoading(false)
         }

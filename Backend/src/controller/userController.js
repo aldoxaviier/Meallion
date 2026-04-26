@@ -1,6 +1,7 @@
 const userService = require("../service/userService");
 const ApiResponse = require("../utils/apiResponse");
 const userRepository = require("../repositories/userRepository");
+const profileRepository = require("../repositories/profileRepository");
 
 const reqOTP = async (req, res) => {
     console.log("Requesting OTP");
@@ -18,7 +19,9 @@ const login = async (req, res) => {
         console.log("login backend");
         const { email, password } = req.body;
         const result = await userService.login(email, password);
-        res.status(200).json(ApiResponse.success("User logged in successfully", { refreshToken: result.refreshToken, accessToken: result.accessToken }, 200));
+        const profile = await profileRepository.getProfile(result.userId);
+        const interactions = await profileRepository.getInteractions(result.userId);
+        res.status(200).json(ApiResponse.success("User logged in successfully", { refreshToken: result.refreshToken, accessToken: result.accessToken, hasProfile: !!profile, hasInteractions: interactions.length > 0 }, 200));
     } catch (err) {
         console.error(err.message);
         res.status(500).json(ApiResponse.error(err.message, 500));

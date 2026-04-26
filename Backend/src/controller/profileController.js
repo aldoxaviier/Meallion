@@ -30,7 +30,7 @@ const getProfile = async (req, res) => {
         const userId = req.user;
         const profile = await profileRepository.getProfile(userId);
         if (!profile) {
-            return res.status(404).json(ApiResponse.error("Profile not found", 404));
+            return res.status(500).json(ApiResponse.error("Profile not found", 500));
         }
 
         res.status(200).json(

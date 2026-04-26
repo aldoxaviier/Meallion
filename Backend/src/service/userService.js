@@ -52,7 +52,7 @@ const login = async (email, password) => {
     const refreshToken = jwtGenerator.refreshToken(user.user_id);
     const accessToken = jwtGenerator.accessToken(user.user_id);
     await userRepository.updateRefreshToken(user.user_id, refreshToken);
-    return { accessToken, refreshToken};
+    return { accessToken, refreshToken, userId: user.user_id };
 }
 
 const refresh = async (refreshToken) => {

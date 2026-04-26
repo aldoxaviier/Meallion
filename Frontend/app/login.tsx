@@ -33,12 +33,18 @@ const Login = () => {
       const body = { email, password };
       console.log(body)
       const response: any = await api.post(`/auth/login`, body);
-
+      console.log('Login response:', response.data);
       if (response.statusCode == 200) {
-        authContext?.login(
-          response.data.accessToken,
-          response.data.refreshToken
-        );
+        if(response.data.hasProfile == false) {
+          router.replace('/register/profileonboard');
+        } else if(response.data.hasInteractions == false) {
+          router.replace('/register/preference');
+        } else {
+          authContext?.login(
+            response.data.accessToken,
+            response.data.refreshToken
+          );
+        }
       }
     } catch (error : any) {
       if (error.response) {

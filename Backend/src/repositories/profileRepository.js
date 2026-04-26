@@ -29,6 +29,14 @@ const getInteractionByUserAndRecipe = async ({ userId, recipeId }) => {
     return result[0];
 }
 
+const getInteractions = async (userId) => {
+    const result = await sql`
+        SELECT * FROM user_recipe_interactions
+        WHERE user_id = ${userId}
+    `;
+    return result;
+}
+
 const addInteraction = async ({ userId, recipeId, score }) => {
     const result = await sql`
         INSERT INTO user_recipe_interactions (user_id, recipe_id, score)
@@ -126,4 +134,4 @@ const getMealTimes = async (userId) => {
     return result[0] || null;
 }
 
-module.exports =  { addProfile, getInteractionByUserAndRecipe, addInteraction, updateInteraction, getProfile, updateProfile, getMealTimes, searchProfiles };
+module.exports =  { addProfile, getInteractionByUserAndRecipe, addInteraction, updateInteraction, getProfile, updateProfile, getMealTimes, searchProfiles, getInteractions };
