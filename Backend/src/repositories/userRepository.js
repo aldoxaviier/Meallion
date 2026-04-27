@@ -137,6 +137,30 @@ const saveNotificationHistory = async (userId, notifType, title, content) => {
     return result;
 };
 
+const getNotificationsByUserId = async (userId) => {
+    const result = await sql`
+        SELECT id, notif_type, title, content, timestamp, is_checked
+        FROM notification
+        WHERE user_id = ${userId}
+        ORDER BY timestamp DESC
+    `;
+    return result;
+};
+
+const markNotificationRead = async (notificationId) => {
+    const result = await sql`
+        UPDATE notification SET is_checked = true WHERE id = ${notificationId}
+    `;
+    return result;
+};
+
+const deleteNotifications = async (notificationId) => {
+    const result = await sql`
+        DELETE FROM notification WHERE id = ${notificationId}
+    `;
+    return result;
+};
+
 module.exports = {
     createUser,
     findEmailUnique,
@@ -151,5 +175,8 @@ module.exports = {
     updateExpoToken,
     removeExpoToken,
     getNotifications,
-    saveNotificationHistory
+    saveNotificationHistory,
+    getNotificationsByUserId,
+    markNotificationRead,
+    deleteNotifications
 };

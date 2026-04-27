@@ -72,7 +72,6 @@ const Index = () => {
   const getProfile = async () => {
     try {
         const response = await api.get(`/profile/getProfileFromID?user_id=${viewedUserId}`);
-        console.log("API Response:", response);
         const data = await response.data;
         setProfile(data);
     } catch (err) {
@@ -84,17 +83,8 @@ const Index = () => {
     setIsFollowLoading(true);
     try {
       const response = await api.get(`/user/user-relationship?target_user_id=${viewedUserId}`);
-      console.log("Follow Status Response:", response);
-      const followState =
-        typeof response.data === 'boolean'
-          ? response.data
-          : Boolean(
-              response.data?.isFollowing ??
-                response.data?.is_following ??
-                response.data?.following ??
-                response.data?.follow
-            );
-
+      
+      const followState = response?.data ? true : false; 
       setIsFollowing(followState);
     } catch (error) {
       console.error('Error fetching follow status:', error);

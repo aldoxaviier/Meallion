@@ -80,7 +80,6 @@ const pushNotifications = async () => {
         });
         
         const notifications = await userRepository.getNotifications(formattedTime);
-        console.log(`[${formattedTime}] Finding notifications:`, notifications);
         
         for (const notification of notifications) {
             if (notification.expo_push_token) {

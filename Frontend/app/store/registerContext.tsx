@@ -44,7 +44,6 @@ const RegisterProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const pushToken = await registerForPushNotificationsAsync();
         if (pushToken) {
-          console.log("push token (Register):", pushToken);
           await api.put('/auth/updatePushToken', 
             { expo_push_token: pushToken },
             { headers: { Authorization: `Bearer ${access}` } }

@@ -295,6 +295,7 @@ export default function Index() {
             <TextInput 
               className="flex-1 ml-3 text-base text-gray-700" 
               placeholder="Find your meal..." 
+              placeholderTextColor="#6B7280"
               editable={false}
             />
           </View>
@@ -351,17 +352,11 @@ export default function Index() {
             ref={searchInputRef}
             className="flex-1 ml-3 text-base text-gray-700" 
             placeholder="Find your meal..." 
+            placeholderTextColor="#6B7280"
             value={searchRec}
             onChangeText={setSearchRec}
             editable={isSearchMode}
           />
-          <Animated.View style={{ opacity: filterIconOpacity }}>
-            {isSearchMode && (
-              <TouchableHighlight underlayColor="transparent">
-                <FontAwesome6 name="sliders" size={20} color="#4a2c2a" />
-              </TouchableHighlight>
-            )}
-          </Animated.View>
         </View>
         </Pressable>
       </Animated.View>

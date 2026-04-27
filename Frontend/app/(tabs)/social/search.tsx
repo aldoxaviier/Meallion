@@ -73,7 +73,8 @@ export default function Search() {
                     <Ionicons name="search" size={18} color="#6B7280" />
                     <TextInput
                         className="ml-2 flex-1 text-base text-gray-800"
-                        placeholder="Search social recipes..."
+                        placeholder="Search people..."
+                        placeholderTextColor="#6B7280"
                         value={query}
                         onChangeText={setQuery}
                         autoFocus

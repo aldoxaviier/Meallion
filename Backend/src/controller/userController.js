@@ -104,4 +104,38 @@ const updatePushToken = async (req, res) => {
     }
 };
 
-module.exports = { reqOTP, login, register, refresh, logout, getUserRelationship, updateFollowStatus, updatePushToken };
+const getNotifications = async (req, res) => {
+    try {
+        const userId = req.user;
+        const notifications = await userRepository.getNotificationsByUserId(userId);
+        res.status(200).json(ApiResponse.success("Notifications retrieved successfully", notifications, 200));
+    }
+    catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+const markNotificationRead = async (req, res) => {
+    try {
+        const notifId = req.body.id;
+        await userRepository.markNotificationRead(notifId);
+        res.status(200).json(ApiResponse.success("Notification marked as read", {}, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+const deleteNotifications = async (req, res) => {
+    try {
+        const NotifId = req.query.id;
+        await userRepository.deleteNotifications(NotifId);
+        res.status(200).json(ApiResponse.success("Notifications deleted successfully", {}, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+module.exports = { reqOTP, login, register, refresh, logout, getUserRelationship, updateFollowStatus, updatePushToken, getNotifications, markNotificationRead, deleteNotifications };
