@@ -28,7 +28,7 @@ const Preference = () => {
       const response:any = await api.post("/profile/addInteraction", {
         interactions
       })
-      console.log("response", response);
+      console.log("registerContext", registerContext?.refreshToken, registerContext?.accessToken);
       if (response.statusCode === 201){
         authContext?.login(
           registerContext?.accessToken || "",
