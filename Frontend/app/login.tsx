@@ -1,9 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import {
-  ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
-  StatusBar,
   TextInput,
   TouchableOpacity,
   View,
@@ -13,7 +11,7 @@ import {
 import Feather from '@expo/vector-icons/Feather';
 import { Link } from 'expo-router';
 import { AuthContext } from './store/authContext';
-import {api} from './utils/api';
+import { api } from './utils/api';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -22,22 +20,21 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const authContext = useContext(AuthContext);
 
   const onPressLogin = async () => {
     setMessage('');
     setIsLoading(true);
-    console.log("attemp login");
     try {
       const body = { email, password };
-      console.log(body)
       const response: any = await api.post(`/auth/login`, body);
-      console.log('Login response:', response.data);
       if (response.statusCode == 200) {
-        if(response.data.hasProfile == false) {
+        if (response.data.hasProfile == false) {
           router.replace('/register/profileonboard');
-        } else if(response.data.hasInteractions == false) {
+        } else if (response.data.hasInteractions == false) {
           router.replace('/register/preference');
         } else {
           authContext?.login(
@@ -46,9 +43,8 @@ const Login = () => {
           );
         }
       }
-    } catch (error : any) {
+    } catch (error: any) {
       if (error.response) {
-        console.error('Login error response:', error.response.data);
         setMessage(error.response.data.message);
       }
     } finally {
@@ -56,69 +52,196 @@ const Login = () => {
     }
   };
 
-
   return (
-    <SafeAreaView className='bg-white pt-6'>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>       
-          <View className="px-6 py-6 bg-white h-full w-full flex-col gap-2">
-            <TouchableOpacity className="self-start pr-2 py-2 rounded-lg" onPress={() => router.back()}>
-              <Feather name="arrow-left" size={24} color="black" />
-            </TouchableOpacity>
-            {/* Logo/Brand Section */}
-            <View className="flex flex-col justify-start ">
-              <Text className="text-4xl font-bold text-primary-400 font-fogsta">Log in</Text>
-              <Text className="text-gray-600 font-brsegma-500">
-                Please enter your credentials to continue
-              </Text>
-            </View>
+    <SafeAreaView style={{ flex: 1 }} className='bg-secondary-300'>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 16 }}>
 
-            {/* Login Form */}
-            <View className=" flex-col gap-4 ">
-              {/* Email Input */}
-              <View className="flex-col gap-1">
-                <Text className="text-gray-700 font-brsegma-600">Email</Text>
-                <TextInput placeholder='Enter your email' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500 text-black' placeholderTextColor="#6B7280" onChangeText={setEmail}/>
-              </View>
+          {/* Back Button */}
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={{ alignSelf: 'flex-start', paddingVertical: 8, paddingRight: 8 }}
+          >
+            <Feather name="arrow-left" size={24} color="#1a1a1a" />
+          </TouchableOpacity>
 
-              {/* Password Input */}
-              <View className="flex-col gap-1">
-                <Text className="text-gray-700 font-brsegma-600">Password</Text>
-                <TextInput placeholder='Password' className='border rounded-xl border-gray-300 px-4 py-4 font-brsegma-500 text-black' placeholderTextColor="#6B7280" secureTextEntry onChangeText={setPassword}/>
-              </View>
+          {/* Header */}
+          <View style={{ alignItems: 'center', marginTop: 32, marginBottom: 36 }}>
+            <Text
+              className="font-fogsta"
+              style={{
+                fontSize: 32,
+                color: '#7B1C1C',
+                textAlign: 'center',
+                lineHeight: 40,
+              }}
+            >
+              Welcome Back,{'\n'}Healthy Friend!
+            </Text>
+          </View>
 
-              {/* Forgot Password */}
-              <TouchableOpacity className="mb-6" activeOpacity={0.7}>
-                <Text className="text-primary-400 font-medium text-right font-brsegma-600">
-                  Forgot Password?
-                </Text>
+          {/* Subtitle */}
+          <Text
+            className="font-brsegma-500"
+            style={{ color: '#7B1C1C', marginBottom: 16, fontSize: 14 }}
+          >
+            Sign in to continue
+          </Text>
+
+          {/* Email Input */}
+          <View style={{ marginBottom: 16 }}>
+            <Text
+              className="font-brsegma-600"
+              style={{ color: '#1a1a1a', marginBottom: 6, fontSize: 14 }}
+            >
+              Email
+            </Text>
+            <TextInput
+              placeholder="Enter your email"
+              placeholderTextColor="#9CA3AF"
+              onChangeText={setEmail}
+              value={email}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              className="font-brsegma-500"
+              style={{
+                borderWidth: 1,
+                borderColor: '#D1C4A8',
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                fontSize: 15,
+                color: '#1a1a1a',
+                backgroundColor: '#FDFAF3',
+              }}
+            />
+          </View>
+
+          {/* Password Input */}
+          <View style={{ marginBottom: 12 }}>
+            <Text
+              className="font-brsegma-600"
+              style={{ color: '#1a1a1a', marginBottom: 6, fontSize: 14 }}
+            >
+              Password
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#D1C4A8',
+                borderRadius: 12,
+                backgroundColor: '#FDFAF3',
+                paddingHorizontal: 16,
+              }}
+            >
+              <TextInput
+                placeholder="Password"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!showPassword}
+                onChangeText={setPassword}
+                value={password}
+                className="font-brsegma-500"
+                style={{
+                  flex: 1,
+                  paddingVertical: 14,
+                  fontSize: 15,
+                  color: '#1a1a1a',
+                }}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Feather
+                  name={showPassword ? 'eye' : 'eye-off'}
+                  size={20}
+                  color="#7B1C1C"
+                />
               </TouchableOpacity>
-
-              {/* Sign In Button */}
-              <TouchableHighlight
-                onPress={onPressLogin}
-                className={`bg-primary-400 rounded-xl py-4 items-center mb-6`}
-              >
-                <Text className="text-white font-brsegma-600 text-lg">
-                  {isLoading ? 'Signing In...' : 'Sign In'}
-                </Text>
-              </TouchableHighlight>
-
-              {/* Error Message */}
-              {message ? (
-                <Text className="text-red-500 text-center mb-4 text-sm font-brsegma-600">
-                  {message}
-                </Text>
-              ) : null}
-
-              {/* Sign Up Link */}
-              <View className="flex-row justify-center">
-                <Text className="text-gray-600 font-brsegma-500">Don't have an account? </Text>
-                <Link href="/register" replace>
-                  <Text className="text-primary-400 font-brsegma-600">Sign Up</Text>
-                </Link>
-              </View>
             </View>
           </View>
+
+          {/* Remember Me + Forgot Password */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 40,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setRememberMe(!rememberMe)}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+            >
+              <View
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderWidth: 1.5,
+                  borderColor: '#7B1C1C',
+                  borderRadius: 3,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: rememberMe ? '#7B1C1C' : 'transparent',
+                }}
+              >
+                {rememberMe && <Feather name="check" size={12} color="white" />}
+              </View>
+              <Text className="font-brsegma-500" style={{ color: '#1a1a1a', fontSize: 13 }}>
+                Remember me
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/forgotpassword")}>
+              <Text className="font-brsegma-600" style={{ color: '#7B1C1C', fontSize: 13 }}>
+                Forgot password?
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Continue Button */}
+          <TouchableHighlight
+            onPress={onPressLogin}
+            underlayColor="#5C1515"
+            style={{
+              backgroundColor: '#7B1C1C',
+              borderRadius: 50,
+              paddingVertical: 16,
+              alignItems: 'center',
+              marginBottom: 24,
+            }}
+          >
+            <Text
+              className="font-brsegma-600"
+              style={{ color: 'white', fontSize: 16, fontWeight: '600' }}
+            >
+              {isLoading ? 'Signing In...' : 'Continue'}
+            </Text>
+          </TouchableHighlight>
+
+          {/* Error Message */}
+          {message ? (
+            <Text
+              className="font-brsegma-600"
+              style={{ color: '#ef4444', textAlign: 'center', marginBottom: 12, fontSize: 13 }}
+            >
+              {message}
+            </Text>
+          ) : null}
+
+          {/* Sign Up Link */}
+          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <Text className="font-brsegma-500" style={{ color: '#6B7280' }}>
+              Don't have an account?{' '}
+            </Text>
+            <Link href="/register" replace>
+              <Text className="font-brsegma-600" style={{ color: '#7B1C1C' }}>
+                Sign Up
+              </Text>
+            </Link>
+          </View>
+
+        </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );

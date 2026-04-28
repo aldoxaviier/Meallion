@@ -16,6 +16,10 @@ router.post("/register", validation(registerSchema), userController.register);
 router.post("/sendOTP", validation(otpSchema), userController.reqOTP);
 router.post("/refresh", userController.refresh);
 router.get("/logout", authorization, userController.logout);
+router.post("/sendOTPforgot", validation(otpSchema), userController.otpForgotPassword);
+router.post("/validate-otp-forgot", userController.validateOtpForgotPassword);
+router.post("/forgot-password", userController.forgotPassword);
+
 
 router.put("/updatePushToken", authorization, userController.updatePushToken);
 router.get("/getNotifications", authorization, userController.getNotifications);

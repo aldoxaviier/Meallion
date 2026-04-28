@@ -161,6 +161,13 @@ const deleteNotifications = async (notificationId) => {
     return result;
 };
 
+const updatePassword = async (email, newPassword) => {
+    const result = await sql`
+        UPDATE users SET password = ${newPassword} WHERE email = ${email}
+    `;
+    return result[0];
+}
+
 module.exports = {
     createUser,
     findEmailUnique,
@@ -178,5 +185,6 @@ module.exports = {
     saveNotificationHistory,
     getNotificationsByUserId,
     markNotificationRead,
-    deleteNotifications
+    deleteNotifications,
+    updatePassword
 };
