@@ -138,4 +138,41 @@ const deleteNotifications = async (req, res) => {
     }
 }
 
-module.exports = { reqOTP, login, register, refresh, logout, getUserRelationship, updateFollowStatus, updatePushToken, getNotifications, markNotificationRead, deleteNotifications };
+const otpForgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const result = await userService.reqOTPForgotPassword(email);
+        res.status(200).json(ApiResponse.success("OTP sent successfully", result, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+const validateOtpForgotPassword = async (req, res) => {
+    try {
+        const {otp, email} = req.body;
+        const result = await userService.validateOtpForgotPassword(email, otp);
+        if (result) {
+            res.status(200).json(ApiResponse.success("OTP is valid", {}, 200));
+        } else {
+            res.status(400).json(ApiResponse.error("OTP is not valid", 400));
+        }
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+const forgotPassword = async (req, res) => {
+    try {
+        const {email, password} = req.body;
+        const result = await userService.forgotPassword(email, password);
+        res.status(200).json(ApiResponse.success("Password updated successfully", result, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+module.exports = { reqOTP, login, register, refresh, logout, getUserRelationship, updateFollowStatus, updatePushToken, getNotifications, markNotificationRead, deleteNotifications, otpForgotPassword, forgotPassword, validateOtpForgotPassword };

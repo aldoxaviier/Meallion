@@ -11,7 +11,7 @@ import { Asset } from "expo-asset";
 import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
-
+import ChangePasswordProvider from "./store/changePasswordContext";
 import * as Notifications from "expo-notifications";
 
 SplashScreen.preventAutoHideAsync();
@@ -133,6 +133,9 @@ function LayoutContent() {
         <Stack.Protected guard={!refreshToken}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="otppassword" options={{ headerShown: false }} />
+          <Stack.Screen name="forgotpassword" options={{ headerShown: false }} />
+          <Stack.Screen name="changepassword" options={{ headerShown: false }} />
         </Stack.Protected>
         <Stack.Screen name="register" options={{ headerShown: false }} />
       </Stack>
@@ -145,7 +148,9 @@ export default function RootLayout() {
     <AuthProvider>
       <TenRecipeProvider>
         <ProfileDataProvider>
-          <LayoutContent />
+          <ChangePasswordProvider>
+            <LayoutContent />
+          </ChangePasswordProvider>
         </ProfileDataProvider>
       </TenRecipeProvider>
     </AuthProvider>

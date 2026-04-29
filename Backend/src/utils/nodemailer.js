@@ -26,7 +26,7 @@ const sendOTP = async (email, otp) => {
             html: `
                     <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                     <h2 style="color: #333;">Hello 👋</h2>
-                    <p>Here’s your <strong>One-Time Password (OTP)</strong> to continue logging in:</p>
+                    <p>Here’s your <strong>One-Time Password (OTP)</strong> to continue:</p>
                     <div style="text-align: center; margin: 20px 0;">
                         <span style="display: inline-block; font-size: 28px; letter-spacing: 8px; background: #f3f3f3; padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc;">
                         ${otp}

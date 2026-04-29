@@ -15,13 +15,32 @@ const reqOTP = async (email, res) => {
         throw new Error("Email already exists");
     }
     const otp = randomstring.generate({ length: 6, charset: "numeric" });
-    redisClient.setEx("otptoken", 130, otp);
+    redisClient.setEx(`otp:${email}`, 130, otp);
     await mailer.sendOTP(email, otp);
     return otp;
 }
 
+const reqOTPForgotPassword = async (email) => {
+    const user = await userRepository.findEmailUnique(email);
+    if (!user) {
+        throw new Error("Email does not exist");
+    }
+    const otp = randomstring.generate({ length: 6, charset: "numeric" });
+    redisClient.setEx(`otp:${email}`, 130, otp);
+    await mailer.sendOTP(email, otp);
+    return otp;
+}
+
+const validateOtpForgotPassword = async (email, otp) => {
+    const storedOtp = await redisClient.get(`otp:${email}`);
+    if (storedOtp !== otp) {
+        return false;
+    }
+    return true;
+}
+
 const register = async (email, name, password, otp) => {
-    const storedOtp = await redisClient.get("otptoken");
+    const storedOtp = await redisClient.get(`otp:${email}`);
     console.log("Stored OTP:", storedOtp, "Provided OTP:", otp);
     if (storedOtp !== otp) {
         return;
@@ -160,13 +179,23 @@ const updateFollowStatus = async (userId, targetUserId, follow) => {
     }
 };
 
+const forgotPassword = async (email, newPassword) => {
+    const saltRound = 10;
+    const salt = await bcrypt.genSalt(saltRound);
+    const bcryptpassword = await bcrypt.hash(newPassword,salt);
+    await userRepository.updatePassword(email, bcryptpassword);
+    return true;
+}
 
 module.exports = {
     reqOTP,
+    reqOTPForgotPassword,
     register,
     login,
     refresh,
     pushNotifications,
     sendPushNotification,
-    updateFollowStatus
+    updateFollowStatus,
+    forgotPassword,
+    validateOtpForgotPassword
 };

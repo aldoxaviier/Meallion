@@ -1,20 +1,17 @@
 import { View,Text,TextInput,TouchableWithoutFeedback,Keyboard,TouchableHighlight,Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState,useContext,useRef,useEffect } from 'react';
-import { RegisterContext } from '../store/registerContext';
-import {api} from '../utils/api';
+import { api } from './utils/api';
 import { useRouter } from 'expo-router';
-import { AuthContext } from '../store/authContext';
 import { Ionicons } from '@expo/vector-icons';
+import { ChangePasswordContext } from './store/changePasswordContext';
 const otpduplicated = () => {
     const [otpValue, setOtpValue] = useState('');
     const hiddenInputRef = useRef<any>(null);
-    const registerContext = useContext(RegisterContext);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const [message, setMessage] = useState('');
-    const authContext = useContext(AuthContext);
-
+    const cpcontext = useContext(ChangePasswordContext);
     const handleOtpChange = (value: string) => {
         const numericValue = value.replace(/[^0-9]/g, '').slice(0, 6);
         setOtpValue(numericValue);
@@ -23,22 +20,20 @@ const otpduplicated = () => {
     const focusInput = () => {
         hiddenInputRef?.current?.focus();
     };
-
-
+    useEffect(() => {
+        console.log("ChangePasswordData:", cpcontext?.changePasswordData);
+    })
     const handleContinue = async() => {
         setIsLoading(true);
         setMessage('');
         try {
-            const body = { 
-                name: registerContext?.registerData.name,
-                email: registerContext?.registerData.email, 
-                password: registerContext?.registerData.password, 
+            const body = {
+                email: cpcontext?.changePasswordData.email,
                 otp: otpValue
             };
             console.log("body:", body);
-            const response = await api.post(`/auth/register`, body);
-            registerContext?.setTokens(response.data.accessToken, response.data.refreshToken);
-            router.push('/register/profileonboard');
+            const response = await api.post(`/auth/validate-otp-forgot`, body);
+            router.push('/changepassword');
         } catch (error : any) {
             console.log(error.response.data);
             setMessage(error.response.data.message);
@@ -65,7 +60,7 @@ const otpduplicated = () => {
         setIsLoading(true);
         setMessage('');
         try {
-            const body = { email: registerContext?.registerData.email };
+            const body = { email: cpcontext?.changePasswordData.email };
             await api.post(`/auth/sendOTP`, body);
             // start 2-minute countdown after successful resend
             setResendTimer(120);
@@ -105,9 +100,9 @@ const otpduplicated = () => {
 
     return (
         <>
-        <SafeAreaView className='bg-secondary-400'>
+        <SafeAreaView className='bg-secondary-200'>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View className="h-full bg-secondary-400 flex flex-col px-6 pb-6">
+            <View className="h-full bg-secondary-200 flex flex-col px-6 pb-6">
                 {/* Back Button */}
                 <TouchableHighlight 
                     className='w-10 h-10 mb-8'
@@ -126,7 +121,7 @@ const otpduplicated = () => {
                         Enter the one time code we sent to
                     </Text>
                     <Text className=" text-gray-600 font-brsegma-500">
-                        {maskEmail(registerContext?.registerData.email || '')}
+                        {maskEmail(cpcontext?.changePasswordData.email || '')}
                     </Text>
                 </View>
 
