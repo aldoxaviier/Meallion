@@ -35,6 +35,11 @@ const Preference = () => {
           registerContext?.refreshToken || ""
         )
       }
+      
+      setTimeout(() => {
+          router.replace("/(tabs)/home" as any);
+      }, 500);
+      
     } catch (err) {
       console.error("Error posting interactions:", err);
     }
