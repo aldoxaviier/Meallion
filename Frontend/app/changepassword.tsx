@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
@@ -35,13 +36,13 @@ const Index = () => {
             cpcontext?.setChangePasswordData({ email: cpcontext?.changePasswordData.email, password: password });
             const body = { email: cpcontext?.changePasswordData.email, password };
             const response = await api.post(`/auth/forgot-password`, body);
-            router.push('/login');
             setIsLoading(false);
         } catch (error : any) {
             console.error(error.response.data);
             setMessage(error.response.data.message);
         }finally {
             setIsLoading(false);
+            router.push('/login');
         }
     };
 
@@ -58,10 +59,7 @@ const Index = () => {
 
             <View className="flex-1 pt-2 items-center">
               <Text className="text-4xl font-fogsta text-primary-500 text-center">
-                What's your name?
-              </Text>
-              <Text className="text-sm text-gray-500 font-brsegma-300 mt-2 text-center">
-                Personalize your experience
+                Enter your new password
               </Text>
 
               <View className="w-full mt-8 items-center">
@@ -92,9 +90,13 @@ const Index = () => {
                 onPress={handleContinue}
                 activeOpacity={0.8}
               >
-                <Text className="text-white text-center font-brsegma-600">
-                  {isLoading ? 'Loading...' : 'Continue'}
-                </Text>
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#FFF0C4" style={{ marginRight: 8 }} />
+                ) : (
+                  <Text className="text-white text-center font-brsegma-600">
+                    Continue
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>

@@ -53,7 +53,7 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className='bg-secondary-300'>
+    <SafeAreaView style={{ flex: 1 }} className='bg-secondary-400'>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 16 }}>
 
@@ -79,14 +79,6 @@ const Login = () => {
               Welcome Back,{'\n'}Healthy Friend!
             </Text>
           </View>
-
-          {/* Subtitle */}
-          <Text
-            className="font-brsegma-500"
-            style={{ color: '#7B1C1C', marginBottom: 16, fontSize: 14 }}
-          >
-            Sign in to continue
-          </Text>
 
           {/* Email Input */}
           <View style={{ marginBottom: 16 }}>
