@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useContext, useEffect, useState } from "react";
 import {
+    ActivityIndicator,
     Text,
     TextInput,
     TouchableOpacity,
@@ -23,6 +24,7 @@ const Steps = () => {
     const [nextId, setNextId] = useState(3);
     const recipeContext = useContext(RecipeContext);
     const [message, setMessage] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
     const updateIngredient = (
         id: number,
         key: keyof Omit<Step, "id">,
@@ -85,6 +87,7 @@ const Steps = () => {
     }
 
     const onPressNext = async() => {
+        setLoading(true);
         try {
             const recipePayload = {
                 ...recipeContext?.recipeData,
@@ -99,7 +102,9 @@ const Steps = () => {
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "An unknown error occurred during validation.");
         }
-
+        finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -160,9 +165,15 @@ const Steps = () => {
                         }`}
                         onPress={onPressNext}
                     >
-                        <Text className="text-center font-brsegma-600 text-secondary-400">
-                            Next
-                        </Text>
+                        {loading ? (
+                            <>
+                            <ActivityIndicator size="small" color="#FFF0C4" style={{ marginRight: 8 }} />
+                            </>
+                        ) : (
+                            <Text className="text-center font-brsegma-600 text-secondary-400">
+                                Finish
+                            </Text>
+                        )}
                     </TouchableOpacity>
                 </View>
         </SafeAreaView>

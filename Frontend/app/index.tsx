@@ -23,7 +23,7 @@ const Onboard = () => {
         />
         <View className="absolute top-0 left-0 right-0 bottom-0 justify-center items-center">
           <Text className="text-white text-3xl font-fogsta">Meallion</Text>
-          <Text className="text-white text-lg font-brsegma-600 mt-2">Your favorite meal, delivered fast</Text>
+          <Text className="text-white text-lg font-brsegma-600 mt-2">Your health, your taste, your perfect plate.</Text>
         </View>
       </View>
 
@@ -48,7 +48,7 @@ const Onboard = () => {
         </TouchableOpacity>
 
         <Text className="text-center text-gray-400 text-xs mt-1">
-          By continuing, you agree to 7-Eleven's{"\n"}
+          By continuing, you agree to Meallion's{"\n"}
           <Text className="underline">Privacy Policy</Text>
           {" and "}
           <Text className="underline">Terms of Use</Text>

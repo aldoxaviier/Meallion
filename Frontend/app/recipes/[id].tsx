@@ -170,7 +170,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
             >
               {recipeTags.map((item: string, index: number) => (
                 <View key={index} className="bg-white px-3 py-1 rounded-full">
-                  <Text className="font-brsegma-600 font-bold text-primary-400">
+                  <Text className="font-brsegma-600 text-primary-400">
                     {item}
                   </Text>
                 </View>
@@ -200,7 +200,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
                 className="w-9 h-9 rounded-full"
               />
               <View className="ml-2">
-                <Text className="text-[15px] text-gray-600 uppercase font-brsegma-800">
+                <Text className="text-[15px] text-gray-600 font-brsegma-600">
                   Recipe by
                 </Text>
                 <Text className="font-brsegma-600 font-bold text-sm text-gray-900">
@@ -220,7 +220,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
               </View>
               <View className="flex-1 flex-row justify-center items-center">
                 <Ionicons name="restaurant-outline" size={16} color="white" />
-                <Text className="font-brsegma-500 text-white font-bold ml-2">{recipeData.RecipeServings} Servings</Text>
+                <Text className="font-brsegma-600 text-white ml-2">{recipeData.RecipeServings} Servings</Text>
               </View>
             </View>
           </View>
@@ -272,7 +272,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
       <TouchableOpacity
         className="absolute z-10 bottom-11 left-0 right-0 bg-primary-500 py-4 items-center justify-center m-6 rounded-xl"
         onPress={() => addLikes()}>
-        <Text className="font-brsegma-600 text-white font-bold text-lg">
+        <Text className="font-brsegma-600 text-white text-lg">
           Save to Likes
         </Text>
       </TouchableOpacity>

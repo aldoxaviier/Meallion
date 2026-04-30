@@ -144,12 +144,8 @@ export default function Index() {
           />
           <View>
             <Text className="font-brsegma-600 text-gray-800">{item.author_name || "Chef"}</Text>
-            <Text className="text-gray-400 text-xs">Food Enthusiast</Text>
           </View>
         </View>
-        <TouchableOpacity>
-          <Feather name="more-vertical" size={20} color="#9CA3AF" />
-        </TouchableOpacity>
       </View>
 
       {/* Post Content */}

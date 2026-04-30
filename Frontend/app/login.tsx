@@ -162,36 +162,8 @@ const Login = () => {
 
           {/* Remember Me + Forgot Password */}
           <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 40,
-            }}
+            className='mb-10 flex flex-row justify-end'
           >
-            <TouchableOpacity
-              onPress={() => setRememberMe(!rememberMe)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-            >
-              <View
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderWidth: 1.5,
-                  borderColor: '#7B1C1C',
-                  borderRadius: 3,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: rememberMe ? '#7B1C1C' : 'transparent',
-                }}
-              >
-                {rememberMe && <Feather name="check" size={12} color="white" />}
-              </View>
-              <Text className="font-brsegma-500" style={{ color: '#1a1a1a', fontSize: 13 }}>
-                Remember me
-              </Text>
-            </TouchableOpacity>
-
             <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/forgotpassword")}>
               <Text className="font-brsegma-600" style={{ color: '#7B1C1C', fontSize: 13 }}>
                 Forgot password?
