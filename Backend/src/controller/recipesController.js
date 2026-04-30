@@ -118,8 +118,10 @@ const getLikesByUserId = async (req, res) => {
 const addToMealPlan = async (req, res) => {
     try {            
         const userId = req.user
-        const data = req.body
-        await recipesRepository.addToMealPlan(data, userId)
+        const data = req.body[0]
+        const interaction = req.body[0].interaction
+        console.log(req.body)
+        await recipesService.addToMealPlan(data, userId, interaction)
         res.status(200).json(ApiResponse.success("Added to Meal Plan Successfull", null, 200))
     } catch (err) {
         console.error(err.message)
@@ -131,7 +133,8 @@ const removeLikes = async (req, res) => {
     try {
         const userId = req.user
         const recipeId = parseInt(req.query.recipeId)
-        await recipesRepository.removeLikes(userId, recipeId)
+        const interaction = req.query.interaction
+        await recipesService.removeLikes(userId, recipeId, interaction)
         res.json(ApiResponse.success("Removed Like Successfull", null, 200))
     } catch (err) {
         console.error(err.message)
@@ -143,8 +146,8 @@ const addLikes = async (req, res) => {
     try {
         const userId = req.user
         const recipeId = req.body.recipeId
-        console.log(recipeId);
-        const result =await recipesService.addLikes(userId, recipeId)
+        const interaction = req.body.interaction
+        const result = await recipesService.addLikes(userId, recipeId, interaction)
         if (result.isDuplicate) {
             return res.status(200).json(ApiResponse.success(result.message, { isDuplicate: true }, 200));
         }

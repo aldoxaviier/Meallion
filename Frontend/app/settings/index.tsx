@@ -59,17 +59,6 @@ const Index = () => {
                                 thumbColor="#fff"
                             />
                         </View>
-                        
-                        <TouchableOpacity className="flex-row items-center justify-between px-4 py-3">
-                            <View className="flex-row items-center">
-                                <Ionicons name="language" size={20} color="#3E0703" />
-                                <Text className="ml-3 text-base font-brsegma-500">Language</Text>
-                            </View>
-                            <View className="flex-row items-center">
-                                <Text className="text-gray-500 mr-2">English</Text>
-                                <Ionicons name="chevron-forward" size={20} color="#999" />
-                            </View>
-                        </TouchableOpacity>
                     </View>
                 </View>
 

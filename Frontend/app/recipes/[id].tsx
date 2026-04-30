@@ -33,7 +33,7 @@ export default function dynamicRecipe() {
 
   const handleLikes = async () => {
     try {
-      const response = await api.post(`/recipes/addLikes`, { recipeId: id });
+      const response = await api.post(`/recipes/addLikes`, { recipeId: id, interaction: 'SAVE' });
       if (response.data?.isDuplicate) {
         Alert.alert("Warning", "Recipe already liked!");
       } else {

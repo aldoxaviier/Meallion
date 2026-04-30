@@ -8,6 +8,7 @@ const interactionValueConfig = {
     RATE3 : 3,
     RATE4 : 4,
     RATE5 : 5,
+    ADDTOPLAN: 4,
 }
 
 module.exports = { interactionValueConfig };

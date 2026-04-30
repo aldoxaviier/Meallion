@@ -1,7 +1,9 @@
 const recipesRepository = require("../repositories/recipesRepository")
 const userRepository = require("../repositories/userRepository");
+const profileRepository = require("../repositories/profileRepository");
 const cloudinary = require("../config/cloudinary");
 const userService = require("./userService");
+const interactionValueConfig = require("../config/interaction.config").interactionValueConfig;
 
 const getRecipesByNameCategory = async (query, category, page = 1, limit = 10, isSocial) => {
     const firstPage = (page - 1) * limit;
@@ -18,10 +20,53 @@ const getRecipesByNameCategory = async (query, category, page = 1, limit = 10, i
     );
 };
 
-const addLikes = async (userId, recipeId) => {
+const removeLikes = async (userId, recipeId, interaction) => {
+    const score = interactionValueConfig[interaction];
+    const existingInteraction = await profileRepository.getInteractionByUserAndRecipe({
+        userId,
+        recipeId,
+    });
+    if (existingInteraction) {
+        let updatedScore = existingInteraction.score + score;
+        await profileRepository.updateInteraction({
+            userId,
+            recipeId,
+            score: updatedScore,
+        });
+    } else {
+        await profileRepository.addInteraction({
+            userId,
+            recipeId,
+            score,
+        });
+    }
+    await recipesRepository.removeLikes(userId, recipeId);
+}
+
+
+const addLikes = async (userId, recipeId, interaction) => {
     const alreadyExists = await recipesRepository.getLikesByUserId(userId, recipeId);
     if (alreadyExists.length > 0) {
         return { isDuplicate: true, message: "Recipe already liked by the user" };
+    }
+    const score = interactionValueConfig[interaction];
+    const existingInteraction = await profileRepository.getInteractionByUserAndRecipe({
+        userId,
+        recipeId,
+    });
+    if (existingInteraction) {
+        let updatedScore = existingInteraction.score + score;
+        await profileRepository.updateInteraction({
+            userId,
+            recipeId,
+            score: updatedScore,
+        });
+    } else {
+        await profileRepository.addInteraction({
+            userId,
+            recipeId,
+            score,
+        });
     }
     const result = await recipesRepository.addLikes(userId, recipeId);
     return { isDuplicate: false, data: result };
@@ -89,6 +134,29 @@ const updateMealProgress = async (userId, mealIDs, date, progress_cal, progress_
         return;
     }
     await recipesRepository.addMealProgress(userId, date, progress_cal, progress_pro, progress_fat, progress_carbs);
+}
+
+const addToMealPlan = async (data, userId, interaction) => {
+    const score = interactionValueConfig[interaction];
+    const existingInteraction = await profileRepository.getInteractionByUserAndRecipe({
+        userId,
+        recipeId: data.recipeId,
+    });
+    if (existingInteraction) {
+        let updatedScore = existingInteraction.score + score;
+        await profileRepository.updateInteraction({
+            userId,
+            recipeId: data.recipeId,
+            score: updatedScore,
+        });
+    } else {
+        await profileRepository.addInteraction({
+            userId,
+            recipeId: data.recipeId,
+            score,
+        });
+    }   
+    await recipesRepository.addToMealPlan(data, userId);
 }
 
 const deleteMealPlan = async (userId, mealId, date, cal, pro, fat, carbs) => {
@@ -348,4 +416,4 @@ const getRecipesByFollowing = async (query, category, page = 1, limit = 10, user
 };
 
 
-module.exports = { getRecipesByNameCategory, addReview, getMealPlan, addLikes, updateMealProgress, deleteMealPlan, addRecipe, searchIngredients, generateMealplan, getRecipesByFollowing };
+module.exports = { getRecipesByNameCategory, addReview, getMealPlan, removeLikes, addLikes, updateMealProgress, addToMealPlan,  deleteMealPlan, addRecipe, searchIngredients, generateMealplan, getRecipesByFollowing };

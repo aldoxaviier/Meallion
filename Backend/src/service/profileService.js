@@ -9,7 +9,7 @@ const addInteraction = async (userId, interactions) => {
     console.log("service", interactions);
     for (let item of interactions) {
         const { recipe_id : recipeId, interaction } = item;
-        const score = interactionValueConfig[interaction];
+        let score = interactionValueConfig[interaction];
 
         const existingInteraction =
             await profileRepository.getInteractionByUserAndRecipe({
@@ -19,6 +19,7 @@ const addInteraction = async (userId, interactions) => {
         console.log("existing", existingInteraction);
         if (existingInteraction) {
             console.log("updating existing interaction");
+            score = existingInteraction.score + score;
             const updated =
                 await profileRepository.updateInteraction({
                     userId,

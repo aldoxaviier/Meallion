@@ -34,7 +34,7 @@ export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
 
   const handleLikes = async () => {
     try {
-      const response = await api.post(`/recipes/addLikes`, { recipeId: recipe.recipe_id });
+      const response = await api.post(`/recipes/addLikes`, { recipeId: recipe.recipe_id, interaction: 'SAVE' });
       if (response.data?.isDuplicate) {
         Alert.alert("Warning", "Recipe already liked!");
       } else {

@@ -33,7 +33,7 @@ export default function Likes() {
 
   const handleAddToMealplan = async (recipeId: number) => {
     try {
-      const body = { recipeId, mealType, date: selectedDate };
+      const body = { recipeId, mealType, date: selectedDate, interaction: 'ADDTOPLAN' };
       await api.post(`/recipes/addToMealPlan`, [body]);
       router.back();
     } catch (err) {
@@ -43,7 +43,7 @@ export default function Likes() {
 
   const handleRemoveLike = async (recipeId: number) => {
     try {
-      await api.delete(`/recipes/removeLikes?recipeId=${recipeId}`);
+      await api.delete(`/recipes/removeLikes?recipeId=${recipeId}&interaction=DISLIKE`);
       setLikedRecipes((prev) => prev.filter((item) => item.recipes?.id !== recipeId));
       await refreshLikedRecipes();
     } catch (err) {
