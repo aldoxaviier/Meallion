@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator, TextInput, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5, Feather, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -21,6 +21,20 @@ export default function Index() {
   const [totalPageByTab, setTotalPageByTab] = useState<Record<string, number>>({ foryou: 1, following: 1 });
   const fetchedTabs = useRef<Set<string>>(new Set());
   const url = process.env.EXPO_PUBLIC_API_URL;
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      fetchedTabs.current.delete(activeTab);
+      await loadInitialForTab(activeTab);
+    } catch (error) {
+      console.log('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const fetchRecipes = async (pageNum: number, tab: string) => {
     try {
@@ -200,6 +214,9 @@ export default function Index() {
         <FlatList
           data={recipesByTab[activeTab]}
           className="flex-1"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.recipe_id?.toString() || item.user_id.toString()}

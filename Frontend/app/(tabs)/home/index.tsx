@@ -1,5 +1,5 @@
 import { apiFastApi, api } from "../../utils/api";
-import { Text, View, Image, TextInput, ScrollView, Pressable, Button, TouchableHighlight, FlatList, Animated, Keyboard, ActivityIndicator } from "react-native";
+import { Text, View, Image, TextInput, ScrollView, Pressable, Button, TouchableHighlight, FlatList, Animated, Keyboard, ActivityIndicator, RefreshControl } from "react-native";
 import { useEffect, useState, useContext, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileDataContext } from "../../store/profileDataContext";
@@ -18,6 +18,25 @@ export default function Index() {
   const profileData = useContext(ProfileDataContext)
   const tenRecipe = useContext(TenRecipeContext)
   const [TenRecipe, setTenRecipe] = useState<any>([]);
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const response = await api.get('/profile/getProfile');
+      profileData?.setProfileData(response.data);
+      
+      const RecipeRes = await apiFastApi.get('/recommendation/');
+      if(RecipeRes){
+        tenRecipe?.setTenRecipe(RecipeRes.data);
+      }
+    } catch (error) {
+      console.log('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   // Search state
   const [isSearchMode, setIsSearchMode] = useState(false);
@@ -407,6 +426,9 @@ export default function Index() {
             <FlatList
               data={recipeData}
               showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
               numColumns={2}
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               contentContainerStyle={{ gap: 14, paddingBottom: 100 }}
@@ -431,7 +453,11 @@ export default function Index() {
         </View>
       ) : (
         // Home mode: Use ScrollView for the home content
-        <ScrollView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           <View className="bg-secondary-400 h-full w-full pt-7 flex flex-col gap-5 pb-6">
             <Animated.View 
               style={{ 

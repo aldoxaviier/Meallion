@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, ScrollView, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, FlatList, RefreshControl } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { api } from '../../utils/api';
 import { AuthContext } from '../../store/authContext';
@@ -18,6 +18,23 @@ const Index = () => {
   const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
   const displayProfile =  profileData?.profileData;
   const router = useRouter();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        getPostRecipes(),
+        getLikedRecipes(),
+        fetchProfile(),
+      ]);
+    } catch (error) {
+      console.error('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const getPostRecipes = async () => {
     try {
@@ -77,7 +94,13 @@ const Index = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-primary-600" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        className="flex-1" 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View className="bg-primary-600 h-28 relative">
             <TouchableOpacity
               className="absolute top-2 right-4 w-10 h-10 rounded-full bg-secondary-400/20 items-center justify-center"

@@ -2,7 +2,7 @@ from core.database import supabase_client
 import logging
 import pandas as pd
 import numpy as np
-
+from numpy.linalg import norm
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -72,19 +72,33 @@ def get_recommendations_service(user_id, limit=20):
     ratings_df = ratings_df.drop(["id"], axis=1)
 
     user_tags_df = recipes_with_tags[
-        recipes_with_tags.recipe_id.isin(ratings_df.recipe_id)
+    recipes_with_tags.recipe_id.isin(ratings_df.recipe_id)
     ].copy()
     user_tags_df.reset_index(drop=True, inplace=True)
+
+    aligned_scores = (
+        user_tags_df[["recipe_id"]]
+        .merge(ratings_df[["recipe_id", "score"]], on="recipe_id", how="left")
+    )["score"].fillna(0)
+
     user_tags_df = user_tags_df.drop(
         columns=[c for c in NON_TAG_COLS if c in user_tags_df.columns]
     )
-    user_profile = user_tags_df.T.dot(ratings_df.score)
+
+    user_profile = user_tags_df.T.dot(aligned_scores)
+    user_profile_norm = user_profile / (norm(user_profile) + 1e-9)
 
     recipes_with_tags = recipes_with_tags.set_index(recipes_with_tags.recipe_id)
     recipes_with_tags = recipes_with_tags.drop(
         columns=[c for c in NON_TAG_COLS if c in recipes_with_tags.columns]
     )
-    recommendation_score = recipes_with_tags.dot(user_profile)
+    recipe_matrix = recipes_with_tags.values
+    recipe_norms = norm(recipe_matrix, axis=1, keepdims=True)
+    recipe_matrix_norm = recipe_matrix / (recipe_norms + 1e-9)
+    recommendation_score = pd.Series(
+        recipe_matrix_norm.dot(user_profile_norm),
+        index=recipes_with_tags.index
+    )
 
     popularity = recipes_df.set_index("recipe_id")["rating_total"].fillna(0)
     popularity = (popularity - popularity.min()) / (popularity.max() - popularity.min() + 1e-9)

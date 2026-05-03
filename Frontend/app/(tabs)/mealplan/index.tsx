@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ScrollView, Image, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ScrollView, Image, Animated, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
@@ -77,10 +77,22 @@ export default function MealPlan() {
   const [previousSelectedDate, setPreviousSelectedDate] = useState(today);
   const [isMealPlanLoading, setIsMealPlanLoading] = useState(false);
   const [loadedMealPlanDate, setLoadedMealPlanDate] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [mealPlanData, setMealPlanData] = useState<any>({
     mealPlanData: [],
     progressMeal: {}
   });
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await getMealPlan(selectedDate);
+    } catch (error) {
+      console.error('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const dates = eachDayOfInterval({
     start: subDays(today, 7),
@@ -207,7 +219,14 @@ export default function MealPlan() {
 
   return (
     <SafeAreaView className='bg-secondary-400' edges={['top']}>
-      <ScrollView className='h-full w-full px-6 pt-7' showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView 
+        className='h-full w-full px-6 pt-7' 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Text className="text-4xl text-primary-500 font-fogsta">My Plan</Text>
 
         {/* Horizontal Calendar */}
