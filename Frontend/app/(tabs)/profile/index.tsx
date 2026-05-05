@@ -36,6 +36,11 @@ const Index = () => {
     }
   };
 
+  const handleSilentRefresh = () => {
+    getPostRecipes();
+    fetchProfile();
+  };
+
   const getPostRecipes = async () => {
     try {
       const response = await api.get('/recipes/get-recipes-by-user',{ params: { user_id: profileData?.profileData?.user_id } });
@@ -203,8 +208,10 @@ const Index = () => {
                     TotalTime: item.TotalTime,
                     tags: item.tags,
                   }}
-                  width="w-full"
                   onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
+                  activeTab={activeTab}
+                  isOwnProfile={true}
+                  onRefreshList={handleSilentRefresh}
                 />
               </View>
             ))}

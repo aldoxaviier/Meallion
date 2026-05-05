@@ -473,6 +473,17 @@ const getRecipesByFollowing = async (query, categories, firstPage, nextPage, use
     };
 };
 
+const deleteRecipe = async (userId, recipeId) => {
+    const result = await sql`
+        DELETE FROM recipes
+        WHERE user_id = ${userId}
+        AND recipe_id = ${recipeId}
+        RETURNING *;
+    `;
+
+    return result;
+}
+
 module.exports = {
     getAll,
     getIngredients,
@@ -501,5 +512,6 @@ module.exports = {
     getRecIngByRecipeId,
     getRecipesByUser,
     bulkAddMealPlan,
-    getRecipesByFollowing
+    getRecipesByFollowing,
+    deleteRecipe
 };

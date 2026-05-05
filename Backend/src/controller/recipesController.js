@@ -276,6 +276,17 @@ const getRecipesByFollowing = async (req, res) => {
     }
 }
 
+const deleteRecipe = async (req, res) => {
+    try {
+        const userId = req.user;
+        const recipeId = parseInt(req.query.recipeId)
+        await recipesRepository.deleteRecipe(userId, recipeId);
+        res.json(ApiResponse.success("Recipe deleted successfully", null, 200));
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json(ApiResponse.error("Internal Server Error", 500));
+    }
+}
 
 module.exports = { 
     getAllRecipes, 
@@ -298,6 +309,6 @@ module.exports = {
     getRecIngByRecipeId,
     generateMealPlan,
     getRecipesByUser,
-    getRecipesByFollowing
-
+    getRecipesByFollowing,
+    deleteRecipe
 };

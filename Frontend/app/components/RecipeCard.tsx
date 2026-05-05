@@ -1,8 +1,10 @@
-import { View, Text, Image, TouchableHighlight, Alert } from 'react-native';
+import { View, Text, Image, TouchableHighlight, Alert, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { router } from "expo-router";
 import { api } from '../utils/api';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { WarningModal } from './WarningModal';
 
 interface RecipeCardProps {
   recipe: {
@@ -16,10 +18,24 @@ interface RecipeCardProps {
     tags?: string;
   };
   onAddToPlan?: () => void;
-  width?: string;
+  isOwnProfile?: boolean;
+  activeTab?: string;
+  onRefreshList?: () => void;
 }
 
-export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
+export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRefreshList }: RecipeCardProps) => {
+  const [showMenu, setShowMenu] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    isAlertOnly: false,
+    confirmText: 'OK',
+    confirmColor: 'bg-red-500',
+    actionType: 'none', 
+  });
+
   const getFirstTag = (tags: string | string[] | undefined) => {
     if (!tags) return null;
     if (Array.isArray(tags)) {
@@ -32,22 +48,83 @@ export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
     return null;
   };
 
+  const handleModalConfirm = () => {
+    if (modalConfig.actionType === 'delete') {
+      executeDelete();
+    } else {
+      setModalConfig(prev => ({ ...prev, visible: false }));
+    }
+  };
+
   const handleLikes = async () => {
     try {
       const response = await api.post(`/recipes/addLikes`, { recipeId: recipe.recipe_id, interaction: 'SAVE' });
+      
       if (response.data?.isDuplicate) {
-        Alert.alert("Warning", "Recipe already liked!");
+        setModalConfig({
+          visible: true,
+          title: 'Warning',
+          message: 'Recipe already liked!',
+          isAlertOnly: true,
+          confirmText: 'Got it',
+          confirmColor: 'bg-orange-500',
+          actionType: 'none',
+        });
       } else {
-        Alert.alert("Success", "Recipe saved to your likes!"); 
+        setModalConfig({
+          visible: true,
+          title: 'Success',
+          message: 'Recipe saved to your likes!',
+          isAlertOnly: true,
+          confirmText: 'Awesome',
+          confirmColor: 'bg-primary-500',
+          actionType: 'none',
+        });
       }
     } catch (error) {
       console.error("Error adding like:", error);
     }
   };
 
+  const handleDeletePress = () => {
+    setShowMenu(false);
+    setModalConfig({
+      visible: true,
+      title: 'Delete Recipe',
+      message: 'Are you sure you want to delete this recipe?',
+      isAlertOnly: false,
+      confirmText: 'Delete',
+      confirmColor: 'bg-primary-400',
+      actionType: 'delete',
+    });
+  };
+
+  const executeDelete = async () => {
+    setIsLoading(true);
+    try {
+      await api.delete(`/recipes/deleteRecipe?recipeId=${recipe.recipe_id}`);
+      setModalConfig(prev => ({ ...prev, visible: false }));
+      onRefreshList?.();
+    } catch (error) {
+      console.error("Failed to delete recipe:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const firstTag = getFirstTag(recipe.tags);
   return (
-    <TouchableHighlight className={`w-52 h-80 p-3 gap-2 bg-white rounded-xl shadow-sm`} onPress={() => router.push(`/recipes/${recipe.recipe_id}`)}>
+    <>
+    <TouchableHighlight 
+      className={`w-52 h-80 p-3 gap-2 bg-white rounded-xl shadow-sm`} 
+      onPress={() => {
+        if (showMenu) {
+          setShowMenu(false);
+          return;
+        }
+        router.push(`/recipes/${recipe.recipe_id}`);
+      }}
+    >
       <View className='flex justify-between h-full'>
         <View className='flex gap-1 '>
           <View className="relative">
@@ -58,6 +135,24 @@ export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
                 source={recipe.profile_image ? { uri: recipe.profile_image } : require('../../assets/images/android-icon-background.png')}
               />
             </View>
+            {showMenu && (
+              <View className="absolute top-2 right-12 bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden z-50">
+                <TouchableOpacity 
+                  className="px-4 py-2 bg-white"
+                  onPress={handleDeletePress}
+                >
+                  <Text className="text-red-500 font-bold text-xs">Delete</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            {isOwnProfile && activeTab === 'grid' && (
+              <TouchableOpacity 
+                className="absolute top-2 right-2 bg-black/30 rounded-full z-50"
+                onPress={() => setShowMenu(!showMenu)}
+              >
+                <Ionicons name="ellipsis-vertical-circle" size={31} color="white" />
+              </TouchableOpacity>
+            )}
           </View>
           <Text className="text-[10px] text-gray-500 font-medium">
             By {recipe.author_name || "Chef"}
@@ -88,5 +183,17 @@ export const RecipeCard = ({ recipe, onAddToPlan }: RecipeCardProps) => {
         </View>
       </View>
     </TouchableHighlight>
+    <WarningModal
+      visible={modalConfig.visible}
+      title={modalConfig.title}
+      message={modalConfig.message}
+      isAlertOnly={modalConfig.isAlertOnly}
+      confirmText={modalConfig.confirmText}
+      confirmColor={modalConfig.confirmColor}
+      isLoading={isLoading}
+      onClose={() => setModalConfig(prev => ({ ...prev, visible: false }))}
+      onConfirm={handleModalConfirm}
+    />
+    </>
   );
 };
