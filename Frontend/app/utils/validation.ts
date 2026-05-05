@@ -20,4 +20,10 @@ const recipeSchema = Yup.object({
     }).required("Image is required"),
 });
 
-export { profileSchema, recipeSchema };
+const registerSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  email: Yup.string().required("Email is required").matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/, { message: "Email must contain '@' and end with '.com'", excludeEmptyString: true }),
+  password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required")
+});
+
+export { profileSchema, recipeSchema, registerSchema };

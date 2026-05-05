@@ -14,6 +14,8 @@ import { useRouter } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {api} from '../utils/api';
+import { registerSchema } from '../utils/validation';
+import * as Yup from "yup";
 
 const Index = () => {
   const [name, setName] = useState('');
@@ -22,20 +24,34 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const registerContext = useContext(RegisterContext);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
 
   const handleContinue = async () => {
     setIsLoading(true);
+    setErrors({});
+
     try {
-      registerContext?.setRegisterData({ name: name, email: email, password: password });
+      await registerSchema.validate({ name, email, password }, { abortEarly: false });
+      registerContext?.setRegisterData({ name, email, password });
       const body = { email };
-      const response = await api.post(`/auth/sendOTP`, body);
+      await api.post(`/auth/sendOTP`, body);
       router.push('/register/otp');
-      setIsLoading(false);
-    } catch (error : any) {
-      console.error(error.response.data);
-      setMessage(error.response.data.message);
-    }finally {
+      
+    } catch (error: any) {
+      if (error instanceof Yup.ValidationError) {
+        const newErrors: Record<string, string>  = {};
+        error.inner.forEach((err) => {
+          if (err.path) {
+            newErrors[err.path] = err.message;
+          }
+        });
+        setErrors(newErrors);
+      } else {
+        console.error(error.response?.data);
+        setMessage(error.response?.data?.message || "Something went wrong");
+      }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -59,7 +75,7 @@ const Index = () => {
                 Personalize your experience
               </Text>
 
-              <View className="w-full mt-8 items-center">
+              <View className="w-full mt-8">
                 <TextInput
                   placeholder="First name"
                   className="w-full border border-gray-400 rounded-xl px-4 py-4 font-brsegma-500 text-black"
@@ -67,6 +83,7 @@ const Index = () => {
                   onChangeText={setName}
                   value={name}
                 />
+                {errors.name && <Text className="text-red-500 text-xs mt-1 ml-1">{errors.name}</Text>}
 
                 <TextInput
                   placeholder="Email"
@@ -75,6 +92,7 @@ const Index = () => {
                   onChangeText={setEmail}
                   value={email}
                 />
+                {errors.email && <Text className="text-red-500 text-xs mt-1 ml-1">{errors.email}</Text>}
 
                 <TextInput
                   placeholder="Password"
@@ -84,6 +102,7 @@ const Index = () => {
                   secureTextEntry={true}
                   value={password}
                 />
+                {errors.password && <Text className="text-red-500 text-xs mt-1 ml-1">{errors.password}</Text>}
               </View>
             </View>
 
