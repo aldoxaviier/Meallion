@@ -4,12 +4,16 @@ import { Entypo, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { api } from "@/app/utils/api";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "nativewind";
 
 export default function Search() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const baseUrl = process.env.EXPO_PUBLIC_API_URL;
+    
+    const { colorScheme } = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     const handleFetchResults = async (searchText: string) => {
         const trimmed = searchText.trim();
@@ -38,11 +42,11 @@ export default function Search() {
 
     if (!trimmed) {
         setResults([]);
-        setIsLoading(false); // reset if input is cleared
+        setIsLoading(false); 
         return;
     }
 
-    setIsLoading(true); // ← move this here, fires immediately on type
+    setIsLoading(true); 
 
     const timer = setTimeout(() => {
         handleFetchResults(query);
@@ -58,23 +62,23 @@ export default function Search() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-secondary-400">
-        <View className="flex-1 bg-secondary-400 px-4 pt-4">
+        <SafeAreaView className="flex-1 bg-secondary-400 dark:bg-background-dark">
+        <View className="flex-1 bg-secondary-400 dark:bg-background-dark px-4 pt-4">
             <View className="flex-row items-center gap-3">
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="h-11 w-11 items-center justify-center "
                     activeOpacity={0.8}
                 >
-                    <Entypo name="chevron-left" size={24} color="#111827" />
+                    <Entypo name="chevron-left" size={24} color={isDark ? "#eddca1" : "#111827"} />
                 </TouchableOpacity>
 
-                <View className="flex-1 flex-row items-center rounded-xl bg-white px-4">
-                    <Ionicons name="search" size={18} color="#6B7280" />
+                <View className="flex-1 flex-row items-center rounded-xl bg-white dark:bg-surface-dark border border-transparent dark:border-surface-darker px-4">
+                    <Ionicons name="search" size={18} color={isDark ? "#9CA3AF" : "#6B7280"} />
                     <TextInput
-                        className="ml-2 flex-1 text-base text-gray-800"
+                        className="ml-2 flex-1 text-base text-gray-800 dark:text-secondary-400 h-12"
                         placeholder="Search people..."
-                        placeholderTextColor="#6B7280"
+                        placeholderTextColor={isDark ? "#9CA3AF" : "#6B7280"}
                         value={query}
                         onChangeText={setQuery}
                         autoFocus
@@ -84,7 +88,7 @@ export default function Search() {
 
             {isLoading ? (
                 <View className="flex-1 items-center justify-center">
-                    <ActivityIndicator size="large" color="#4a2c2a" />
+                    <ActivityIndicator size="large" color={isDark ? "#eddca1" : "#4a2c2a"} />
                 </View>
             ) : (
                 <FlatList
@@ -94,7 +98,7 @@ export default function Search() {
                     keyboardShouldPersistTaps="handled"
                     ListEmptyComponent={
                         <View className="items-center pt-16">
-                            <Text className="text-gray-600 font-brsegma-500">
+                            <Text className="text-gray-600 dark:text-secondary-400 font-brsegma-500">
                                 {query.trim() ? "No profiles found" : "Start typing to search"}
                             </Text>
                         </View>
@@ -106,8 +110,7 @@ export default function Search() {
                             <TouchableOpacity
                                 activeOpacity={0.85}
                                 onPress={() => router.push(`/profiles/${item.user_id}`)}
-                                className="flex-row items-center gap-3 rounded-2xl bg-white p-3"
-
+                                className="flex-row items-center gap-3 rounded-2xl bg-white dark:bg-surface-dark border border-transparent dark:border-surface-darker p-3"
                             >
                                 <Image
                                     source={
@@ -115,13 +118,13 @@ export default function Search() {
                                             ? { uri: imageUri }
                                             : require("../../../assets/images/android-icon-background.png")
                                     }
-                                    className="h-16 w-16 rounded-full"
+                                    className="h-16 w-16 rounded-full bg-gray-100 dark:bg-surface-darker"
                                 />
                                 <View className="flex-1">
-                                    <Text className="font-brsegma-600 text-base text-gray-800" numberOfLines={1}>
+                                    <Text className="font-brsegma-600 text-base text-gray-800 dark:text-secondary-400" numberOfLines={1}>
                                         {item.users.name}
                                     </Text>
-                                    <Text className="font-brsegma-500 text-sm text-gray-500" numberOfLines={2}>
+                                    <Text className="font-brsegma-500 text-sm text-gray-500 dark:text-gray-400" numberOfLines={2}>
                                         {item.bio === "null" ? "No bio yet" : item.bio}
                                     </Text>
                                 </View>

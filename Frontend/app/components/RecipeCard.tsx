@@ -5,6 +5,7 @@ import { api } from '../utils/api';
 import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { WarningModal } from './WarningModal';
+import { useColorScheme } from 'nativewind';
 
 interface RecipeCardProps {
   recipe: {
@@ -35,6 +36,9 @@ export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRef
     confirmColor: 'bg-red-500',
     actionType: 'none', 
   });
+
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const getFirstTag = (tags: string | string[] | undefined) => {
     if (!tags) return null;
@@ -116,7 +120,7 @@ export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRef
   return (
     <>
     <TouchableHighlight 
-      className={`w-52 h-80 p-3 gap-2 bg-white rounded-xl shadow-sm`} 
+      className={`w-52 h-80 p-3 gap-2 bg-white dark:bg-surface-dark rounded-xl shadow-sm`} 
       onPress={() => {
         if (showMenu) {
           setShowMenu(false);
@@ -129,16 +133,16 @@ export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRef
         <View className='flex gap-1 '>
           <View className="relative">
             <Image source={{ uri: recipe.Images }} className="w-full h-32 rounded-lg" />
-            <View className="absolute top-24 -ml-1 w-10 h-10 bg-white rounded-full items-center justify-center">
+            <View className="absolute top-24 -ml-1 w-10 h-10 bg-white dark:bg-surface-dark rounded-full items-center justify-center">
               <Image 
                 className="w-8 h-8 rounded-full" 
                 source={recipe.profile_image ? { uri: recipe.profile_image } : require('../../assets/images/android-icon-background.png')}
               />
             </View>
             {showMenu && (
-              <View className="absolute top-2 right-12 bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden z-50">
+              <View className="absolute top-2 right-12 bg-white dark:bg-surface-darker rounded-lg shadow-lg border border-gray-100 dark:border-surface-darker overflow-hidden z-50">
                 <TouchableOpacity 
-                  className="px-4 py-2 bg-white"
+                  className="px-4 py-2 bg-white dark:bg-surface-darker"
                   onPress={handleDeletePress}
                 >
                   <Text className="text-red-500 font-bold text-xs">Delete</Text>
@@ -154,22 +158,22 @@ export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRef
               </TouchableOpacity>
             )}
           </View>
-          <Text className="text-[10px] text-gray-500 font-medium">
+          <Text className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">
             By {recipe.author_name || "Chef"}
           </Text>
           <View className="">
-            <Text className="font-fogsta text-l" numberOfLines={2}>{recipe.name}</Text>
+            <Text className="font-fogsta text-l text-black dark:text-secondary-200" numberOfLines={2}>{recipe.name}</Text>
           </View>
           {firstTag && (
-            <View className="bg-secondary-300 self-start px-2 py-1 rounded">
-              <Text className="text-[8px] font-brsegma-600 text-primary-500">{firstTag}</Text>
+            <View className="bg-secondary-300 dark:bg-surface-darker self-start px-2 py-1 rounded">
+              <Text className="text-[8px] font-brsegma-600 text-primary-500 dark:text-secondary-200">{firstTag}</Text>
             </View>
           )}
         </View>
         <View className='flex gap-1'>
           <View className="flex flex-row items-center gap-1">
-            <FontAwesome5 name="star" size={9} color="black" solid />
-            <Text className="font-brsegma-600 text-[10px] text-gray-700">
+            <FontAwesome5 name="star" size={9} color={isDark ? "#FFF9E7" : "black"} solid />
+            <Text className="font-brsegma-600 text-[10px] text-gray-700 dark:text-secondary-400">
               {recipe.rating_score ?? "No Rate"} · {recipe.TotalTime || "N/A"}
             </Text>
           </View>

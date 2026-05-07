@@ -4,6 +4,7 @@ import { View, FlatList, ActivityIndicator } from "react-native";
 import { api } from "../../utils/api";
 import { RecipeCard } from "../../components/RecipeCard";
 import CustomHeader from "../../components/CustomHeader";
+import { useColorScheme } from "nativewind";
 
 export default function DynamicCategory() {
     const { category, title } = useLocalSearchParams<{ category: string; title: string }>();
@@ -12,6 +13,9 @@ export default function DynamicCategory() {
     const [totalPage, setTotalPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    const { colorScheme } = useColorScheme();
+    const indicatorColor = colorScheme === 'dark' ? '#FFF9E7' : '#4a2c2a';
 
     const fetchRecipes = async (pageNum: number) => {
         try {
@@ -50,7 +54,7 @@ export default function DynamicCategory() {
     };
 
     return (
-        <View className="flex-1 bg-secondary-400">
+        <View className="flex-1 bg-secondary-400 dark:bg-background-dark">
             <Stack.Screen 
                 options={{ 
                     headerShown: true,
@@ -59,7 +63,7 @@ export default function DynamicCategory() {
             />
             {isLoading ? (
                 <View className="flex-1 items-center justify-center">
-                    <ActivityIndicator size="large" color="#4a2c2a" />
+                    <ActivityIndicator size="large" color={indicatorColor} />
                 </View>
             ) : (
                 <FlatList
@@ -74,13 +78,12 @@ export default function DynamicCategory() {
                     renderItem={({ item }) => (
                         <RecipeCard
                             recipe={item}
-                            width="w-[48%]"
                             onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
                         />
                     )}
                     ListFooterComponent={() => (
                         <View className="h-[30px]">
-                            {isLoadingMore && <ActivityIndicator />}
+                            {isLoadingMore && <ActivityIndicator color={indicatorColor} />}
                         </View>
                     )}
                 />

@@ -11,6 +11,7 @@ const profileSchema = Yup.object({
 const recipeSchema = Yup.object({
     name: Yup.string().required("Recipe name is required").min(3, "Recipe name must be at least 3 characters"),
     cookTime: Yup.number().required("Cook time is required").min(1, "Cook time must be at least 1 minute").max(1440, "Cook time cannot exceed 24 hours"),
+    serving: Yup.number().required("Serving size is required").min(1, "Serving size must be at least 1").max(20, "Serving size cannot exceed 20"),
     prepTime: Yup.number().required("Prep time is required").min(1, "Prep time must be at least 1 minute").max(1440, "Prep time cannot exceed 24 hours"),
     description: Yup.string().required("Description is required").min(10, "Description must be at least 10 characters"),
     image: Yup.object({

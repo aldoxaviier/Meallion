@@ -110,6 +110,7 @@ const Index = () => {
                 name: inputs.name,
                 cookTime: parseInt(inputs.cookTime),
                 prepTime: parseInt(inputs.prepTime),
+                serving: inputs.recipeServings,
                 description: inputs.description,
                 image:{
                     uri: image.uri,

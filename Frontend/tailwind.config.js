@@ -3,6 +3,7 @@ module.exports = {
   // NOTE: Update this to include the paths to all files that contain Nativewind classes.
   content: ["./app/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
+  darkMode: "class", 
   theme: {
     extend: {
       colors : {
@@ -19,6 +20,15 @@ module.exports = {
         },
         third : {
           500: "#10b981",
+        },
+        // Themed Dark Mode Colors
+        background: {
+          dark: "#1A0A0A",
+          darker: "#120505",
+        },
+        surface: {
+          dark: "#2D1110",
+          darker: "#240C0B",
         }
       },
       fontFamily: {

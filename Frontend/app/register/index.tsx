@@ -37,7 +37,6 @@ const Index = () => {
       const body = { email };
       await api.post(`/auth/sendOTP`, body);
       router.push('/register/otp');
-      
     } catch (error: any) {
       if (error instanceof Yup.ValidationError) {
         const newErrors: Record<string, string>  = {};
@@ -50,6 +49,7 @@ const Index = () => {
       } else {
         console.error(error.response?.data);
         setMessage(error.response?.data?.message || "Something went wrong");
+        
       }
     } finally {
       setIsLoading(false);
@@ -93,6 +93,7 @@ const Index = () => {
                   value={email}
                 />
                 {errors.email && <Text className="text-red-500 text-xs mt-1 ml-1">{errors.email}</Text>}
+                {message ? <Text className="text-red-500 text-xs mt-1 ml-1">{message}</Text> : null}
 
                 <TextInput
                   placeholder="Password"

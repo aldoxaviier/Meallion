@@ -1,5 +1,5 @@
 import { apiFastApi, api } from "../../utils/api";
-import { Text, View, Image, TextInput, ScrollView, Pressable, Button, TouchableHighlight, FlatList, Animated, Keyboard, ActivityIndicator, RefreshControl } from "react-native";
+import { Text, View, Image, TextInput, ScrollView, Pressable, TouchableHighlight, FlatList, Animated, Keyboard, ActivityIndicator, RefreshControl } from "react-native";
 import { useEffect, useState, useContext, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileDataContext } from "../../store/profileDataContext";
@@ -7,11 +7,12 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { FontAwesome6 } from "@expo/vector-icons";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from "expo-router";
+import { useColorScheme } from "nativewind"; 
+
 import "../../globals.css"
 import { TenRecipeContext } from "@/app/store/tenRecipeContext";
 import { RecipeCard } from "../../components/RecipeCard";
 import { TodaysMeal } from "../../components/TodaysMeal";
-
 
 export default function Index() {
   const [loading, setLoading] = useState(true)
@@ -20,6 +21,12 @@ export default function Index() {
   const [TenRecipe, setTenRecipe] = useState<any>([]);
 
   const [refreshing, setRefreshing] = useState(false);
+
+  const { colorScheme } = useColorScheme();
+  
+  const iconColor = colorScheme === 'dark' ? '#FFF9E7' : '#4a2c2a';
+  const searchIconColor = colorScheme === 'dark' ? '#9CA3AF' : 'gray';
+  const placeholderColor = colorScheme === 'dark' ? '#9CA3AF' : '#6B7280';
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -38,7 +45,6 @@ export default function Index() {
     }
   };
 
-  // Search state
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchRec, setSearchRec] = useState("");
   const [recipeData, setRecipeData] = useState<any>([]);
@@ -54,7 +60,6 @@ export default function Index() {
     { name: 'Europian', isActive: false },
   ])
   
-  // Animation values
   const homeContentOpacity = useRef(new Animated.Value(1)).current;
   const searchContentOpacity = useRef(new Animated.Value(0)).current;
   const searchBarTranslateY = useRef(new Animated.Value(0)).current;
@@ -78,7 +83,6 @@ export default function Index() {
     const fetchProfile = async () => {
         try {
           const response = await api.get('/profile/getProfile')
-          console.log('getProfile success:', response.status, response.data)
           profileData?.setProfileData(response.data)
         } catch (err: any) {
             console.log('getProfile error:', err.response?.status, err.response?.data || err.message)
@@ -108,7 +112,6 @@ export default function Index() {
       if (searchRec.length >= 2 || activeCategories.length > 0) {
         const catParam = activeCategories.map(c => c.name).join(',');
         const res = await api.get(`/recipes/getRecipesByNameCategory?query=${searchRec}&page=1&limit=10&category=${catParam}`)
-        console.log(res)
         setRecipeData(res.data.data)
         setTotalPage(res.data.info)
         setPage(1)
@@ -123,50 +126,14 @@ export default function Index() {
   const enterSearchMode = () => {
     setIsSearchMode(true);
     Animated.parallel([
-      Animated.spring(searchBarTranslateY, {
-        toValue: -150,
-        useNativeDriver: true,
-        tension: 90,
-        friction: 14,
-      }),
-      Animated.spring(searchBarScale, {
-        toValue: 0.90,
-        useNativeDriver: true,
-        tension: 90,
-        friction: 14,
-      }),
-      Animated.spring(searchBarLeftMargin, {
-        toValue: 20,
-        useNativeDriver: true,
-        tension: 90,
-        friction: 14,
-      }),
-      Animated.timing(homeContentOpacity, {
-        toValue: 0,
-        duration: 180,
-        useNativeDriver: true,
-      }),
-      Animated.timing(backArrowOpacity, {
-        toValue: 1,
-        duration: 180,
-        useNativeDriver: true,
-      }),
-      Animated.spring(backArrowTranslateX, {
-        toValue: 0,
-        tension: 90,
-        friction: 14,
-        useNativeDriver: true,
-      }),
-      Animated.timing(searchContentOpacity, {
-        toValue: 1,
-        duration: 220,
-        useNativeDriver: true,
-      }),
-      Animated.timing(filterIconOpacity, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
+      Animated.spring(searchBarTranslateY, { toValue: -150, useNativeDriver: true, tension: 90, friction: 14 }),
+      Animated.spring(searchBarScale, { toValue: 0.90, useNativeDriver: true, tension: 90, friction: 14 }),
+      Animated.spring(searchBarLeftMargin, { toValue: 20, useNativeDriver: true, tension: 90, friction: 14 }),
+      Animated.timing(homeContentOpacity, { toValue: 0, duration: 180, useNativeDriver: true }),
+      Animated.timing(backArrowOpacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+      Animated.spring(backArrowTranslateX, { toValue: 0, tension: 90, friction: 14, useNativeDriver: true }),
+      Animated.timing(searchContentOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
+      Animated.timing(filterIconOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
     ]).start(() => {
         searchInputRef.current?.focus();
     });
@@ -177,60 +144,19 @@ export default function Index() {
     Keyboard.dismiss();
     setSearchRec("");
     Animated.parallel([
-      Animated.timing(searchContentOpacity, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(filterIconOpacity, {
-        toValue: 0,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.spring(searchBarScale, {
-        toValue: 1,
-        useNativeDriver: true,
-        tension: 120,
-        friction: 10,
-      }),
-      Animated.spring(searchBarLeftMargin, {
-        toValue: 0,
-        useNativeDriver: true,
-        tension: 120,
-        friction: 10,
-      }),
-      Animated.timing(backArrowOpacity, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.spring(backArrowTranslateX, {
-        toValue: -20,
-        useNativeDriver: true,
-        tension: 120,
-        friction: 10,
-      }),
-      Animated.spring(searchBarTranslateY, {
-        toValue: 0,
-        useNativeDriver: true,
-        tension: 100,
-        friction: 12,
-      }),
-      Animated.timing(homeContentOpacity, {
-        toValue: 1,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-
-    });
+      Animated.timing(searchContentOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
+      Animated.timing(filterIconOpacity, { toValue: 0, duration: 100, useNativeDriver: true }),
+      Animated.spring(searchBarScale, { toValue: 1, useNativeDriver: true, tension: 120, friction: 10 }),
+      Animated.spring(searchBarLeftMargin, { toValue: 0, useNativeDriver: true, tension: 120, friction: 10 }),
+      Animated.timing(backArrowOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
+      Animated.spring(backArrowTranslateX, { toValue: -20, useNativeDriver: true, tension: 120, friction: 10 }),
+      Animated.spring(searchBarTranslateY, { toValue: 0, useNativeDriver: true, tension: 100, friction: 12 }),
+      Animated.timing(homeContentOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
   };
 
   const handleLoadMore = async () => {
-    if (isLoadingSearch || page >= totalPage) {
-      return;
-    }
-
+    if (isLoadingSearch || page >= totalPage) return;
     setIsLoadingSearch(true);
     const nextPage = page + 1;
 
@@ -254,21 +180,13 @@ export default function Index() {
 
   const handleCategories = (category : string) => {
     const selectedCategories = categories.find(item => item.url === category);
-
     if(!selectedCategories) return;
 
     router.push({
       pathname: '/home/[category]',
-      params: {
-        category: selectedCategories.url,
-        title: selectedCategories.label
-      }
+      params: { category: selectedCategories.url, title: selectedCategories.label }
     });
   }
-
-  useEffect(() => {
-    console.log(isSearchMode)
-  },[isSearchMode])
 
   const handleSearchCategory = (index: number) => {
     const newCategory = [...searchCategories];
@@ -288,11 +206,11 @@ export default function Index() {
           return (
             <TouchableHighlight
               key={index} 
-              className={`px-5 py-2 rounded-full justify-center ${cat.isActive ? 'bg-primary-400' : 'bg-white'}`}
+              className={`px-5 py-2 rounded-full justify-center ${cat.isActive ? 'bg-primary-400' : 'bg-white dark:bg-surface-dark'}`}
               onPress={() => handleSearchCategory(index)}
             >
               <View className="flex flex-row items-center">
-                <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400'}`}>
+                <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400 dark:text-secondary-200'}`}>
                   {cat.name}
                 </Text>
                 {cat.isActive && <FontAwesome6 name="x" className="ml-3" size={15} color="white"></FontAwesome6>}
@@ -306,29 +224,23 @@ export default function Index() {
 
   const renderCommonElements = () => (
     <>
-      {/* Invisible placeholder to maintain layout spacing */}
       <View className="px-6" style={{ opacity: 0 }}>
         <View className="flex-row items-center gap-3">
           <View className="flex-1 flex-row items-center rounded-full px-4 py-2">
             <FontAwesome5 name="search" size={20} color="gray" />
             <TextInput 
-              className="flex-1 ml-3 text-base text-gray-700" 
+              className="flex-1 ml-3 text-base" 
               placeholder="Find your meal..." 
-              placeholderTextColor="#6B7280"
               editable={false}
             />
           </View>
         </View>
       </View>
 
-      {/* Back arrow - absolutely positioned and independent from search bar */}
       <Animated.View 
         className="absolute"
         style={{ 
-          transform: [
-            { translateY: searchBarTranslateY },
-            { translateX: backArrowTranslateX }
-          ],
+          transform: [{ translateY: searchBarTranslateY }, { translateX: backArrowTranslateX }],
           opacity: backArrowOpacity,
           top: 198,
           left: 24,
@@ -336,42 +248,26 @@ export default function Index() {
         }}
         pointerEvents={isSearchMode ? 'auto' : 'none'}
       >
-        <TouchableHighlight 
-          onPress={exitSearchMode}
-          underlayColor="transparent"
-        >
-          <Ionicons name="arrow-back" size={24} color="#4a2c2a" />
+        <TouchableHighlight onPress={exitSearchMode} underlayColor="transparent">
+          <Ionicons name="arrow-back" size={24} color={iconColor} />
         </TouchableHighlight>
       </Animated.View>
 
-      {/* Absolute positioned search bar for animation */}
       <Animated.View 
         className="w-full absolute px-6"
         style={{ 
-          transform: [
-            { translateY: searchBarTranslateY },
-            { translateX: searchBarLeftMargin },
-            { scaleX: searchBarScale }
-          ],
-          top: 182,
-          left: 0,
-          right: 0,
-          zIndex: 10,
+          transform: [{ translateY: searchBarTranslateY }, { translateX: searchBarLeftMargin }, { scaleX: searchBarScale }],
+          top: 182, left: 0, right: 0, zIndex: 10,
         }}
       >
-        <Pressable
-        onPress={() => {
-          if (!isSearchMode) {
-            enterSearchMode();
-          }
-        }}>
-        <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-sm">
-          <FontAwesome5 name="search" size={20} color="gray" />
+        <Pressable onPress={() => { if (!isSearchMode) enterSearchMode(); }}>
+        <View className="flex-row items-center bg-white dark:bg-surface-dark rounded-full px-4 py-2 shadow-sm">
+          <FontAwesome5 name="search" size={20} color={searchIconColor} />
           <TextInput 
             ref={searchInputRef}
-            className="flex-1 ml-3 text-base text-gray-700" 
+            className="flex-1 ml-3 text-base text-gray-700 dark:text-secondary-200" 
             placeholder="Find your meal..." 
-            placeholderTextColor="#6B7280"
+            placeholderTextColor={placeholderColor}
             value={searchRec}
             onChangeText={setSearchRec}
             editable={isSearchMode}
@@ -383,18 +279,10 @@ export default function Index() {
   );
   
   return (
-    <SafeAreaView className="bg-secondary-400 flex-1" edges={['top']}>
+    <SafeAreaView className="bg-secondary-400 dark:bg-background-dark flex-1" edges={['top']}>
       {isSearchMode ? (
-        // Search mode: Use FlatList as the main scrolling container
-        <View className="bg-secondary-400 h-full w-full pt-7 flex flex-col gap-5 pb-6">
-          <Animated.View 
-            style={{ 
-              opacity: homeContentOpacity,
-              height: 0,
-              overflow: 'hidden'
-            }}
-            className="gap-7"
-          >
+        <View className="bg-secondary-400 dark:bg-background-dark h-full w-full pt-7 flex flex-col gap-5 pb-6">
+          <Animated.View style={{ opacity: homeContentOpacity, height: 0, overflow: 'hidden' }} className="gap-7">
             <View className="flex flex-row items-center justify-between px-6">
               <View className="flex flex-row gap-3 items-center">
                 <Image 
@@ -402,17 +290,17 @@ export default function Index() {
                   source={profileData?.profileData?.profile_image ? { uri: profileData.profileData.profile_image } : require('../../../assets/images/android-icon-background.png')}
                 />
                 <View>
-                  <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
-                  <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
+                  <Text className="text-primary-500 dark:text-secondary-400 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
+                  <Text className="text-primary-500 dark:text-secondary-400 text-xs font-brsegma-500">Good Morning</Text>
                 </View>
               </View>
               <TouchableHighlight onPress={() => router.push('/home/notification')} className="rounded-full">
-                <FontAwesome5 name="bell" size={24} color="#4a2c2a" />
+                <FontAwesome5 name="bell" size={24} color={iconColor} />
               </TouchableHighlight>
             </View>
 
             <View className="px-6">
-              <Text className="text-primary-500 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
+              <Text className="text-primary-500 dark:text-secondary-400 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
             </View>
           </Animated.View>
 
@@ -426,9 +314,7 @@ export default function Index() {
             <FlatList
               data={recipeData}
               showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-              }
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
               numColumns={2}
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               contentContainerStyle={{ gap: 14, paddingBottom: 100 }}
@@ -437,36 +323,18 @@ export default function Index() {
               keyExtractor={(item) => item.recipe_id?.toString()}
               ListHeaderComponent={renderSearchHeader}
               renderItem={({ item }) => (
-                <RecipeCard 
-                  recipe={item} 
-                  width="w-[48%]"
-                  onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
-                />
+                <RecipeCard recipe={item} onAddToPlan={() => console.log('Add to plan:', item.recipe_id)} />
               )}
               ListFooterComponent={() => (
-                <View className="h-[30px]">
-                  {isLoadingSearch && <ActivityIndicator />}
-                </View>
+                <View className="h-[30px]">{isLoadingSearch && <ActivityIndicator />}</View>
               )}
             />
           </Animated.View>
         </View>
       ) : (
-        // Home mode: Use ScrollView for the home content
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
-          <View className="bg-secondary-400 h-full w-full pt-7 flex flex-col gap-5 pb-6">
-            <Animated.View 
-              style={{ 
-                opacity: homeContentOpacity,
-                height: 'auto',
-                overflow: 'hidden'
-              }}
-              className="gap-7"
-            >
+        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+          <View className="bg-secondary-400 dark:bg-background-dark h-full w-full pt-7 flex flex-col gap-5 pb-6">
+            <Animated.View style={{ opacity: homeContentOpacity, height: 'auto', overflow: 'hidden' }} className="gap-7">
               <View className="flex flex-row items-center justify-between px-6  h-16">
                 <View className="flex flex-row gap-3 items-center">
                   <Image 
@@ -474,31 +342,27 @@ export default function Index() {
                     source={profileData?.profileData?.profile_image ? { uri: profileData.profileData.profile_image } : require('../../../assets/images/android-icon-background.png')}
                   />
                   <View >
-                    <Text className="text-primary-500 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
-                    <Text className="text-primary-500 text-xs font-brsegma-500">Good Morning</Text>
+                    <Text className="text-primary-500 dark:text-secondary-400 text-2xl font-fogsta">Hey, {profileData?.profileData?.users.name}</Text>
+                    <Text className="text-primary-500 dark:text-secondary-400 text-xs font-brsegma-500">Good Morning</Text>
                   </View>
                 </View>
                 <TouchableHighlight onPress={() => router.push('/home/notification')} className="rounded-full">
-                  <FontAwesome5 name="bell" size={24} color="#4a2c2a" />
+                  <FontAwesome5 name="bell" size={24} color={iconColor} />
                 </TouchableHighlight>
               </View>
 
               <View className="px-6">
-                <Text className="text-primary-500 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
+                <Text className="text-primary-500 dark:text-secondary-400 text-2xl font-fogsta">What flavors are you{'\n'}craving today?</Text>
               </View>
             </Animated.View>
 
             {renderCommonElements()}
 
-            <Animated.View 
-              style={{ opacity: homeContentOpacity, flex: 1 }}
-            >
+            <Animated.View style={{ opacity: homeContentOpacity, flex: 1 }}>
               <View className="flex gap-4">
-                {/* Today's Meal */}
                 <TodaysMeal />
-                {/* Categories */}
                 <View className="flex gap-3">
-                  <Text className="text-xl font-fogsta px-6">Categories</Text>
+                  <Text className="text-xl font-fogsta px-6 text-black dark:text-secondary-200">Categories</Text>
                   <FlatList
                     data={categories}
                     horizontal={true}
@@ -510,26 +374,21 @@ export default function Index() {
                           <View className={`size-20 rounded-full items-center justify-center ${item.bg}`}>
                             <FontAwesome5 name={item.icon} size={28} color="#4a2c2a" />
                           </View>
-                          <Text className="text-center font-brsegma-600 w-24">{item.label}</Text>
+                          <Text className="text-center font-brsegma-600 w-24 text-black dark:text-secondary-200">{item.label}</Text>
                         </View>
                       </TouchableHighlight>
                     )}
                   />
                 </View>
-                {/* 10 recipe */}
                 <View className="gap-3">
-                  <Text className="text-xl font-fogsta px-6">For You</Text>
+                  <Text className="text-xl font-fogsta px-6 text-black dark:text-secondary-200">For You</Text>
                   <FlatList
                     data={tenRecipe?.TenRecipe}
                     showsHorizontalScrollIndicator={false}
                     horizontal={true}
                     contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
                     renderItem={({ item }) => (
-                      <RecipeCard 
-                        recipe={item} 
-                        width="w-56"
-                        onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
-                      />
+                      <RecipeCard recipe={item} onAddToPlan={() => console.log('Add to plan:', item.recipe_id)} />
                     )}
                   />
                 </View>

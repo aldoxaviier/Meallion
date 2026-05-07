@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { RecipeContext } from "../store/addRecipeContext";
+import { set } from "date-fns";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -61,6 +62,7 @@ const PAGES = [
 
 export default function Category() {
   const recipeContext = useContext(RecipeContext);
+  const [errorMessage, setErrorMessage] = useState("");
   const [selected, setSelected] = useState<Set<number>>(() => {
     const selectedNames = new Set(recipeContext?.recipeData?.tags ?? []);
     return new Set(
@@ -87,7 +89,10 @@ export default function Category() {
   };
 
   const handleNext = () => {
-    if (selected.size === 0) return;
+    if (selected.size === 0) {
+      setErrorMessage("Please select at least one category.");
+      return;
+    }
     const selectedTags = CATEGORIES.filter((cat) => selected.has(cat.id)).map(
       (cat) => cat.name
     );
@@ -95,6 +100,7 @@ export default function Category() {
       ...prev,
       tags: selectedTags,
     }));
+    setErrorMessage("");
     router.push("/addrecipe/ingredients");
   };
 
@@ -236,7 +242,11 @@ export default function Category() {
             </TouchableOpacity>
           ))}
         </View>
-
+        {errorMessage ? (
+          <Text className="text-red-700 text-center font-brsegma-500 mb-1">
+            {errorMessage}
+          </Text>
+        ) : null}
         {/* Next button */}
         <TouchableOpacity
           className="py-4 px-10 self-center rounded-full bg-primary-500"

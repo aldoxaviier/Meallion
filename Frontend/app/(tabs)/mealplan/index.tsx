@@ -8,6 +8,7 @@ import { format, addDays, startOfToday, eachDayOfInterval, subDays } from 'date-
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { api } from '../../utils/api';
 import { ProfileDataContext } from '@/app/store/profileDataContext';
+import { useColorScheme } from 'nativewind';
 
 interface DeletePlanParams {
   mealId: string;
@@ -49,7 +50,7 @@ const MacroBar = ({ percentage, colorClass, label, current, target }: MacroBarPr
 
   return (
     <View className="items-center">
-      <View className="w-16 h-2 rounded-full bg-gray-200 overflow-hidden flex-row justify-start">
+      <View className="w-16 h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex-row justify-start">
         <Animated.View
           className={`h-full rounded-full ${colorClass}`}
           style={{
@@ -60,8 +61,8 @@ const MacroBar = ({ percentage, colorClass, label, current, target }: MacroBarPr
           }}
         />
       </View>
-      <Text className="text-xs font-semibold text-black mt-2">{label}</Text>
-      <Text className="text-xs text-gray-500">{current}/{target}g</Text>
+      <Text className="text-xs font-semibold text-black dark:text-secondary-400 mt-2">{label}</Text>
+      <Text className="text-xs text-gray-500 dark:text-gray-400">{current}/{target}g</Text>
     </View>
   );
 };
@@ -71,6 +72,9 @@ export default function MealPlan() {
   const profileData = useContext(ProfileDataContext);
   const flatListRef = useRef<FlatList<Date>>(null);
   const latestMealPlanRequestRef = useRef(0);
+
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const today = startOfToday();
   const [selectedDate, setSelectedDate] = useState(today);
@@ -180,12 +184,12 @@ export default function MealPlan() {
       <View style={{ width: 76, alignItems: 'center', justifyContent: 'center' }}>
         <TouchableOpacity
           onPress={() => handleDatePress(item, index)}
-          className={`w-16 h-24 rounded-2xl items-center justify-center ${isSelected ? 'bg-primary-400' : 'bg-white'} ${isToday ? 'border-2 border-primary-500' : ''}`}
+          className={`w-16 h-24 rounded-2xl items-center justify-center ${isSelected ? 'bg-primary-400' : 'bg-white dark:bg-surface-dark'} ${isToday ? 'border-2 border-primary-500 dark:border-secondary-400' : ''}`}
         >
-          <Text className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+          <Text className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-400 dark:text-gray-500'}`}>
             {format(item, 'EEE')}
           </Text>
-          <Text className={`text-2xl font-bold mt-1 ${isSelected ? 'text-white' : 'text-black'}`}>
+          <Text className={`text-2xl font-bold mt-1 ${isSelected ? 'text-white' : 'text-black dark:text-secondary-400'}`}>
             {format(item, 'dd')}
           </Text>
         </TouchableOpacity>
@@ -218,7 +222,7 @@ export default function MealPlan() {
   ];
 
   return (
-    <SafeAreaView className='bg-secondary-400' edges={['top']}>
+    <SafeAreaView className='bg-secondary-400 dark:bg-background-dark' edges={['top']}>
       <ScrollView 
         className='h-full w-full px-6 pt-7' 
         showsVerticalScrollIndicator={false} 
@@ -227,9 +231,8 @@ export default function MealPlan() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <Text className="text-4xl text-primary-500 font-fogsta">My Plan</Text>
+        <Text className="text-4xl text-primary-500 dark:text-secondary-400 font-fogsta">My Plan</Text>
 
-        {/* Horizontal Calendar */}
         <View className='h-24 mt-6'>
           <FlatList
             ref={flatListRef}
@@ -247,8 +250,7 @@ export default function MealPlan() {
           />
         </View>
 
-        {/* Progress Card */}
-        <View className="bg-secondary-200 rounded-3xl p-6 mt-6">
+        <View className="bg-secondary-200 dark:bg-surface-dark rounded-3xl p-6 mt-6">
           <View className="items-center mt-6">
             <AnimatedCircularProgress
               size={176}
@@ -262,17 +264,17 @@ export default function MealPlan() {
                     )
                   : 0
               }
-              tintColor="#660B05"
-              backgroundColor="#E5E7EB"
+              tintColor={isDark ? "#eddca1" : "#660B05"}
+              backgroundColor={isDark ? "#4B5563" : "#E5E7EB"}
               rotation={0}
               lineCap="round"
             >
               {() => (
                 <View className="items-center">
-                  <Text className="text-5xl font-fogsta">
+                  <Text className="text-5xl font-fogsta text-black dark:text-secondary-400">
                     {mealPlanData.progressMeal?.progress_cal || 0}
                   </Text>
-                  <Text className="text-xs text-gray-500 text-center px-2">
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 text-center px-2">
                     kcal left of {profileData?.profileData?.target_calories || 0}
                   </Text>
                 </View>
@@ -294,7 +296,6 @@ export default function MealPlan() {
           </View>
         </View>
 
-        {/* Meal Sections */}
         <View className="mt-6">
           {['Breakfast', 'Lunch', 'Snack', 'Dinner'].map((mealTitle) => {
             const mealType = mealTitle.toLowerCase();
@@ -326,13 +327,15 @@ export default function MealPlan() {
 
 const MealSection = ({ title, type, data, onAdd, onDelete, isComplete, canDeleteMeals }: MealSectionProps) => {
   const filteredMeals = data.filter((meal) => meal.meal_time === type);
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
-    <View className="bg-white rounded-3xl p-5 mb-4">
+    <View className="bg-white dark:bg-surface-dark rounded-3xl p-5 mb-4">
       <View className="flex-row justify-between items-center">
-        <Text className="text-lg font-brsegma-600">{title}</Text>
+        <Text className="text-lg font-brsegma-600 text-black dark:text-secondary-400">{title}</Text>
         <TouchableOpacity
-          className={`px-4 py-2 rounded-full ${isComplete ? 'bg-gray-300' : 'bg-primary-500'}`}
+          className={`px-4 py-2 rounded-full ${isComplete ? 'bg-gray-300 dark:bg-gray-700' : 'bg-primary-500'}`}
           disabled={isComplete}
           onPress={onAdd}
         >
@@ -343,27 +346,27 @@ const MealSection = ({ title, type, data, onAdd, onDelete, isComplete, canDelete
       <View className="mt-4 flex flex-col gap-3">
         {filteredMeals.length > 0 ? (
           filteredMeals.map((meal: any, index: number) => (
-            <View key={meal.id || index} className={`flex-row items-center ${meal.is_eaten ? 'bg-green-200' : 'bg-secondary-400'} rounded-2xl p-3`}>
+            <View key={meal.id || index} className={`flex-row items-center ${meal.is_eaten ? 'bg-green-200 dark:bg-green-900/50' : 'bg-secondary-400 dark:bg-surface-darker'} rounded-2xl p-3`}>
               <Image className="w-14 h-14 rounded-2xl" source={{ uri: meal.Images }} />
 
               <View className="flex-1 ml-3">
-                <Text className="font-semibold text-black" numberOfLines={1}>
+                <Text className="font-semibold text-black dark:text-secondary-400" numberOfLines={1}>
                   {meal.name || 'Unknown Meal'}
                 </Text>
-                <Text className="text-xs text-gray-500">
+                <Text className="text-xs text-gray-500 dark:text-gray-400">
                   {meal.Calories || 0} kcal · {meal.TotalTime || '0 mins'}
                 </Text>
                 <View className="flex-row items-center mt-1">
-                  <Text className="text-[10px] text-gray-500">{meal.CarbohydrateContent || 0}g carbs</Text>
-                  <Text className="text-[10px] text-gray-500 ml-2">{meal.FatContent || 0}g fats</Text>
-                  <Text className="text-[10px] text-gray-500 ml-2">{meal.ProteinContent || 0}g prot</Text>
+                  <Text className="text-[10px] text-gray-500 dark:text-gray-400">{meal.CarbohydrateContent || 0}g carbs</Text>
+                  <Text className="text-[10px] text-gray-500 dark:text-gray-400 ml-2">{meal.FatContent || 0}g fats</Text>
+                  <Text className="text-[10px] text-gray-500 dark:text-gray-400 ml-2">{meal.ProteinContent || 0}g prot</Text>
                 </View>
               </View>
 
               {canDeleteMeals && !meal.is_eaten && (
                 <View className="flex-row items-center">
-                  <TouchableOpacity className="p-2 rounded-full bg-white" onPress={() => onDelete(meal)}>
-                    <Ionicons name="trash-outline" size={12} color="gray" />
+                  <TouchableOpacity className="p-2 rounded-full bg-white dark:bg-gray-700" onPress={() => onDelete(meal)}>
+                    <Ionicons name="trash-outline" size={12} color={isDark ? "#9CA3AF" : "gray"} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -371,7 +374,7 @@ const MealSection = ({ title, type, data, onAdd, onDelete, isComplete, canDelete
           ))
         ) : (
           <View className="items-center mt-2">
-            <Text className="text-sm text-gray-400">+ Add your meal</Text>
+            <Text className="text-sm text-gray-400 dark:text-gray-500">+ Add your meal</Text>
           </View>
         )}
       </View>

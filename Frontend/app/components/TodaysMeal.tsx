@@ -6,6 +6,7 @@ import { api } from "../utils/api";
 import { startOfToday, format } from "date-fns";
 import { useFocusEffect } from "@react-navigation/native";
 import { current } from "@reduxjs/toolkit";
+import { useColorScheme } from "nativewind";
 
 interface MealItemProps {
   name: string;
@@ -18,19 +19,19 @@ interface MealItemProps {
 
 const MealItem = ({ name, protein, fat, carbs, calories, image }: MealItemProps) => {
   return (
-    <View className="flex-row items-center bg-secondary-200 rounded-2xl py-3 px-3 mb-2">
+    <View className="flex-row items-center bg-secondary-200 dark:bg-surface-darker rounded-2xl py-3 px-3 mb-2">
       <Image
         source={image ? { uri: image } : require("../../assets/images/android-icon-background.png")}
         className="w-14 h-14 rounded-xl"
       />
       <View className="flex-1 ml-3">
-        <Text className="font-brsegma-600 text-primary-500 text-sm">{name}</Text>
-        <Text className="text-xs text-gray-600 font-brsegma-400">
+        <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-200 text-sm">{name}</Text>
+        <Text className="text-xs text-gray-600 dark:text-gray-400 font-brsegma-400">
           P:{protein}g  •  F:{fat}g  •  C:{carbs}g
         </Text>
       </View>
-      <View className="bg-secondary-400 px-2 py-1 rounded-lg">
-        <Text className="text-xs font-brsegma-600 text-primary-500">{calories} kcal</Text>
+      <View className="bg-secondary-400 dark:bg-primary-600 px-2 py-1 rounded-lg">
+        <Text className="text-xs font-brsegma-600 text-primary-500 dark:text-secondary-200">{calories} kcal</Text>
       </View>
     </View>
   );
@@ -43,6 +44,9 @@ export const TodaysMeal = () => {
   const [todaysMeals, setTodaysMeals] = useState<any[]>([]);
   const [currentMealIndex, setCurrentMealIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const mealSequence = [
     { id: 'breakfast',  icon: 'sun' },
@@ -121,30 +125,28 @@ export const TodaysMeal = () => {
 
   return (
     <View className="px-6 gap-3">
-      <Text className="text-xl font-fogsta">Today's meal</Text>
+      <Text className="text-xl font-fogsta text-black dark:text-secondary-200">Today's meal</Text>
       {isFinished ? (
-        <View className="bg-primary-600 rounded-3xl p-6 items-center justify-center">
-          <FontAwesome5 name="check-circle" size={40} color="#4a2c2a" className="mb-3" />
-          <Text className="text-secondary-500 font-fogsta text-xl text-center">
+        <View className="bg-primary-600 dark:bg-surface-dark rounded-3xl p-6 items-center justify-center border border-transparent dark:border-surface-darker">
+          <FontAwesome5 name="check-circle" size={40} color={isDark ? "#FFF9E7" : "#4a2c2a"} className="mb-3" />
+          <Text className="text-secondary-500 dark:text-secondary-200 font-fogsta text-xl text-center">
             All meals completed!
           </Text>
         </View>
       ) : (
-      <View className="bg-primary-600 rounded-3xl p-4 overflow-hidden">
-        {/* Header */}
+      <View className="bg-primary-600 dark:bg-surface-dark rounded-3xl p-4 overflow-hidden border border-transparent dark:border-surface-darker">
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-row items-center gap-2">
             <View className="bg-yellow-400 rounded-full p-1.5">
-              <FontAwesome5 name="sun" size={14} color="#4a2c2a" />
+              <FontAwesome5 name={currentMealInfo?.icon || 'sun'} size={14} color="#4a2c2a" />
             </View>
-            <Text className="text-secondary-500 font-fogsta text-xl">{currentMealInfo?.id}</Text>
+            <Text className="text-secondary-500 dark:text-secondary-200 font-fogsta text-xl uppercase">{currentMealInfo?.id}</Text>
           </View>
-          <View className="bg-secondary-500 px-3 py-1 rounded-md">
-            <Text className="text-primary-500 text-xs font-brsegma-600">{Math.round(currentTotalCalories)} kcal</Text>
+          <View className="bg-secondary-500 dark:bg-surface-darker px-3 py-1 rounded-md">
+            <Text className="text-primary-500 dark:text-secondary-200 text-xs font-brsegma-600">{Math.round(currentTotalCalories)} kcal</Text>
           </View>
         </View>
 
-        {/* Meal Items */}
         <View>
           {currentMeals.length > 0 ? (
             currentMeals.map((meal: any, index: number) => (
@@ -159,31 +161,30 @@ export const TodaysMeal = () => {
               />
             ))
           ) : (
-            <Text className="text-secondary-500 font-brsegma-400">No meals planned for this time.</Text>
+            <Text className="text-secondary-500 dark:text-secondary-400 font-brsegma-400">No meals planned for this time.</Text>
           )}
         </View>
 
-        {/* Action Buttons */}
         <View className="flex-row justify-end gap-3 mt-2">
           <TouchableOpacity 
-            className={` ${ isLoading || currentMeals.length === 0 ? 'bg-gray-300' : 'bg-secondary-400'} px-6 py-2 rounded-lg`}
+            className={` ${ isLoading || currentMeals.length === 0 ? 'bg-gray-300 dark:bg-gray-700' : 'bg-secondary-400 dark:bg-primary-500'} px-6 py-2 rounded-lg`}
             activeOpacity={0.8}
             disabled={isLoading || currentMeals.length === 0}
             onPress={() => handleMealAction('ate')}
           >
             {isLoading ? (
-                <ActivityIndicator size="small" color="#4a2c2a" />
+                <ActivityIndicator size="small" color={isDark ? "#FFF9E7" : "#4a2c2a"} />
               ) : (
-                <Text className="text-primary-500 font-brsegma-600 text-sm">ATE</Text>
+                <Text className="text-primary-500 dark:text-secondary-200 font-brsegma-600 text-sm">ATE</Text>
           )}
           </TouchableOpacity>
           <TouchableOpacity 
-            className={`${ isLoading ? 'bg-gray-300' : 'bg-white'} px-4 py-2 rounded-lg`}
+            className={`${ isLoading ? 'bg-gray-300 dark:bg-gray-700' : 'bg-white dark:bg-surface-darker'} px-4 py-2 rounded-lg`}
             activeOpacity={0.8}
             disabled={isLoading}
             onPress={() => handleMealAction('skipped')}
           >
-            <Text className="text-black font-brsegma-600 text-sm">SKIPPED</Text>
+            <Text className="text-black dark:text-secondary-200 font-brsegma-600 text-sm">SKIPPED</Text>
           </TouchableOpacity>
         </View>
       </View>

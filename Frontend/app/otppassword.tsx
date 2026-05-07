@@ -100,9 +100,9 @@ const otpduplicated = () => {
 
     return (
         <>
-        <SafeAreaView className='bg-secondary-200'>
+        <SafeAreaView className='bg-secondary-400'>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View className="h-full bg-secondary-200 flex flex-col px-6 pb-6">
+            <View className="h-full bg-secondary-400 flex flex-col px-6 pb-6">
                 {/* Back Button */}
                 <TouchableHighlight 
                     className='w-10 h-10 mb-8'
