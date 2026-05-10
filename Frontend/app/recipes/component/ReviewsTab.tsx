@@ -1,9 +1,9 @@
-import React from 'react';
-import { useRef, useState, useContext, useEffect } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Modal, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@/app/utils/api';
 import { ProfileDataContext } from '@/app/store/profileDataContext';
+import { useColorScheme } from 'nativewind';
 
 export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: any, onReviewSuccess: () => void}) {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -16,6 +16,9 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
   const [allReviewData, setAllReviewData] = useState<any>([])
   const profileData = useContext(ProfileDataContext)
   const [loading, setisLoading] = useState(false)
+
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const recipeId = recipeData?.recipe_id
   const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -91,49 +94,50 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
   });
 
   return (
-    <View className="bg-white rounded-2xl p-6 shadow-sm shadow-black/5">
+    <View className="bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm shadow-black/5 border border-transparent dark:border-surface-darker">
       <View className="flex-row items-center mb-8">
-        <View className="flex-1 items-center border-r border-gray-300 pr-4">
-          <Text className="text-5xl font-brsegma-600">{recipeData.rating_score || 0}</Text>
+        <View className="flex-1 items-center border-r border-gray-300 dark:border-surface-darker pr-4">
+          <Text className="text-5xl font-brsegma-600 text-black dark:text-secondary-400">{recipeData.rating_score || 0}</Text>
           <View className="flex-row my-2">
             {[1, 2, 3, 4, 5].map((s) => (
-              <Ionicons key={s} name="star" size={16} color={s <= Math.round(recipeData.rating_score || 0) ? "#FF9F1C" : "#E5E7EB"} />
+              <Ionicons key={s} name="star" size={16} color={s <= Math.round(recipeData.rating_score || 0) ? "#FF9F1C" : (isDark ? "#4B5563" : "#E5E7EB")} />
             ))}
           </View>
-          <Text className="text-gray-500 text-xs">({reviewData.length || 0} reviews)</Text>
+          <Text className="text-gray-500 dark:text-gray-400 text-xs">({reviewData.length || 0} reviews)</Text>
         </View>
 
         <View className="flex-[1.5] pl-6">
           {dynamicRatingStats.map((item) => (
             <View key={item.star} className="flex-row items-center mb-1">
-              <Text className="text-xs text-gray-600 w-3">{item.star}</Text>
+              <Text className="text-xs text-gray-600 dark:text-gray-400 w-3">{item.star}</Text>
               <Ionicons name="star" size={10} color="#FF9F1C" className="mx-1" />
-              <View className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden mx-2">
+              <View className="flex-1 h-1.5 bg-gray-100 dark:bg-surface-darker rounded-full overflow-hidden mx-2">
                 <View className="h-full bg-[#FF9F1C]" style={{ width: item.progressWidth as any }} />
               </View>
-              <Text className="text-[10px] text-gray-400 w-8 text-right">{item.count}</Text>
+              <Text className="text-[10px] text-gray-400 dark:text-gray-500 w-8 text-right">{item.count}</Text>
             </View>
           ))}
         </View>
       </View>
 
-      {/* SEARCH BAR */}
       <View className="flex-row gap-x-2 mb-8">
-        <View className="flex-1 flex-row items-center bg-gray-50 rounded-xl px-4 py-1">
-          <Ionicons name="search-outline" size={20} color="black" />
-          <TextInput placeholder="Search reviews" className="flex-1 ml-2 text-gray-600" value={searchRev} onChangeText={setSearchRev} />
+        <View className="flex-1 flex-row items-center bg-gray-50 dark:bg-surface-darker border border-transparent dark:border-gray-700 rounded-xl px-4 py-1">
+          <Ionicons name="search-outline" size={20} color={isDark ? "#9CA3AF" : "black"} />
+          <TextInput 
+            placeholder="Search reviews" 
+            placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
+            className="flex-1 ml-2 text-gray-600 dark:text-secondary-400 h-10" 
+            value={searchRev} 
+            onChangeText={setSearchRev} 
+          />
         </View>
-        <TouchableOpacity className="bg-gray-50 p-3 rounded-xl justify-center">
-          <Ionicons name="options-outline" size={20} color="#311004" />
-        </TouchableOpacity>
-        <TouchableOpacity className="bg-gray-50 p-3 rounded-xl justify-center" onPress={() => setIsModalOpen(true)}>
-          <Ionicons name="add-circle-outline" size={20} color="#311004" />
+        <TouchableOpacity className="bg-gray-50 dark:bg-surface-darker border border-transparent dark:border-gray-700 p-3 rounded-xl justify-center" onPress={() => setIsModalOpen(true)}>
+          <Ionicons name="add-circle-outline" size={20} color={isDark ? "#FFF9E7" : "#311004"} />
         </TouchableOpacity>
       </View>
 
-      {/* cth card review */}
       {reviewData.map((review: any, index: number) => (
-        <View key={review.id || index} className="bg-gray-50 rounded-2xl p-4 mb-4">
+        <View key={review.id || index} className="bg-gray-50 dark:bg-surface-darker rounded-2xl p-4 mb-4">
           <View className="flex-row justify-between items-start mb-4">
             <View className="flex-row">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -141,16 +145,16 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
                   key={star} 
                   name="star" 
                   size={14} 
-                  color={star <= review.rating ? "#FF9F1C" : "#E5E7EB"}
+                  color={star <= review.rating ? "#FF9F1C" : (isDark ? "#4B5563" : "#E5E7EB")}
                 />
               ))}
             </View>
           </View>
 
           <View className="flex-row items-center mb-3">
-            <Text className="font-brsegma-600">{review.name}</Text>
+            <Text className="font-brsegma-600 text-black dark:text-secondary-400">{review.name}</Text>
           </View>
-          <Text className="text-gray-700 text-sm leading-5 font-brsegma-300">
+          <Text className="text-gray-700 dark:text-gray-400 text-sm leading-5 font-brsegma-300">
             {review.review}
           </Text>
         </View>
@@ -159,49 +163,45 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
       <Modal
         visible={isModalOpen}
         animationType="slide"
-        backdropColor={"bg-black/50"}
+        transparent={true}
         onRequestClose={() => setIsModalOpen(false)}
       >
-        <View className="flex-1 justify-end">
-          <View className="bg-white rounded-t-[30px] p-6 h-[70%]">
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="bg-white dark:bg-surface-dark rounded-t-[30px] p-6 h-[70%]">
         
-            {/* Header Modal */}
             <View className="flex-row justify-between items-center mb-6">
               <View style={{ width: 30 }} />
-              <Text className="text-2xl font-brsegma-600 font-bold text-[#311004]">Write a Review</Text>
+              <Text className="text-2xl font-brsegma-600 font-bold text-[#311004] dark:text-secondary-400">Write a Review</Text>
               <TouchableOpacity onPress={() => setIsModalOpen(false)}>
-                <Ionicons name="close-circle-outline" size={30} color={"#8C1007"}></Ionicons>
+                <Ionicons name="close-circle-outline" size={30} color={isDark ? "#eddca1" : "#8C1007"}></Ionicons>
               </TouchableOpacity>
             </View>
 
-            {/* gambar makan */}
             <View className="h-[200px] w-[300px] mx-auto mb-6">
               <Image
                 source={{ uri: recipeData.Images }}
-                className="w-full h-full rounded-[20px]"
+                className="w-full h-full rounded-[20px] bg-gray-200 dark:bg-surface-darker"
                 resizeMode="cover"
               />
             </View>
 
-            {/* judul makan */}
             <View className="items-center mb-4">
-              <Text className="font-fogsta text-3xl">{recipeData.name}</Text>
+              <Text className="font-fogsta text-3xl text-black dark:text-secondary-400">{recipeData.name}</Text>
             </View>
             
-            {/* stars */}
             <View className="flex-row justify-center mb-6 gap-3">
               {[1, 2, 3, 4, 5].map((s) => (
                 <TouchableOpacity key={s} onPress={() => s === selectedRating ? setSelectedRating(0) : setSelectedRating(s)}>
-                  <Ionicons key={s} name={s <= selectedRating ? "star" : "star-outline"} size={30} color={s <= selectedRating ? "#FF9F1C" : "#4b5563"} className="mx-1" />
+                  <Ionicons key={s} name={s <= selectedRating ? "star" : "star-outline"} size={30} color={s <= selectedRating ? "#FF9F1C" : (isDark ? "#6B7280" : "#4b5563")} className="mx-1" />
                 </TouchableOpacity>
                 
               ))}
             </View>
             
-            {/* da review */}
             <TextInput
-              className="bg-gray-50 p-5 rounded-xl h-32 font-brsegma-300 border border-gray-400"
+              className="bg-gray-50 dark:bg-surface-darker p-5 rounded-xl h-32 font-brsegma-300 border border-gray-400 dark:border-gray-600 text-black dark:text-secondary-400"
               placeholder="What do you think about this recipe?"
+              placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
               value={review}
               onChangeText={setReview}
               multiline
@@ -210,12 +210,11 @@ export default function ReviewsTab({recipeData, onReviewSuccess} : {recipeData: 
 
             <View className="mt-auto">
               {errorMessage ? (
-                <Text className="text-red-500 text-sm font-brsegma-600">
+                <Text className="text-red-500 text-sm font-brsegma-600 mb-2">
                   {errorMessage}
                 </Text>
               ) : null}
-              {/* submit button */}
-              <TouchableOpacity className=" mb-4 bg-primary-400 p-4 rounded-xl items-center shadow-sm" onPress={() => SubmitReviews()} disabled={loading}>
+              <TouchableOpacity className=" mb-4 bg-primary-400 dark:bg-primary-500 p-4 rounded-xl items-center shadow-sm" onPress={() => SubmitReviews()} disabled={loading}>
                 {loading ? (
                   <ActivityIndicator color="white" />
                 ) : (

@@ -162,11 +162,11 @@ export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRef
             By {recipe.author_name || "Chef"}
           </Text>
           <View className="">
-            <Text className="font-fogsta text-l text-black dark:text-secondary-200" numberOfLines={2}>{recipe.name}</Text>
+            <Text className="font-fogsta text-l text-black dark:text-secondary-400" numberOfLines={2}>{recipe.name}</Text>
           </View>
           {firstTag && (
             <View className="bg-secondary-300 dark:bg-surface-darker self-start px-2 py-1 rounded">
-              <Text className="text-[8px] font-brsegma-600 text-primary-500 dark:text-secondary-200">{firstTag}</Text>
+              <Text className="text-[8px] font-brsegma-600 text-primary-500 dark:text-secondary-400">{firstTag}</Text>
             </View>
           )}
         </View>

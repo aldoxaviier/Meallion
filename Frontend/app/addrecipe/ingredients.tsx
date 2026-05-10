@@ -13,6 +13,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { RecipeContext } from "../store/addRecipeContext";
 import { router } from "expo-router";
 import { api } from "../utils/api";
+import { useColorScheme } from "nativewind";
 
 type IngredientSuggestion = {
     original_name: string;
@@ -27,10 +28,13 @@ const Ingredients = () => {
     const [suggestions, setSuggestions] = useState<IngredientSuggestion[]>([]);
     const [activeInputId, setActiveInputId] = useState<number | null>(null);
     const [message, setMessage] = useState<string>("");
-    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false); // 👈
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false); 
     const recipeContext = useContext(RecipeContext);
     const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
     const loaderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+
+    const { colorScheme } = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     useEffect(() => {
         return () => {
@@ -126,7 +130,7 @@ const Ingredients = () => {
         if (activeInputId === id) {
             setSuggestions([]);
             setActiveInputId(null);
-            setIsLoadingSuggestions(false); // 👈
+            setIsLoadingSuggestions(false); 
         }
     };
 
@@ -147,7 +151,7 @@ const Ingredients = () => {
     };
 
     return (
-        <SafeAreaView className="flex-1" edges={["bottom"]}>
+        <SafeAreaView className="flex-1 bg-[#FDFAF6] dark:bg-background-dark" edges={["bottom"]}>
             <View className="flex-1 pb-12 gap-4">
                 <KeyboardAwareScrollView
                     style={{ flex: 1 }}
@@ -170,21 +174,21 @@ const Ingredients = () => {
                                             if (activeInputId === item.id) {
                                                 setSuggestions([]);
                                                 setActiveInputId(null);
-                                                setIsLoadingSuggestions(false); // 👈
+                                                setIsLoadingSuggestions(false); 
                                             }
                                         }, 200);
                                     }}
                                     placeholder="Name"
-                                    placeholderTextColor="#B8BEC9"
-                                    className="h-11 flex-1 rounded-xl border border-gray-200 bg-white px-4 font-brsegma-500 text-gray-700"
+                                    placeholderTextColor={isDark ? "#9CA3AF" : "#B8BEC9"}
+                                    className="h-11 flex-1 rounded-xl border border-gray-200 dark:border-surface-darker bg-white dark:bg-surface-dark px-4 font-brsegma-500 text-gray-700 dark:text-secondary-400"
                                 />
                                 <TextInput
                                     value={item.qty}
                                     onChangeText={(value) => updateIngredient(item.id, "qty", value)}
                                     placeholder="qty (g)"
-                                    placeholderTextColor="#B8BEC9"
+                                    placeholderTextColor={isDark ? "#9CA3AF" : "#B8BEC9"}
                                     keyboardType="number-pad"
-                                    className="h-11 w-20 rounded-xl border border-gray-200 bg-white px-3 text-center font-brsegma-500 text-gray-700"
+                                    className="h-11 w-20 rounded-xl border border-gray-200 dark:border-surface-darker bg-white dark:bg-surface-dark px-3 text-center font-brsegma-500 text-gray-700 dark:text-secondary-400"
                                 />
                                 <TouchableOpacity
                                     onPress={() => removeIngredient(item.id)}
@@ -195,21 +199,21 @@ const Ingredients = () => {
                                     <Ionicons
                                         name="close"
                                         size={20}
-                                        color={ingredients.length === 1 ? "#C5C5C5" : "#8E1207"}
+                                        color={ingredients.length === 1 ? (isDark ? "#4B5563" : "#C5C5C5") : (isDark ? "#F87171" : "#8E1207")}
                                     />
                                 </TouchableOpacity>
                             </View>
 
                             {/* Loading indicator */}
-                            {activeInputId === item.id && isLoadingSuggestions && ( // 👈
-                                <View className="mt-1 rounded-xl border border-gray-200 bg-white px-4 py-3 items-center">
-                                    <ActivityIndicator size="small" color="#8E1207" />
+                            {activeInputId === item.id && isLoadingSuggestions && ( 
+                                <View className="mt-1 rounded-xl border border-gray-200 dark:border-surface-darker bg-white dark:bg-surface-dark px-4 py-3 items-center">
+                                    <ActivityIndicator size="small" color={isDark ? "#FFF9E7" : "#8E1207"} />
                                 </View>
                             )}
 
                             {/* Suggestions dropdown */}
-                            {activeInputId === item.id && !isLoadingSuggestions && suggestions.length > 0 && ( // 👈
-                                <View className="mt-1 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                            {activeInputId === item.id && !isLoadingSuggestions && suggestions.length > 0 && ( 
+                                <View className="mt-1 rounded-xl border border-gray-200 dark:border-surface-darker bg-white dark:bg-surface-dark shadow-sm overflow-hidden">
                                     <ScrollView
                                         keyboardShouldPersistTaps="handled"
                                         nestedScrollEnabled={true}
@@ -220,10 +224,10 @@ const Ingredients = () => {
                                             key={`${suggestion.original_name}-${index}`}
                                             onPress={() => selectSuggestion(item.id, suggestion)}
                                             className={`px-4 py-3 ${
-                                            index !== suggestions.length - 1 ? "border-b border-gray-100" : ""
+                                            index !== suggestions.length - 1 ? "border-b border-gray-100 dark:border-surface-darker" : ""
                                             }`}
                                         >
-                                            <Text className="font-brsegma-500 text-gray-700">
+                                            <Text className="font-brsegma-500 text-gray-700 dark:text-secondary-400">
                                             {suggestion.original_name}
                                             </Text>
                                         </TouchableOpacity>
@@ -236,18 +240,18 @@ const Ingredients = () => {
 
                     <TouchableOpacity
                         onPress={addIngredient}
-                        className="mt-3 h-8 w-8 self-center rounded-full bg-primary-500 items-center justify-center"
+                        className="mt-3 h-8 w-8 self-center rounded-full bg-primary-500 dark:bg-primary-600 items-center justify-center"
                         accessibilityRole="button"
                         accessibilityLabel="Add ingredient"
                     >
-                        <Ionicons name="add" size={20} color="#FFFFFF" />
+                        <Ionicons name="add" size={20} color={isDark ? "#FFF9E7" : "#FFFFFF"} />
                     </TouchableOpacity>
                 </KeyboardAwareScrollView>
 
                 <TouchableOpacity
                     disabled={isNextDisabled}
                     className={`self-center rounded-full px-10 py-4 ${
-                        isNextDisabled ? "bg-gray-300" : "bg-primary-500"
+                        isNextDisabled ? "bg-gray-300 dark:bg-gray-700" : "bg-primary-500 dark:bg-primary-600"
                     }`}
                     onPress={onPressNext}
                 >

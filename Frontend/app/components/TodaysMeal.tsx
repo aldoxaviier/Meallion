@@ -25,13 +25,13 @@ const MealItem = ({ name, protein, fat, carbs, calories, image }: MealItemProps)
         className="w-14 h-14 rounded-xl"
       />
       <View className="flex-1 ml-3">
-        <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-200 text-sm">{name}</Text>
-        <Text className="text-xs text-gray-600 dark:text-gray-400 font-brsegma-400">
+        <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-400 text-sm">{name}</Text>
+        <Text className="text-xs text-gray-600 dark:text-gray-400 font-brsegma-500">
           P:{protein}g  •  F:{fat}g  •  C:{carbs}g
         </Text>
       </View>
       <View className="bg-secondary-400 dark:bg-primary-600 px-2 py-1 rounded-lg">
-        <Text className="text-xs font-brsegma-600 text-primary-500 dark:text-secondary-200">{calories} kcal</Text>
+        <Text className="text-xs font-brsegma-600 text-primary-500 dark:text-secondary-400">{calories} kcal</Text>
       </View>
     </View>
   );
@@ -125,11 +125,11 @@ export const TodaysMeal = () => {
 
   return (
     <View className="px-6 gap-3">
-      <Text className="text-xl font-fogsta text-black dark:text-secondary-200">Today's meal</Text>
+      <Text className="text-xl font-fogsta text-black dark:text-secondary-400">Today's meal</Text>
       {isFinished ? (
         <View className="bg-primary-600 dark:bg-surface-dark rounded-3xl p-6 items-center justify-center border border-transparent dark:border-surface-darker">
           <FontAwesome5 name="check-circle" size={40} color={isDark ? "#FFF9E7" : "#4a2c2a"} className="mb-3" />
-          <Text className="text-secondary-500 dark:text-secondary-200 font-fogsta text-xl text-center">
+          <Text className="text-secondary-500 dark:text-secondary-400 font-fogsta text-xl text-center">
             All meals completed!
           </Text>
         </View>
@@ -140,10 +140,10 @@ export const TodaysMeal = () => {
             <View className="bg-yellow-400 rounded-full p-1.5">
               <FontAwesome5 name={currentMealInfo?.icon || 'sun'} size={14} color="#4a2c2a" />
             </View>
-            <Text className="text-secondary-500 dark:text-secondary-200 font-fogsta text-xl uppercase">{currentMealInfo?.id}</Text>
+            <Text className="text-secondary-500 dark:text-secondary-400 font-fogsta text-xl uppercase">{currentMealInfo?.id}</Text>
           </View>
           <View className="bg-secondary-500 dark:bg-surface-darker px-3 py-1 rounded-md">
-            <Text className="text-primary-500 dark:text-secondary-200 text-xs font-brsegma-600">{Math.round(currentTotalCalories)} kcal</Text>
+            <Text className="text-primary-500 dark:text-secondary-400 text-xs font-brsegma-600">{Math.round(currentTotalCalories)} kcal</Text>
           </View>
         </View>
 
@@ -161,7 +161,7 @@ export const TodaysMeal = () => {
               />
             ))
           ) : (
-            <Text className="text-secondary-500 dark:text-secondary-400 font-brsegma-400">No meals planned for this time.</Text>
+            <Text className="text-secondary-500 dark:text-secondary-400 font-brsegma-500">No meals planned for this time.</Text>
           )}
         </View>
 
@@ -175,7 +175,7 @@ export const TodaysMeal = () => {
             {isLoading ? (
                 <ActivityIndicator size="small" color={isDark ? "#FFF9E7" : "#4a2c2a"} />
               ) : (
-                <Text className="text-primary-500 dark:text-secondary-200 font-brsegma-600 text-sm">ATE</Text>
+                <Text className="text-primary-500 dark:text-secondary-400 font-brsegma-600 text-sm">ATE</Text>
           )}
           </TouchableOpacity>
           <TouchableOpacity 
@@ -184,7 +184,7 @@ export const TodaysMeal = () => {
             disabled={isLoading}
             onPress={() => handleMealAction('skipped')}
           >
-            <Text className="text-black dark:text-secondary-200 font-brsegma-600 text-sm">SKIPPED</Text>
+            <Text className="text-black dark:text-secondary-400 font-brsegma-600 text-sm">SKIPPED</Text>
           </TouchableOpacity>
         </View>
       </View>

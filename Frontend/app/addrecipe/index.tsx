@@ -8,7 +8,7 @@ import { ProfileDataContext } from "../store/profileDataContext";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { recipeSchema } from "../utils/validation";
 import { TimerPickerModal } from "react-native-timer-picker";
-import { set } from "date-fns";
+import { useColorScheme } from "nativewind";
 
 interface ConfirmButtonProps {
     label : string;
@@ -35,6 +35,9 @@ const Index = () => {
     const [showPrepPicker, setShowPrepPicker] = useState(false);
     const [showCookPicker, setShowCookPicker] = useState(false);
     const url = process.env.EXPO_PUBLIC_API_URL;
+
+    const { colorScheme } = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     const minutesToDuration = (value: string) => {
         const totalMinutes = Number(value) || 0;
@@ -122,67 +125,69 @@ const Index = () => {
             await recipeSchema.validate(recipePayload);
             recipeContext?.setRecipeData((prev) => ({ ...prev, ...recipePayload }));
             setMessage("");
-            router.push("/addrecipe/category");           
+            router.push("/addrecipe/category");          
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "An unknown error occurred during validation.");
         }
 
     };
+
     const ButtonComponent = ({ onPress, label }: ConfirmButtonProps) => {
         return(
-            <TouchableOpacity onPress={onPress} className="px-8 py-4 rounded-2xl bg-primary-500">
+            <TouchableOpacity onPress={onPress} className="px-8 py-4 rounded-2xl bg-primary-500 dark:bg-primary-600">
                 <Text className="font-brsegma-500 text-secondary-400">{label}</Text>
             </TouchableOpacity>
         );
     }
+
     return (
         <>
-        <SafeAreaView className="flex-1" edges={['bottom']}>
+        <SafeAreaView className="flex-1 bg-secondary-400 dark:bg-background-dark" edges={['bottom']}>
             <View className="flex-1 justify-between pb-12">
                 <View className="flex gap-10">
                     <View className="flex gap-2 pt-8">
                         <View className="px-6">
-                            <Text className="text-xl font-brsegma-600 text-primary-500">Recipe Details</Text>
+                            <Text className="text-xl font-brsegma-600 text-primary-500 dark:text-secondary-400">Recipe Details</Text>
                         </View>
                         <View className="gap-[1px]">
                             <TextInput 
                                 placeholder="Recipe name" 
-                                placeholderTextColor="#9CA3AF" 
-                                className="bg-white border-y border-gray-200 px-6 font-brsegma-500"
+                                placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
+                                className="bg-white dark:bg-surface-dark border-y border-gray-200 dark:border-surface-darker px-6 py-4 font-brsegma-500 text-black dark:text-secondary-400"
                                 value={inputs.name}
                                 onChangeText={(text) => setInputs(prev => ({ ...prev, name: text }))}
                             />
                             <TouchableOpacity
                                 onPress={() => setShowPrepPicker(true)}
-                                className="bg-white border-b border-gray-200 px-6 py-4 flex-row items-center"
+                                className="bg-white dark:bg-surface-dark border-b border-gray-200 dark:border-surface-darker px-6 py-4 flex-row items-center"
                             >
-                                <Text className={`font-brsegma-500 ${inputs.prepTime ? "text-gray-700" : "text-[#9CA3AF]"}`}>
+                                <Text className={`font-brsegma-500 ${inputs.prepTime ? "text-gray-700 dark:text-secondary-400" : "text-[#9CA3AF]"}`}>
                                     {formatDurationLabel(inputs.prepTime, "Prep time")}
                                 </Text>
                                 <FontAwesome name="clock-o" size={20} color="#9CA3AF" style={{ marginLeft: 'auto' }} />
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => setShowCookPicker(true)}
-                                className="bg-white border-b border-gray-200 px-6 py-4 flex-row items-center"
+                                className="bg-white dark:bg-surface-dark border-b border-gray-200 dark:border-surface-darker px-6 py-4 flex-row items-center"
                             >
-                                <Text className={`font-brsegma-500 ${inputs.cookTime ? "text-gray-700" : "text-[#9CA3AF]"}`}>
+                                <Text className={`font-brsegma-500 ${inputs.cookTime ? "text-gray-700 dark:text-secondary-400" : "text-[#9CA3AF]"}`}>
                                     {formatDurationLabel(inputs.cookTime, "Cook time")}
                                 </Text>
                                 <FontAwesome name="clock-o" size={20} color="#9CA3AF" style={{ marginLeft: 'auto' }} />
                             </TouchableOpacity>
                             <TextInput 
                                 placeholder="Servings (e.g. 4)" 
-                                placeholderTextColor="#9CA3AF" 
+                                placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
                                 keyboardType="numeric"
-                                className="bg-white border-b border-gray-200 px-6 font-brsegma-500"
+                                className="bg-white dark:bg-surface-dark border-b border-gray-200 dark:border-surface-darker px-6 py-4 font-brsegma-500 text-black dark:text-secondary-400"
                                 value={inputs.recipeServings === 0 ? "" : String(inputs.recipeServings)}
                                 onChangeText={(text) => setInputs(prev => ({ ...prev, recipeServings: Number.parseInt(text, 10) || 0 }))}
                             />
-                            <View className="bg-white border-b border-gray-200 px-6 py-3 flex-row">
+                            <View className="bg-white dark:bg-surface-dark border-b border-gray-200 dark:border-surface-darker px-6 py-3 flex-row items-center">
                                 <Text className="font-brsegma-500 text-[#9CA3AF]">Photo</Text>
                                 <TouchableOpacity onPress={pickImage} className="ml-auto">
                                     {displayImage ? (
-                                        <View className="h-12 w-12 overflow-hidden">
+                                        <View className="h-12 w-12 overflow-hidden rounded-md bg-gray-100 dark:bg-surface-darker">
                                             <Image source={{ uri: displayImage }} style={{ width: '100%', height: '100%' }} />
                                         </View>
                                     ) : (
@@ -195,22 +200,22 @@ const Index = () => {
                     </View>
                     <View className="px-6">
                         <View >
-                            <Text className="text-xl font-brsegma-600 text-primary-500">Description</Text>
+                            <Text className="text-xl font-brsegma-600 text-primary-500 dark:text-secondary-400">Description</Text>
                         </View>
                         <TextInput
                             multiline
                             numberOfLines={8}
                             textAlignVertical="top"
                             placeholder="Tell us what makes this recipe special..."
-                            placeholderTextColor="#9CA3AF"
+                            placeholderTextColor={isDark ? "#9CA3AF" : "#9CA3AF"}
                             value={inputs.description}
                             onChangeText={(text) => setInputs(prev => ({ ...prev, description: text }))}
-                            className="mt-3 h-80 rounded-2xl border border-gray-300 bg-white px-4 py-4 text-base font-brsegma-500 text-gray-700 shadow-none"
+                            className="mt-3 h-80 rounded-2xl border border-gray-300 dark:border-surface-darker bg-white dark:bg-surface-dark px-4 py-4 text-base font-brsegma-500 text-gray-700 dark:text-secondary-400 shadow-none"
                         />
                     </View>
                 </View>
                 {message ? (
-                    <Text className="text-red-700 text-center font-brsegma-500">{message}</Text>
+                    <Text className="text-red-700 dark:text-red-500 text-center font-brsegma-500">{message}</Text>
                 ) : null}
 
                 <TimerPickerModal
@@ -231,13 +236,15 @@ const Index = () => {
                     }}
                     styles={{
                         contentContainer: {
-                            width: 300,        // increase from default ~220
+                            width: 300,        
                             paddingHorizontal: 24,
+                            backgroundColor: isDark ? '#2D1110' : '#FFFFFF',
                         },
                         pickerContainer: {
                             width: '100%',
                         },
                         pickerLabelGap: { hours: 10, minutes: 8 },
+                        theme: isDark ? "dark" : "light"
                     }}
                 />
 
@@ -259,18 +266,20 @@ const Index = () => {
                     }}
                     styles={{
                         contentContainer: {
-                            width: 300,        // increase from default ~220
+                            width: 300,        
                             paddingHorizontal: 24,
+                            backgroundColor: isDark ? '#2D1110' : '#FFFFFF',
                         },
                         pickerContainer: {
                             width: '100%',
                         },
                         pickerLabelGap: { hours: 10, minutes: 8 },
+                        theme: isDark ? "dark" : "light"
                     }}
                 />
 
                 <TouchableOpacity
-                    className="py-4 px-10 self-center rounded-full bg-primary-500"
+                    className="py-4 px-10 self-center rounded-full bg-primary-500 dark:bg-primary-600"
                     onPress={onPressNext}
                     >
                     <Text className="text-center font-brsegma-600 text-secondary-400">

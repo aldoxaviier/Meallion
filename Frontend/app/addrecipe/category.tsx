@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { RecipeContext } from "../store/addRecipeContext";
 import { set } from "date-fns";
+import { useColorScheme } from "nativewind";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -72,6 +73,10 @@ export default function Category() {
   const [activePage, setActivePage] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
+  
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   const toggle = (id: number) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -118,9 +123,9 @@ export default function Category() {
                 width: "31%",
                 marginBottom: 12,
                 borderRadius: 20,
-                backgroundColor: isSelected ? cat.color : "#FFFFFF",
+                backgroundColor: isSelected ? cat.color : (isDark ? "#2D1110" : "#FFFFFF"),
                 borderWidth: 2.5,
-                borderColor: isSelected ? cat.border : "#E8E8E8",
+                borderColor: isSelected ? cat.border : (isDark ? "#3E0703" : "#E8E8E8"),
                 alignItems: "center",
                 paddingVertical: 18,
                 elevation: isSelected ? 6 : 1,
@@ -131,7 +136,7 @@ export default function Category() {
                   width: 56,
                   height: 56,
                   borderRadius: 28,
-                  backgroundColor: isSelected ? "#FFFFFF" : cat.color,
+                  backgroundColor: isSelected ? (isDark ? "#1A0A0A" : "#FFFFFF") : cat.color,
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: 8,
@@ -144,7 +149,7 @@ export default function Category() {
                 style={{
                   fontSize: 12,
                   fontWeight: isSelected ? "700" : "500",
-                  color: isSelected ? cat.border : "#444",
+                  color: isSelected ? cat.border : (isDark ? "#F2E8C6" : "#444"),
                   textAlign: "center",
                   lineHeight: 16,
                 }}
@@ -178,7 +183,7 @@ export default function Category() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FDFAF6]" edges={["bottom"]}>
+    <SafeAreaView className="flex-1 bg-[#FDFAF6] dark:bg-background-dark" edges={["bottom"]}>
       <View style={{ flex: 1 }}>
 
         {/* Paged FlatList + Chevron side by side */}
@@ -234,7 +239,7 @@ export default function Category() {
                       i * SCREEN_WIDTH,
                       (i + 1) * SCREEN_WIDTH,
                     ],
-                    outputRange: ["#D0D0D0", "#E65100", "#D0D0D0"],
+                    outputRange: [isDark ? "#4B5563" : "#D0D0D0", "#E65100", isDark ? "#4B5563" : "#D0D0D0"],
                     extrapolate: "clamp",
                   }),
                 }}
@@ -243,13 +248,13 @@ export default function Category() {
           ))}
         </View>
         {errorMessage ? (
-          <Text className="text-red-700 text-center font-brsegma-500 mb-1">
+          <Text className="text-red-700 dark:text-red-500 text-center font-brsegma-500 mb-1">
             {errorMessage}
           </Text>
         ) : null}
         {/* Next button */}
         <TouchableOpacity
-          className="py-4 px-10 self-center rounded-full bg-primary-500"
+          className="py-4 px-10 self-center rounded-full bg-primary-500 dark:bg-primary-600"
           style={{ marginBottom: 12 }}
           onPress={handleNext}
         >

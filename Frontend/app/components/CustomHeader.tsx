@@ -31,7 +31,7 @@ const CustomHeader = ({ title, onBackPress }: CustomHeaderProps) => {
                 <Ionicons name="chevron-back" size={24} color={iconColor} />
             </TouchableOpacity>
             
-            <Text className="text-lg font-fogsta text-primary-500 dark:text-secondary-200 text-center flex-1 mr-10">
+            <Text className="text-lg font-fogsta text-primary-500 dark:text-secondary-400 text-center flex-1 mr-10">
                 {title}
             </Text>
         </View>

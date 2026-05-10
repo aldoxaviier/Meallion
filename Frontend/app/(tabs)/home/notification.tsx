@@ -160,7 +160,7 @@ export default function Notification() {
                 <Ionicons name={icon} size={20} color={color} />
               </View>
               <View className="flex-1">
-                <Text className={`text-sm font-brsegma-700 ${item.is_checked ? "text-gray-500 dark:text-gray-400" : "text-black dark:text-secondary-200"}`} numberOfLines={1}>
+                <Text className={`text-sm font-brsegma-700 ${item.is_checked ? "text-gray-500 dark:text-gray-400" : "text-black dark:text-secondary-400"}`} numberOfLines={1}>
                   {item.title}
                 </Text>
                 <Text className={`text-xs mt-0.5 leading-4 ${item.is_checked ? "text-gray-400 dark:text-gray-500" : "text-gray-600 dark:text-secondary-400"}`} numberOfLines={2}>

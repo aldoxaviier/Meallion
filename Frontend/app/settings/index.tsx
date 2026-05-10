@@ -2,7 +2,8 @@ import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { useContext, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useColorScheme } from 'nativewind'; 
+import { useColorScheme } from 'nativewind';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AuthContext } from '../store/authContext';
 import { api } from '../utils/api';
@@ -42,6 +43,16 @@ const Index = () => {
         router.push('/settings/dislikesandallergies' as any);
     }
 
+    const handleThemeToggle = async (isDark: boolean) => {
+        const newTheme = isDark ? 'dark' : 'light';
+        setColorScheme(newTheme); 
+        try {
+            await AsyncStorage.setItem('appTheme', newTheme);
+        } catch (e) {
+            console.error("Failed to save theme", e);
+        }
+    };
+
     const iconColor = colorScheme === 'dark' ? '#FFF9E7' : '#3E0703';
     const chevronColor = colorScheme === 'dark' ? '#666' : '#999';
 
@@ -56,11 +67,11 @@ const Index = () => {
                         <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-surface-darker">
                             <View className="flex-row items-center">
                                 <Ionicons name="moon" size={20} color={iconColor} />
-                                <Text className="ml-3 text-base text-black dark:text-secondary-200 font-brsegma-500">Theme</Text>
+                                <Text className="ml-3 text-base text-black dark:text-secondary-400 font-brsegma-500">Theme</Text>
                             </View>
                             <Switch
                                 value={colorScheme === 'dark'}
-                                onValueChange={(isDark) => setColorScheme(isDark ? 'dark' : 'light')}
+                                onValueChange={(isDark) => handleThemeToggle(isDark)}
                                 trackColor={{ false: '#E5E5E5', true: '#8C1007' }} // Matches primary-400
                                 thumbColor="#fff"
                             />
@@ -77,7 +88,7 @@ const Index = () => {
                             <View className="flex-row items-center">
                                 <Ionicons name="notifications" size={20} color={iconColor} />
                                 <View className="ml-3">
-                                    <Text className="text-base text-black dark:text-secondary-200 font-brsegma-500">Push Notification</Text>
+                                    <Text className="text-base text-black dark:text-secondary-400 font-brsegma-500">Push Notification</Text>
                                     <Text className="text-xs text-gray-500 dark:text-gray-400 font-brsegma-300">Allow us to send notifications</Text>
                                 </View>
                             </View>
@@ -99,7 +110,7 @@ const Index = () => {
                         <TouchableOpacity className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-surface-darker" onPress={onPressDiateryRequirements}>
                             <View className="flex-row items-center">
                                 <Ionicons name="restaurant" size={20} color={iconColor} />
-                                <Text className="ml-3 text-base text-black dark:text-secondary-200 font-brsegma-500">Dietary requirements</Text>
+                                <Text className="ml-3 text-base text-black dark:text-secondary-400 font-brsegma-500">Dietary requirements</Text>
                             </View>
                             <Ionicons name="chevron-forward" size={20} color={chevronColor} />
                         </TouchableOpacity>
@@ -107,7 +118,7 @@ const Index = () => {
                         <TouchableOpacity className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-surface-darker" onPress={onPressDislikesAndAllergies}>
                             <View className="flex-row items-center">
                                 <Ionicons name="warning" size={20} color={iconColor} />
-                                <Text className="ml-3 text-base text-black dark:text-secondary-200 font-brsegma-500">Dislikes & allergies</Text>
+                                <Text className="ml-3 text-base text-black dark:text-secondary-400 font-brsegma-500">Dislikes & allergies</Text>
                             </View>
                             <Ionicons name="chevron-forward" size={20} color={chevronColor} />
                         </TouchableOpacity>
@@ -115,7 +126,7 @@ const Index = () => {
                         <TouchableOpacity className="flex-row items-center justify-between px-4 py-3" onPress={onPressMealTime}>
                             <View className="flex-row items-center">
                                 <Ionicons name="time" size={20} color={iconColor} />
-                                <Text className="ml-3 text-base text-black dark:text-secondary-200 font-brsegma-500">Update My Meal Time</Text>
+                                <Text className="ml-3 text-base text-black dark:text-secondary-400 font-brsegma-500">Update My Meal Time</Text>
                             </View>
                             <Ionicons name="chevron-forward" size={20} color={chevronColor} />
                         </TouchableOpacity>
@@ -130,7 +141,7 @@ const Index = () => {
                         <TouchableOpacity className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-surface-darker" onPress={() => router.push('/settings/profile')}>
                             <View className="flex-row items-center">
                                 <Ionicons name="person-circle" size={20} color={iconColor} />
-                                <Text className="ml-3 text-base text-black dark:text-secondary-200 font-brsegma-500">Profile</Text>
+                                <Text className="ml-3 text-base text-black dark:text-secondary-400 font-brsegma-500">Profile</Text>
                             </View>
                             <Ionicons name="chevron-forward" size={20} color={chevronColor} />
                         </TouchableOpacity>
@@ -138,7 +149,7 @@ const Index = () => {
                         <TouchableOpacity className="flex-row items-center justify-between px-4 py-3" onPress={onPressLogout}>
                             <View className="flex-row items-center">
                                 <Ionicons name="log-out" size={20} color={iconColor} />
-                                <Text className="ml-3 text-base text-black dark:text-secondary-200 font-brsegma-500">Sign out</Text>
+                                <Text className="ml-3 text-base text-black dark:text-secondary-400 font-brsegma-500">Sign out</Text>
                             </View>
                             <Ionicons name="chevron-forward" size={20} color={chevronColor} />
                         </TouchableOpacity>

@@ -132,21 +132,21 @@ const Index = () => {
             </View>
           </View>
 
-          <Text className="font-fogsta text-3xl text-primary-500 dark:text-secondary-200 mb-1">
+          <Text className="font-fogsta text-3xl text-primary-500 dark:text-secondary-400 mb-1">
             {displayProfile?.users?.name || 'User'}
           </Text>
 
           <View className='flex flex-row gap-7 mb-2'>
             <View>
-              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-200'>{displayProfile?.recipes_count}</Text>
+              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-400'>{displayProfile?.recipes_count}</Text>
               <Text className='font-brsegma-500 text-gray-700 dark:text-gray-400'>Recipes</Text>
             </View>
             <View>
-              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-200'>{displayProfile?.followers}</Text>
+              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-400'>{displayProfile?.followers}</Text>
               <Text className='font-brsegma-500 text-gray-700 dark:text-gray-400'>Followers</Text>
             </View>
             <View>
-              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-200'>{displayProfile?.followings}</Text>
+              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-400'>{displayProfile?.followings}</Text>
               <Text className='font-brsegma-500 text-gray-700 dark:text-gray-400'>Following</Text>
             </View>
           </View>
@@ -158,21 +158,21 @@ const Index = () => {
           <View className="border-t border-b border-gray-300 dark:border-surface-darker py-4 mb-6">
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700 dark:text-gray-400">Current weight</Text>
-              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-200">
+              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-400">
                 {displayProfile?.weight || '--'} kg
               </Text>
             </View>
 
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700 dark:text-gray-400">Goal</Text>
-              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-200">
+              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-400">
                 {getGoalLabel(displayProfile?.goal_plan)}
               </Text>
             </View>
 
             <View className="flex-row justify-between items-center py-2">
               <Text className="font-brsegma-500 text-gray-700 dark:text-gray-400">Diet</Text>
-              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-200">
+              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-400">
                 {getDietLabel(displayProfile?.diet_preferences)}
               </Text>
             </View>

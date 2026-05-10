@@ -210,7 +210,7 @@ export default function Index() {
               onPress={() => handleSearchCategory(index)}
             >
               <View className="flex flex-row items-center">
-                <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400 dark:text-secondary-200'}`}>
+                <Text className={`font-semibold ${cat.isActive ? 'text-white' : 'text-primary-400 dark:text-secondary-400'}`}>
                   {cat.name}
                 </Text>
                 {cat.isActive && <FontAwesome6 name="x" className="ml-3" size={15} color="white"></FontAwesome6>}
@@ -265,7 +265,7 @@ export default function Index() {
           <FontAwesome5 name="search" size={20} color={searchIconColor} />
           <TextInput 
             ref={searchInputRef}
-            className="flex-1 ml-3 text-base text-gray-700 dark:text-secondary-200" 
+            className="flex-1 ml-3 text-base text-gray-700 dark:text-secondary-400" 
             placeholder="Find your meal..." 
             placeholderTextColor={placeholderColor}
             value={searchRec}
@@ -362,7 +362,7 @@ export default function Index() {
               <View className="flex gap-4">
                 <TodaysMeal />
                 <View className="flex gap-3">
-                  <Text className="text-xl font-fogsta px-6 text-black dark:text-secondary-200">Categories</Text>
+                  <Text className="text-xl font-fogsta px-6 text-black dark:text-secondary-400">Categories</Text>
                   <FlatList
                     data={categories}
                     horizontal={true}
@@ -374,14 +374,14 @@ export default function Index() {
                           <View className={`size-20 rounded-full items-center justify-center ${item.bg}`}>
                             <FontAwesome5 name={item.icon} size={28} color="#4a2c2a" />
                           </View>
-                          <Text className="text-center font-brsegma-600 w-24 text-black dark:text-secondary-200">{item.label}</Text>
+                          <Text className="text-center font-brsegma-600 w-24 text-black dark:text-secondary-400">{item.label}</Text>
                         </View>
                       </TouchableHighlight>
                     )}
                   />
                 </View>
                 <View className="gap-3">
-                  <Text className="text-xl font-fogsta px-6 text-black dark:text-secondary-200">For You</Text>
+                  <Text className="text-xl font-fogsta px-6 text-black dark:text-secondary-400">For You</Text>
                   <FlatList
                     data={tenRecipe?.TenRecipe}
                     showsHorizontalScrollIndicator={false}

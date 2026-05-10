@@ -161,13 +161,13 @@ export default function Index() {
             className="w-10 h-10 rounded-full bg-gray-200 dark:bg-surface-darker"
           />
           <View>
-            <Text className="font-brsegma-600 text-gray-800 dark:text-secondary-200">{item.author_name || "Chef"}</Text>
+            <Text className="font-brsegma-600 text-gray-800 dark:text-secondary-400">{item.author_name || "Chef"}</Text>
           </View>
         </View>
       </View>
 
       <View className="mb-3">
-        <Text className="text-gray-800 dark:text-secondary-200 font-brsegma-600 text-base mb-1" numberOfLines={2}>{item.name}</Text>
+        <Text className="text-gray-800 dark:text-secondary-400 font-brsegma-600 text-base mb-1" numberOfLines={2}>{item.name}</Text>
         <Text className="text-gray-500 dark:text-gray-400 font-brsegma-500 text-sm" numberOfLines={2}>{item.Description}</Text>
         {getFirstTag(item.tags).length > 0 && (
           <Text className="text-primary-400 dark:text-secondary-400 font-brsegma-500 text-sm mt-1">

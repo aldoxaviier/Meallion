@@ -10,6 +10,7 @@ import InstructionsTab from "./component/InstructionTab";
 import ReviewsTab from "./component/ReviewsTab";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ProfileDataContext } from "../store/profileDataContext";
+import { useColorScheme } from "nativewind";
 
 const HEADER_HEIGHT_NARROWED = 150;
 const HEADER_HEIGHT_EXPANDED = 35;
@@ -68,6 +69,9 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
   const tabWidth = (containerWidth - 8) / tabs.length;
   const url = process.env.EXPO_PUBLIC_API_URL;
   const profileData = useContext(ProfileDataContext);
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   const translateX = slideAnim.interpolate({
     inputRange: [0, 1, 2],
     outputRange: [0, tabWidth, tabWidth * 2],
@@ -110,15 +114,13 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
   }
 
   return (
-    <View className="overflow-hidden bg-secondary-400">
-      {/* Back button */}
+    <View className="overflow-hidden bg-secondary-400 dark:bg-background-dark">
       <TouchableOpacity 
         className="absolute z-10 top-20 left-5 rounded-[15px] items-center justify-center bg-black/60"
         onPress={() => router.back()}>
         <Ionicons name="arrow-back-outline" color="white" size={30}></Ionicons>
       </TouchableOpacity>
 
-      {/* Recipe Image */}
       <AnimatedImageBackground
         source={{ uri: getImages(recipeData?.Images) }}
         style={{
@@ -156,10 +158,10 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
           paddingTop: TOTAL_HEADER_HEIGHT -30,
           paddingBottom: insets.bottom + 50
         }}>
-        <View className="p-6 bg-secondary-400 rounded-t-[30px]">
-          <View className="bg-gray-900 self-center w-[15rem] h-[3px] rounded-full"></View>
+        <View className="p-6 bg-secondary-400 dark:bg-background-dark rounded-t-[30px]">
+          <View className="bg-gray-900 dark:bg-gray-600 self-center w-[15rem] h-[3px] rounded-full"></View>
           <View className="my-9">
-            <Text className="font-fogsta text-4xl">
+            <Text className="font-fogsta text-4xl dark:text-secondary-400">
               {recipeData.name}
             </Text>
 
@@ -169,17 +171,16 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
               contentContainerStyle={{ gap: 5, marginTop: 10 }}
             >
               {recipeTags.map((item: string, index: number) => (
-                <View key={index} className="bg-white px-3 py-1 rounded-full">
-                  <Text className="font-brsegma-600 text-primary-400">
+                <View key={index} className="bg-white dark:bg-surface-dark px-3 py-1 rounded-full">
+                  <Text className="font-brsegma-600 text-primary-400 dark:text-secondary-400">
                     {item}
                   </Text>
                 </View>
               ))}
             </ScrollView>
-            <Text className="font-brsegma-500 mt-5 p-1">
+            <Text className="font-brsegma-500 mt-5 p-1 dark:text-secondary-400">
               {recipeData.Description}
             </Text>
-            {/* Author Profile Section - under description */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => {
@@ -197,38 +198,38 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
                     ? { uri: recipeData.profile_image }
                     : require('../../assets/avatar/profile_dumb.jpg')
                 }
-                className="w-9 h-9 rounded-full"
+                className="w-9 h-9 rounded-full bg-gray-200 dark:bg-surface-darker"
               />
               <View className="ml-2">
-                <Text className="text-[15px] text-gray-600 font-brsegma-600">
+                <Text className="text-[15px] text-gray-600 dark:text-secondary-400 font-brsegma-600">
                   Recipe by
                 </Text>
-                <Text className="font-brsegma-600 font-bold text-sm text-gray-900">
+                <Text className="font-brsegma-600 font-bold text-sm text-gray-900 dark:text-secondary-400">
                   {recipeData?.author_name || 'Unknown Author'}
                 </Text>
               </View>
             </TouchableOpacity>
 
-            <View className="flex flex-row bg-primary-500 p-5 rounded-xl mt-7">
-              <View className="flex-1 flex-row justify-center items-center border-r border-white">
-                <Ionicons name="star-outline" size={16} color="white" />
-                <Text className="font-brsegma-500 text-white font-bold ml-2">{recipeData.rating_score || "0"}</Text>
-                <Text className="font-light text-white ml-2">(200)</Text>
+            <View className="flex flex-row bg-primary-500 dark:bg-surface-dark p-5 rounded-xl mt-7">
+              <View className="flex-1 flex-row justify-center items-center border-r border-white dark:border-surface-darker">
+                <Ionicons name="star-outline" size={16} color={isDark ? "#eddca1" : "white"} />
+                <Text className="font-brsegma-500 text-white dark:text-secondary-400 font-bold ml-2">{recipeData.rating_score || "0"}</Text>
+                <Text className="font-light text-white dark:text-secondary-400 ml-2">(200)</Text>
               </View>
-              <View className="flex-1 flex-row justify-center items-center border-r border-white">
-                <Text className="font-brsegma-500 text-white font-bold">{recipeData.TotalTime}</Text>
+              <View className="flex-1 flex-row justify-center items-center border-r border-white dark:border-surface-darker">
+                <Text className="font-brsegma-500 text-white dark:text-secondary-400 font-bold">{recipeData.TotalTime}</Text>
               </View>
               <View className="flex-1 flex-row justify-center items-center">
-                <Ionicons name="restaurant-outline" size={16} color="white" />
-                <Text className="font-brsegma-600 text-white ml-2">{recipeData.RecipeServings} Servings</Text>
+                <Ionicons name="restaurant-outline" size={16} color={isDark ? "#eddca1" : "white"} />
+                <Text className="font-brsegma-600 text-white dark:text-secondary-400 ml-2">{recipeData.RecipeServings} Servings</Text>
               </View>
             </View>
           </View>
 
-          <View className="bg-[#E1D9C9] rounded-xl flex-row p-1 mb-7 mt-4 relative" onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
+          <View className="bg-[#E1D9C9] dark:bg-surface-darker rounded-xl flex-row p-1 mb-7 mt-4 relative" onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
             {containerWidth > 0 && (
               <Animated.View
-                className="absolute bg-white rounded-[10px] top-1 bottom-1 left-1"
+                className="absolute bg-white dark:bg-surface-dark rounded-[10px] top-1 bottom-1 left-1"
                 style={{
                   width: tabWidth,
                   transform: [{ translateX }],
@@ -240,7 +241,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
                 key={index}
                 onPress={() => handlePress(index)}
                 className="flex-1 py-3 items-center z-10">
-                <Text className={`font-bold ${activeTab === index ? 'text-black' : 'text-gray-500'}`}>
+                <Text className={`font-bold ${activeTab === index ? 'text-black dark:text-secondary-400' : 'text-gray-500 dark:text-gray-600'}`}>
                   {tab}
                 </Text>
               </TouchableOpacity>
@@ -268,11 +269,10 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
         </View>
       </Animated.ScrollView>
 
-      {/* Add to Plan Button */}
       <TouchableOpacity
-        className="absolute z-10 bottom-11 left-0 right-0 bg-primary-500 py-4 items-center justify-center m-6 rounded-xl"
+        className="absolute z-10 bottom-11 left-0 right-0 bg-primary-500 dark:bg-primary-600 py-4 items-center justify-center m-6 rounded-xl"
         onPress={() => addLikes()}>
-        <Text className="font-brsegma-600 text-white text-lg">
+        <Text className="font-brsegma-600 text-white dark:text-secondary-400 text-lg">
           Save to Likes
         </Text>
       </TouchableOpacity>
