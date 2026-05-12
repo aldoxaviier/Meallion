@@ -121,6 +121,7 @@ export default function Index() {
     setActiveTab(selectedTab);
     loadInitialForTab(selectedTab);
   };
+
   useFocusEffect(
     useCallback(() => {
       fetchedTabs.current.clear();
@@ -149,28 +150,32 @@ export default function Index() {
   }
 
   const renderRecipePost = ({ item }: { item: any }) => (
-    <TouchableOpacity 
-      activeOpacity={0.8} 
-      onPress={() => router.push(`../recipes/${item.recipe_id}`)} 
-      className="bg-white dark:bg-surface-dark p-5 mx-4 mb-4 rounded-2xl shadow-sm border border-transparent dark:border-surface-darker"
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() => router.push(`../recipes/${item.recipe_id}`)}
+      className="p-6 border-b-[0.5px] border-gray-400"
     >
       <View className="flex-row justify-between items-start mb-3">
         <View className="flex-row items-center gap-3">
           <Image
             source={item.profile_image ? { uri: item.profile_image } : require('../../../assets/images/android-icon-background.png')}
-            className="w-10 h-10 rounded-full bg-gray-200 dark:bg-surface-darker"
+            className="w-10 h-10 rounded-full"
           />
           <View>
-            <Text className="font-brsegma-600 text-gray-800 dark:text-secondary-400">{item.author_name || "Chef"}</Text>
+            <Text className="font-brsegma-600 text-gray-800">{item.author_name || "Chef"}</Text>
+            <Text className="text-gray-600 text-xs">Food Enthusiast</Text>
           </View>
         </View>
+        <TouchableOpacity>
+          <Feather name="more-vertical" size={20} color="#9CA3AF" />
+        </TouchableOpacity>
       </View>
 
       <View className="mb-3">
-        <Text className="text-gray-800 dark:text-secondary-400 font-brsegma-600 text-base mb-1" numberOfLines={2}>{item.name}</Text>
-        <Text className="text-gray-500 dark:text-gray-400 font-brsegma-500 text-sm" numberOfLines={2}>{item.Description}</Text>
+        <Text className="text-gray-800 font-brsegma-600 text-base mb-1" numberOfLines={2}>{item.name}</Text>
+        <Text className="text-gray-500 font-brsegma-500 text-sm" numberOfLines={2}>{item.Description}</Text>
         {getFirstTag(item.tags).length > 0 && (
-          <Text className="text-primary-400 dark:text-secondary-400 font-brsegma-500 text-sm mt-1">
+          <Text className="text-primary-400 font-brsegma-500 text-sm mt-1">
             {getFirstTag(item.tags).join(' ')}
           </Text>
         )}
@@ -179,7 +184,7 @@ export default function Index() {
       {item.Images && (
         <Image
           source={{ uri: getImages(item.Images) }}
-          className="w-full h-72 rounded-xl mb-3 bg-gray-100 dark:bg-surface-darker"
+          className="w-full h-72 rounded-xl mb-3"
           resizeMode="cover"
         />
       )}
@@ -187,29 +192,29 @@ export default function Index() {
       <View className="flex-row justify-between items-center pt-2">
         <View className="flex-row gap-5">
           <TouchableOpacity className="flex-row items-center gap-1">
-            <Feather name="star" size={18} color={isDark ? "#FACC15" : "#FFD700"} />
-            <Text className="text-gray-500 dark:text-gray-400 text-sm">{item.rating_total || 0}</Text>
+            <Feather name="star" size={18} color="#FFD700" />
+            <Text className="text-gray-600 text-sm">{item.rating_total || 0}</Text>
           </TouchableOpacity>
           <TouchableOpacity className="flex-row items-center gap-1">
-            <Feather name="message-square" size={18} color={isDark ? "#9CA3AF" : "#6B7280"} />
+            <Feather name="message-square" size={18} color="#6B7280" />
           </TouchableOpacity>
           <TouchableOpacity className="flex-row items-center gap-1">
-            <Feather name="share-2" size={18} color={isDark ? "#9CA3AF" : "#6B7280"} />
+            <Feather name="share-2" size={18} color="#6B7280" />
           </TouchableOpacity>
         </View>
         <TouchableOpacity className="flex-row items-center gap-1">
-          <Feather name="bookmark" size={18} color={isDark ? "#9CA3AF" : "#6B7280"} />
+          <Feather name="bookmark" size={18} color="#6B7280" />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
   
   return (
-    <View className="flex-1 bg-secondary-400 dark:bg-background-dark">
+    <>
       <SocialHeader onPressBtn={handleActiveTab} onSearchPress={handleSearchPress} />
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={isDark ? "#FFF9E7" : "#4a2c2a"} />
+          <ActivityIndicator size="large" color="#4a2c2a" />
         </View>
       ) : (
         <FlatList
@@ -218,7 +223,6 @@ export default function Index() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          contentContainerStyle={{ paddingTop: 16, paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.recipe_id?.toString() || item.user_id.toString()}
           onEndReached={handleLoadMore}
@@ -226,7 +230,7 @@ export default function Index() {
           renderItem={renderRecipePost}
           ListFooterComponent={() => (
             <View className="h-[30px]">
-              {isLoadingMore && <ActivityIndicator color={isDark ? "#FFF9E7" : "#4a2c2a"} />}
+              {isLoadingMore && <ActivityIndicator />}
             </View>
           )}
         />
@@ -234,11 +238,11 @@ export default function Index() {
 
       <TouchableOpacity
         activeOpacity={0.9}
-        className="absolute bottom-4 right-6 h-14 w-14 rounded-full bg-primary-500 items-center justify-center shadow-lg border border-transparent dark:border-surface-darker"
+        className="absolute bottom-2 right-6 h-14 w-14 rounded-full bg-primary-500 items-center justify-center shadow-lg"
         onPress={() => router.push("/addrecipe")}
       >
         <Feather name="plus" size={24} color="#FFFFFF" />
       </TouchableOpacity>
-    </View>
+    </>
   );
 }

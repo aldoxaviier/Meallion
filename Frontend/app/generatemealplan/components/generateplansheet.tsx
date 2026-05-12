@@ -124,7 +124,7 @@ export default function GeneratePlanSheet({
 
         {/* sheet */}
         <Animated.View
-          className="rounded-t-3xl bg-secondary-400 dark:bg-surface-dark px-5 pt-8 pb-2 border border-transparent dark:border-surface-darker"
+          className="rounded-t-3xl bg-secondary-200 dark:bg-surface-dark px-5 pt-8 pb-2 border border-transparent dark:border-surface-darker"
           style={{ height: SHEET_HEIGHT, transform: [{ translateY: slideAnim }] }}
         >
 
