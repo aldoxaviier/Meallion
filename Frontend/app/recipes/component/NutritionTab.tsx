@@ -3,9 +3,24 @@ import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
-export default function NutritionTab({ recipeData }: { recipeData: any} ) {
+export default function NutritionTab({ 
+  recipeData, 
+  servings, 
+  baseServings 
+}: { 
+  recipeData: any;
+  servings: number;
+  baseServings: number;
+}) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+
+  const scale = (value: any) => {
+    const parsed = parseFloat(value);
+    if (isNaN(parsed)) return "0";
+    const scaled = (parsed / baseServings) * servings;
+    return Number.isInteger(scaled) ? scaled.toString() : scaled.toFixed(1);
+  };
 
   const nutrients = [
     { label: 'Carbs', value: recipeData?.CarbohydrateContent, unit: 'g', color: '#DED066' },
@@ -24,10 +39,14 @@ export default function NutritionTab({ recipeData }: { recipeData: any} ) {
         <View>
           <Text className="text-white dark:text-secondary-400 font-brsegma-600">Total Calories</Text>
           <View className="flex flex-row items-baseline">
-            <Text className="text-white dark:text-secondary-400 text-[56px] font-fogsta">{recipeData.Calories}</Text>
+            <Text className="text-white dark:text-secondary-400 text-[56px] font-fogsta">
+              {scale(recipeData?.Calories)}
+            </Text>
             <Text className="text-white dark:text-secondary-400 text-base ml-2 font-brsegma-600">kcal</Text>
           </View>
-          <Text className="text-white/80 dark:text-secondary-400/80 text-[14px] mt-1 font-brsegma-500">per serving</Text>
+          <Text className="text-white/80 dark:text-secondary-400/80 text-[14px] mt-1 font-brsegma-500">
+            {servings} serving{servings !== 1 ? 's' : ''}
+          </Text>
         </View>
         <View className="bg-white/20 dark:bg-black/20 w-[70px] h-[70px] rounded-full justify-center items-center">
           <Ionicons name="flame" size={36} color={isDark ? "#eddca1" : "white"} />
@@ -40,8 +59,8 @@ export default function NutritionTab({ recipeData }: { recipeData: any} ) {
         </Text>
         <View className="bg-white dark:bg-surface-dark rounded-2xl p-5 shadow-sm border border-transparent dark:border-surface-darker" style={{ elevation: 2 }}>
           {nutrients.map((item, index) => (
-            <View 
-              key={index} 
+            <View
+              key={index}
               className={`flex-row justify-between items-center py-3 ${item.border ? 'border-b border-gray-100 dark:border-surface-darker mb-2' : ''}`}
             >
               <View className="flex-row items-center">
@@ -49,7 +68,7 @@ export default function NutritionTab({ recipeData }: { recipeData: any} ) {
                 <Text className="text-gray-600 dark:text-gray-400 text-sm font-brsegma-500">{item.label}</Text>
               </View>
               <Text className="text-gray-900 dark:text-secondary-400 text-sm font-brsegma-600">
-                {item.value || "0"} {item.unit}
+                {scale(item.value)} {item.unit}
               </Text>
             </View>
           ))}
@@ -57,4 +76,4 @@ export default function NutritionTab({ recipeData }: { recipeData: any} ) {
       </View>
     </View>
   );
-};
+}

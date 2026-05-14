@@ -132,7 +132,8 @@ const getMealPlan = async (userId, date) => {
             r."Images",
             r."FatContent",
             r."CarbohydrateContent",
-            r."ProteinContent"
+            r."ProteinContent",
+            r."RecipeServings"
         FROM mealplan m
         JOIN recipes r ON m.recipe_id = r.recipe_id
         WHERE m.user_id = ${userId}

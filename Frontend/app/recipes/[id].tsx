@@ -20,7 +20,7 @@ const AnimatedImageBackground = Animated.createAnimatedComponent(ImageBackground
 export default function dynamicRecipe() {
   const { id } = useLocalSearchParams()
   const [recipeData, setRecipeData] = useState<any>([])
-  
+
   const fetchRecipeData = async () => {
     try {
       const response = await api.get(`/recipes/getRecipesByID?id=${id}`);
@@ -38,7 +38,7 @@ export default function dynamicRecipe() {
       if (response.data?.isDuplicate) {
         Alert.alert("Warning", "Recipe already liked!");
       } else {
-        Alert.alert("Success", "Recipe saved to your likes!"); 
+        Alert.alert("Success", "Recipe saved to your likes!");
       }
     } catch (error) {
       console.error("Error adding like:", error);
@@ -52,7 +52,7 @@ export default function dynamicRecipe() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Page recipeData={recipeData} onRefresh={fetchRecipeData} addLikes={handleLikes}/>
+      <Page recipeData={recipeData} onRefresh={fetchRecipeData} addLikes={handleLikes} />
     </GestureHandlerRootView>
   )
 }
@@ -60,6 +60,7 @@ export default function dynamicRecipe() {
 function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh: () => void, addLikes: () => void }) {
   const [activeTab, setActiveTab] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [servings, setServings] = useState<number>(1);
   const insets = useSafeAreaInsets()
   const slideAnim = useRef(new Animated.Value(0)).current;
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -71,6 +72,13 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
   const profileData = useContext(ProfileDataContext);
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const baseServings = Number(recipeData?.RecipeServings) || 1;
+
+  useEffect(() => {
+    if (recipeData?.RecipeServings) {
+      setServings(Number(recipeData.RecipeServings));
+    }
+  }, [recipeData?.RecipeServings]);
 
   const translateX = slideAnim.interpolate({
     inputRange: [0, 1, 2],
@@ -96,13 +104,13 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
     extrapolateRight: 'clamp'
   });
 
-  const handlePress = (index : any) => {
+  const handlePress = (index: any) => {
     setActiveTab(index);
     Animated.spring(slideAnim, {
       toValue: index,
-      useNativeDriver: true, 
-      speed: 12, 
-      bounciness: 4, 
+      useNativeDriver: true,
+      speed: 12,
+      bounciness: 4,
     }).start();
   };
 
@@ -115,7 +123,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
 
   return (
     <View className="overflow-hidden bg-secondary-400 dark:bg-background-dark">
-      <TouchableOpacity 
+      <TouchableOpacity
         className="absolute z-10 top-20 left-5 rounded-[15px] items-center justify-center bg-black/60"
         onPress={() => router.back()}>
         <Ionicons name="arrow-back-outline" color="white" size={30}></Ionicons>
@@ -128,9 +136,9 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
           left: 0,
           right: 0,
           height: TOTAL_HEADER_HEIGHT,
-          transform: [ { translateY }, { scale } ]
+          transform: [{ translateY }, { scale }]
         }} />
-      
+
       <AnimatedImageBackground
         source={{ uri: getImages(recipeData?.Images) }}
         blurRadius={20}
@@ -139,9 +147,9 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
           left: 0, right: 0, top: 0,
           height: TOTAL_HEADER_HEIGHT,
           opacity: blurOpacity,
-          transform: [ { translateY }, { scale } ]
+          transform: [{ translateY }, { scale }]
         }} />
-      
+
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
@@ -155,18 +163,18 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
           zIndex: 3
         }}
         contentContainerStyle={{
-          paddingTop: TOTAL_HEADER_HEIGHT -30,
+          paddingTop: TOTAL_HEADER_HEIGHT - 30,
           paddingBottom: insets.bottom + 50
         }}>
-        <View className="p-6 bg-secondary-400 dark:bg-background-dark rounded-t-[30px]">
+        <View className="pt-6 px-6 bg-secondary-400 dark:bg-background-dark rounded-t-[30px]">
           <View className="bg-gray-900 dark:bg-gray-600 self-center w-[15rem] h-[3px] rounded-full"></View>
           <View className="my-9">
             <Text className="font-fogsta text-4xl dark:text-secondary-400">
               {recipeData.name}
             </Text>
 
-            <ScrollView 
-              horizontal 
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 5, marginTop: 10 }}
             >
@@ -178,9 +186,11 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
                 </View>
               ))}
             </ScrollView>
+
             <Text className="font-brsegma-500 mt-5 p-1 dark:text-secondary-400">
               {recipeData.Description}
             </Text>
+
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => {
@@ -211,22 +221,46 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
             </TouchableOpacity>
 
             <View className="flex flex-row bg-primary-500 dark:bg-surface-dark p-5 rounded-xl mt-7">
+              {/* Rating */}
               <View className="flex-1 flex-row justify-center items-center border-r border-white dark:border-surface-darker">
                 <Ionicons name="star-outline" size={16} color={isDark ? "#eddca1" : "white"} />
-                <Text className="font-brsegma-500 text-white dark:text-secondary-400 font-bold ml-2">{recipeData.rating_score || "0"}</Text>
+                <Text className="font-brsegma-500 text-white dark:text-secondary-400 font-bold ml-2">
+                  {recipeData.rating_score || "0"}
+                </Text>
                 <Text className="font-light text-white dark:text-secondary-400 ml-2">(200)</Text>
               </View>
+
+              {/* Total Time */}
               <View className="flex-1 flex-row justify-center items-center border-r border-white dark:border-surface-darker">
-                <Text className="font-brsegma-500 text-white dark:text-secondary-400 font-bold">{recipeData.TotalTime}</Text>
+                <Text className="font-brsegma-500 text-white dark:text-secondary-400 font-bold">
+                  {recipeData.TotalTime}
+                </Text>
               </View>
-              <View className="flex-1 flex-row justify-center items-center">
+
+              {/* Servings with +/- controls */}
+              <View className="flex-1 flex-row justify-center items-center gap-2">
                 <Ionicons name="restaurant-outline" size={16} color={isDark ? "#eddca1" : "white"} />
-                <Text className="font-brsegma-600 text-white dark:text-secondary-400 ml-2">{recipeData.RecipeServings} Servings</Text>
+                <TouchableOpacity
+                  onPress={() => setServings((prev) => Math.max(1, prev - 1))}
+                  className="w-6 h-6 rounded-full bg-white/20 items-center justify-center">
+                  <Text className="text-white dark:text-secondary-400 font-bold leading-none">−</Text>
+                </TouchableOpacity>
+                <Text className="font-brsegma-600 text-white dark:text-secondary-400 min-w-[20px] text-center">
+                  {servings}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setServings((prev) => prev + 1)}
+                  className="w-6 h-6 rounded-full bg-white/20 items-center justify-center">
+                  <Text className="text-white dark:text-secondary-400 font-bold leading-none">+</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
 
-          <View className="bg-[#E1D9C9] dark:bg-surface-darker rounded-xl flex-row p-1 mb-7 mt-4 relative" onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
+          {/* Tab Switcher */}
+          <View
+            className="bg-[#E1D9C9] dark:bg-surface-darker rounded-xl flex-row p-1 mb-7 mt-4 relative"
+            onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
             {containerWidth > 0 && (
               <Animated.View
                 className="absolute bg-white dark:bg-surface-dark rounded-[10px] top-1 bottom-1 left-1"
@@ -237,7 +271,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
             )}
 
             {tabs.map((tab, index) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={index}
                 onPress={() => handlePress(index)}
                 className="flex-1 py-3 items-center z-10">
@@ -247,35 +281,43 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
               </TouchableOpacity>
             ))}
           </View>
-          
-          <View className="mb-10">
+
+          {/* Tab Content */}
+          <View className="mb-6">
             {activeTab === 0 && (
-              <NutritionTab 
-                recipeData={recipeData} />
+              <NutritionTab
+                recipeData={recipeData}
+                servings={servings}
+                baseServings={baseServings}
+              />
             )}
-            
+
             {activeTab === 1 && (
-              <InstructionsTab 
-                recipeData={recipeData} />
+              <InstructionsTab
+                recipeData={recipeData}
+                servings={servings}
+                baseServings={baseServings}
+              />
             )}
 
             {activeTab === 2 && (
-              <ReviewsTab 
-                recipeData={recipeData} 
-                onReviewSuccess={onRefresh} />
+              <ReviewsTab
+                recipeData={recipeData}
+                onReviewSuccess={onRefresh}
+              />
             )}
           </View>
 
+          <TouchableOpacity
+            className="bg-primary-500 dark:bg-primary-600 py-4 items-center justify-center rounded-xl"
+            onPress={() => addLikes()}>
+            <Text className="font-brsegma-600 text-white dark:text-secondary-400 text-lg">
+              Love this!
+            </Text>
+          </TouchableOpacity>
+
         </View>
       </Animated.ScrollView>
-
-      <TouchableOpacity
-        className="absolute z-10 bottom-11 left-0 right-0 bg-primary-500 dark:bg-primary-600 py-4 items-center justify-center m-6 rounded-xl"
-        onPress={() => addLikes()}>
-        <Text className="font-brsegma-600 text-white dark:text-secondary-400 text-lg">
-          Save to Likes
-        </Text>
-      </TouchableOpacity>
     </View>
   )
 }

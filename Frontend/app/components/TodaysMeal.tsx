@@ -65,13 +65,13 @@ export const TodaysMeal = () => {
 
   const handleMealAction = async (actionType: string) => {
     if (actionType === 'ate') {
-      setIsLoading(true); 
+      setIsLoading(true);
       
       const mealIDs = currentMeals.map((meal) => meal.id);
-      const progress_cal = currentMeals.reduce((sum, meal) => sum + (meal.Calories || 0), 0);
-      const progress_pro = currentMeals.reduce((sum, meal) => sum + (meal.ProteinContent || 0), 0);
-      const progress_fat = currentMeals.reduce((sum, meal) => sum + (meal.FatContent || 0), 0);
-      const progress_carbs = currentMeals.reduce((sum, meal) => sum + (meal.CarbohydrateContent || 0), 0);
+      const progress_cal = currentMeals.reduce((sum, meal) => sum + (meal.Calories / meal.RecipeServings || 0), 0);
+      const progress_pro = currentMeals.reduce((sum, meal) => sum + (meal.ProteinContent / meal.RecipeServings || 0), 0);
+      const progress_fat = currentMeals.reduce((sum, meal) => sum + (meal.FatContent / meal.RecipeServings || 0), 0);
+      const progress_carbs = currentMeals.reduce((sum, meal) => sum + (meal.CarbohydrateContent / meal.RecipeServings || 0), 0);
       
       try {
         const body = {
