@@ -126,6 +126,7 @@ const getMealPlan = async (userId, date) => {
             m.recipe_id,
             m.meal_time,
             m.is_eaten,
+            r.recipe_id,
             r.name,
             r."Calories",
             r."TotalTime",

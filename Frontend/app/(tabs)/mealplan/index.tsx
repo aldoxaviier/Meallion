@@ -25,6 +25,7 @@ interface MealSectionProps {
   data: any[];
   onAdd: () => void;
   onDelete: (meal: any) => void;
+  onOpenRecipe: (meal: any) => void;
   isComplete: boolean;
   canDeleteMeals: boolean;
 }
@@ -308,6 +309,7 @@ export default function MealPlan() {
                 isComplete={isDailyGoalCompleted}
                 canDeleteMeals={canDeleteMeals}
                 onAdd={() => handleAddMeal(mealType)}
+                onOpenRecipe={(meal) => router.push(`/recipes/${meal.recipe_id}` as any)}
                 onDelete={(meal) => handleDeletePlan({
                   mealId: meal.id,
                   date: format(selectedDate, 'yyyy-MM-dd'),
@@ -325,7 +327,7 @@ export default function MealPlan() {
   );
 }
 
-const MealSection = ({ title, type, data, onAdd, onDelete, isComplete, canDeleteMeals }: MealSectionProps) => {
+const MealSection = ({ title, type, data, onAdd, onDelete, onOpenRecipe, isComplete, canDeleteMeals }: MealSectionProps) => {
   const filteredMeals = data.filter((meal) => meal.meal_time === type);
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -346,7 +348,12 @@ const MealSection = ({ title, type, data, onAdd, onDelete, isComplete, canDelete
       <View className="mt-4 flex flex-col gap-3">
         {filteredMeals.length > 0 ? (
           filteredMeals.map((meal: any, index: number) => (
-            <View key={meal.id || index} className={`flex-row items-center ${meal.is_eaten ? 'bg-green-200 dark:bg-green-900/50' : 'bg-secondary-400 dark:bg-surface-darker'} rounded-2xl p-3`}>
+            <TouchableOpacity
+              key={meal.recipe_id || index}
+              onPress={() => onOpenRecipe(meal)}
+              activeOpacity={0.85}
+              className={`flex-row items-center ${meal.is_eaten ? 'bg-green-200 dark:bg-green-900/50' : 'bg-secondary-400 dark:bg-surface-darker'} rounded-2xl p-3`}
+            >
               <Image className="w-14 h-14 rounded-2xl" source={{ uri: meal.Images }} />
 
               <View className="flex-1 ml-3">
@@ -370,7 +377,7 @@ const MealSection = ({ title, type, data, onAdd, onDelete, isComplete, canDelete
                   </TouchableOpacity>
                 </View>
               )}
-            </View>
+            </TouchableOpacity>
           ))
         ) : (
           <View className="items-center mt-2">

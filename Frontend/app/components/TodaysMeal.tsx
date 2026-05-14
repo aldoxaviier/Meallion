@@ -68,10 +68,10 @@ export const TodaysMeal = () => {
       setIsLoading(true);
       
       const mealIDs = currentMeals.map((meal) => meal.id);
-      const progress_cal = currentMeals.reduce((sum, meal) => sum + (meal.Calories / meal.RecipeServings || 0), 0);
-      const progress_pro = currentMeals.reduce((sum, meal) => sum + (meal.ProteinContent / meal.RecipeServings || 0), 0);
-      const progress_fat = currentMeals.reduce((sum, meal) => sum + (meal.FatContent / meal.RecipeServings || 0), 0);
-      const progress_carbs = currentMeals.reduce((sum, meal) => sum + (meal.CarbohydrateContent / meal.RecipeServings || 0), 0);
+      const progress_cal = currentMeals.reduce((sum, meal) => sum + (meal.Calories > 1000 ? meal.Calories / meal.RecipeServings : meal.Calories || 0), 0);
+      const progress_pro = currentMeals.reduce((sum, meal) => sum + (meal.ProteinContent > 1000 ? meal.ProteinContent / meal.RecipeServings : meal.ProteinContent || 0), 0);
+      const progress_fat = currentMeals.reduce((sum, meal) => sum + (meal.FatContent > 1000 ? meal.FatContent / meal.RecipeServings : meal.FatContent || 0), 0);
+      const progress_carbs = currentMeals.reduce((sum, meal) => sum + (meal.CarbohydrateContent > 1000 ? meal.CarbohydrateContent / meal.RecipeServings : meal.CarbohydrateContent || 0), 0);
       
       try {
         const body = {
