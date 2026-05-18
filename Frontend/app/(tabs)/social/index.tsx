@@ -162,8 +162,8 @@ export default function Index() {
             className="w-10 h-10 rounded-full"
           />
           <View>
-            <Text className="font-brsegma-600 text-gray-800">{item.author_name || "Chef"}</Text>
-            <Text className="text-gray-600 text-xs">Food Enthusiast</Text>
+            <Text className="font-brsegma-600 text-gray-800 dark:text-secondary-400">{item.author_name || "Chef"}</Text>
+            <Text className="text-gray-600 font-brsegma-300 text-xs dark:text-secondary-300">Food Enthusiast</Text>
           </View>
         </View>
         <TouchableOpacity>
@@ -172,8 +172,8 @@ export default function Index() {
       </View>
 
       <View className="mb-3">
-        <Text className="text-gray-800 font-brsegma-600 text-base mb-1" numberOfLines={2}>{item.name}</Text>
-        <Text className="text-gray-500 font-brsegma-500 text-sm" numberOfLines={2}>{item.Description}</Text>
+        <Text className="text-gray-800 font-brsegma-600 text-base mb-1 dark:text-secondary-400" numberOfLines={2}>{item.name}</Text>
+        <Text className="text-gray-500 font-brsegma-300 text-sm dark:text-secondary-300" numberOfLines={2}>{item.Description}</Text>
         {getFirstTag(item.tags).length > 0 && (
           <Text className="text-primary-400 font-brsegma-500 text-sm mt-1">
             {getFirstTag(item.tags).join(' ')}
@@ -193,18 +193,9 @@ export default function Index() {
         <View className="flex-row gap-5">
           <TouchableOpacity className="flex-row items-center gap-1">
             <Feather name="star" size={18} color="#FFD700" />
-            <Text className="text-gray-600 text-sm">{item.rating_total || 0}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center gap-1">
-            <Feather name="message-square" size={18} color="#6B7280" />
-          </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center gap-1">
-            <Feather name="share-2" size={18} color="#6B7280" />
+            <Text className="text-gray-600 text-sm">{item.rating_score || 0}</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity className="flex-row items-center gap-1">
-          <Feather name="bookmark" size={18} color="#6B7280" />
-        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );

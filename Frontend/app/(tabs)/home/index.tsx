@@ -1,6 +1,6 @@
 import { apiFastApi, api } from "../../utils/api";
 import { Text, View, Image, TextInput, ScrollView, Pressable, TouchableHighlight, FlatList, Animated, Keyboard, ActivityIndicator, RefreshControl } from "react-native";
-import { useEffect, useState, useContext, useRef } from "react";
+import { useEffect, useState, useContext, useRef, use } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileDataContext } from "../../store/profileDataContext";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -8,6 +8,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from "expo-router";
 import { useColorScheme } from "nativewind"; 
+import * as SecureStore from "expo-secure-store";
 
 import "../../globals.css"
 import { TenRecipeContext } from "@/app/store/tenRecipeContext";
@@ -53,7 +54,6 @@ export default function Index() {
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [searchCategories, setSearchCategory] = useState([
     { name: 'Vegan', isActive: false },
-    { name: 'Low Sugar', isActive: false },
     { name: 'Low Cholesterol', isActive: false },
     { name: 'High Protein', isActive: false },
     { name: 'Low Protein', isActive: false },
@@ -72,7 +72,6 @@ export default function Index() {
 
   const categories = [
     { label: "Vegan", url:'vegan', icon: "leaf", bg: "bg-green-400" },
-    { label: "Low Sugar", url:'low-sugar', icon: "cubes", bg: "bg-amber-300" },
     { label: "Low Cholesterol", url:'low-cholesterol', icon: "heart", bg: "bg-red-400" },
     { label: "High Protein", url:'high-protein', icon: "drumstick-bite", bg: "bg-yellow-300" },
     { label: "Low Protein", url:'low-protein', icon: "drumstick-bite", bg: "bg-orange-400" },
@@ -83,7 +82,10 @@ export default function Index() {
     const fetchProfile = async () => {
         try {
           const response = await api.get('/profile/getProfile')
-          profileData?.setProfileData(response.data)
+          const pushToken = await SecureStore.getItemAsync("pushToken");
+          const profile = response.data
+          profile.users.expo_push_token = pushToken || null;
+          profileData?.setProfileData(profile)
         } catch (err: any) {
             console.log('getProfile error:', err.response?.status, err.response?.data || err.message)
         } finally {
@@ -143,17 +145,20 @@ export default function Index() {
     setIsSearchMode(false);
     Keyboard.dismiss();
     setSearchRec("");
-    Animated.parallel([
-      Animated.timing(searchContentOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
-      Animated.timing(filterIconOpacity, { toValue: 0, duration: 100, useNativeDriver: true }),
-      Animated.spring(searchBarScale, { toValue: 1, useNativeDriver: true, tension: 120, friction: 10 }),
-      Animated.spring(searchBarLeftMargin, { toValue: 0, useNativeDriver: true, tension: 120, friction: 10 }),
-      Animated.timing(backArrowOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
-      Animated.spring(backArrowTranslateX, { toValue: -20, useNativeDriver: true, tension: 120, friction: 10 }),
-      Animated.spring(searchBarTranslateY, { toValue: 0, useNativeDriver: true, tension: 100, friction: 12 }),
-      Animated.timing(homeContentOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
-    ]).start();
-  };
+
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(searchContentOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
+        Animated.timing(filterIconOpacity, { toValue: 0, duration: 100, useNativeDriver: true }),
+        Animated.spring(searchBarScale, { toValue: 1, useNativeDriver: true, tension: 120, friction: 10 }),
+        Animated.spring(searchBarLeftMargin, { toValue: 0, useNativeDriver: true, tension: 120, friction: 10 }),
+        Animated.timing(backArrowOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
+        Animated.spring(backArrowTranslateX, { toValue: -20, useNativeDriver: true, tension: 120, friction: 10 }),
+        Animated.spring(searchBarTranslateY, { toValue: 0, useNativeDriver: true, tension: 100, friction: 12 }),
+        Animated.timing(homeContentOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+      ]).start();
+    }, 50); 
+};
 
   const handleLoadMore = async () => {
     if (isLoadingSearch || page >= totalPage) return;
@@ -388,7 +393,7 @@ export default function Index() {
                     horizontal={true}
                     contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
                     renderItem={({ item }) => (
-                      <RecipeCard recipe={item} onAddToPlan={() => console.log('Add to plan:', item.recipe_id)} />
+                      <RecipeCard recipe={item} onAddToPlan={() => console.log('Add to plan:', item.recipe_id)} isForYou={true} />
                     )}
                   />
                 </View>

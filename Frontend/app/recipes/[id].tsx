@@ -11,6 +11,7 @@ import ReviewsTab from "./component/ReviewsTab";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ProfileDataContext } from "../store/profileDataContext";
 import { useColorScheme } from "nativewind";
+import { WarningModal } from "../components/WarningModal";
 
 const HEADER_HEIGHT_NARROWED = 150;
 const HEADER_HEIGHT_EXPANDED = 35;
@@ -20,6 +21,16 @@ const AnimatedImageBackground = Animated.createAnimatedComponent(ImageBackground
 export default function dynamicRecipe() {
   const { id } = useLocalSearchParams()
   const [recipeData, setRecipeData] = useState<any>([])
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    title: "",
+    message: "",
+    confirmColor: "bg-primary-500"
+  });
+
+  const closeModal = () => {
+    setModalConfig(prev => ({ ...prev, visible: false }));
+  };
 
   const fetchRecipeData = async () => {
     try {
@@ -35,16 +46,26 @@ export default function dynamicRecipe() {
   const handleLikes = async () => {
     try {
       const response = await api.post(`/recipes/addLikes`, { recipeId: id, interaction: 'SAVE' });
+      
       if (response.data?.isDuplicate) {
-        Alert.alert("Warning", "Recipe already liked!");
+        setModalConfig({
+          visible: true,
+          title: "Warning",
+          message: "Recipe already liked!",
+          confirmColor: "bg-yellow-500"
+        });
       } else {
-        Alert.alert("Success", "Recipe saved to your likes!");
+        setModalConfig({
+          visible: true,
+          title: "Success",
+          message: "Recipe saved to your likes!",
+          confirmColor: "bg-third-500"
+        });
       }
     } catch (error) {
       console.error("Error adding like:", error);
     }
   };
-
   useEffect(() => {
     fetchRecipeData();
   }, [id]);
@@ -53,6 +74,16 @@ export default function dynamicRecipe() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack.Screen options={{ headerShown: false }} />
       <Page recipeData={recipeData} onRefresh={fetchRecipeData} addLikes={handleLikes} />
+      <WarningModal
+        visible={modalConfig.visible}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        isAlertOnly={true}            
+        confirmText="OK"              
+        confirmColor={modalConfig.confirmColor}
+        onClose={closeModal}
+        onConfirm={closeModal}        
+      />
     </GestureHandlerRootView>
   )
 }
@@ -227,7 +258,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
                 <Text className="font-brsegma-500 text-white dark:text-secondary-400 font-bold ml-2">
                   {recipeData.rating_score || "0"}
                 </Text>
-                <Text className="font-light text-white dark:text-secondary-400 ml-2">(200)</Text>
+                <Text className="font-light text-white dark:text-secondary-400 ml-2">({recipeData.rating_total || 0})</Text>
               </View>
 
               {/* Total Time */}
@@ -307,17 +338,15 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
               />
             )}
           </View>
-
-          <TouchableOpacity
-            className="bg-primary-500 dark:bg-primary-600 py-4 items-center justify-center rounded-xl"
-            onPress={() => addLikes()}>
-            <Text className="font-brsegma-600 text-white dark:text-secondary-400 text-lg">
-              Love this!
-            </Text>
-          </TouchableOpacity>
-
         </View>
       </Animated.ScrollView>
+      <TouchableOpacity
+        className="absolute z-20 bottom-11 left-6 right-6 bg-primary-500 dark:bg-primary-600 py-4 items-center justify-center rounded-xl"
+        onPress={() => addLikes()}>
+        <Text className="font-brsegma-600 text-white dark:text-secondary-400 text-lg">
+          Love this!
+        </Text>
+      </TouchableOpacity>
     </View>
   )
 }

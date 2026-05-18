@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-// Hapus bagian interface ini jika kamu pakai .js biasa (bukan TypeScript)
 interface ConfirmationModalProps {
   visible: boolean;
   type: 'add' | 'delete' | null;
@@ -34,10 +33,10 @@ export default function ConfirmationModal({ visible, type, onClose, onConfirm }:
             />
           </View>
 
-          <Text className="text-xl font-bold text-black mb-2 text-center">
+          <Text className="text-xl font-bold text-black mb-2 text-center font-brsegma-600">
             {type === 'delete' ? 'Remove Recipe?' : 'Add to Meal Plan?'}
           </Text>
-          <Text className="text-gray-500 text-center mb-6">
+          <Text className="text-gray-500 text-center mb-6 font-brsegma-500">
             {type === 'delete'
               ? 'Are you sure you want to remove this recipe?'
               : 'Are you sure you want to add this recipe?'}
@@ -48,7 +47,7 @@ export default function ConfirmationModal({ visible, type, onClose, onConfirm }:
               className="flex-1 bg-gray-100 py-3 rounded-xl mr-2 items-center"
               onPress={onClose}
             >
-              <Text className="text-gray-600 font-bold">Cancel</Text>
+              <Text className="text-gray-600 font-bold font-brsegma-500">Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               className={`flex-1 py-3 rounded-xl ml-2 items-center ${
@@ -56,7 +55,7 @@ export default function ConfirmationModal({ visible, type, onClose, onConfirm }:
               }`}
               onPress={onConfirm}
             >
-              <Text className="text-white font-bold">Confirm</Text>
+              <Text className="text-white font-bold font-brsegma-500">Confirm</Text>
             </TouchableOpacity>
           </View>
 

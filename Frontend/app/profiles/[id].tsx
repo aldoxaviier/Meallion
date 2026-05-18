@@ -8,6 +8,8 @@ import { RecipeCard } from '../components/RecipeCard';
 import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router';
 import { ProfileDataContext } from '../store/profileDataContext';
+import { useColorScheme } from 'nativewind';
+
 interface UserProfile {
   activity_level: number;
   allergies: string[];
@@ -46,6 +48,12 @@ const Index = () => {
   const [profile, setProfile] = useState<UserProfile>();
   const profileContext = useContext(ProfileDataContext);
   const viewedUserId = Array.isArray(id) ? id[0] : id;
+
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  const activeTabColor = isDark ? '#FFF9E7' : '#660B05';
+  const inactiveTabColor = '#9CA3AF';
 
   const getPostRecipes = async () => {
     try {
@@ -159,20 +167,20 @@ const Index = () => {
   return (
     <>
     <Stack.Screen options={{ headerShown: false }} />
-    <SafeAreaView className="flex-1 bg-primary-600" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-primary-600 dark:bg-surface-darker" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="bg-primary-600 h-32 relative">
+        <View className="bg-primary-600 dark:bg-surface-darker h-32 relative">
           <TouchableOpacity
-              className="absolute top-1 left-4 w-10 h-10 rounded-full bg-secondary-400/20 items-center justify-center"
+              className="absolute top-1 left-4 w-10 h-10 rounded-full bg-secondary-400/20 dark:bg-black/20 items-center justify-center"
               onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={22} color="#F2E8C6" />
+              <Ionicons name="arrow-back" size={22} color={isDark ? "#FFF9E7" : "#F2E8C6"} />
             </TouchableOpacity>
         </View>
 
-        <View className="bg-secondary-400 min-h-screen rounded-t-3xl -mt-4 px-6 pb-8 flex ">
+        <View className="bg-secondary-400 dark:bg-background-dark min-h-screen rounded-t-3xl -mt-4 px-6 pb-8 flex ">
           <View className="-mt-14 mb-4">
-            <View className="w-24 h-24 rounded-full border-4 border-secondary-400 overflow-hidden bg-secondary-300">
+            <View className="w-24 h-24 rounded-full border-4 border-secondary-400 dark:border-background-dark overflow-hidden bg-secondary-300 dark:bg-surface-dark">
               <Image
                 className="w-full h-full"
                 source={profile?.profile_image ? { uri: profile?.profile_image } : require('../../assets/images/android-icon-background.png')}
@@ -180,16 +188,16 @@ const Index = () => {
             </View>
           </View>
           <View className='flex flex-row justify-between'>
-            <Text className="font-fogsta text-3xl text-primary-500 mb-1">
+            <Text className="font-fogsta text-3xl text-primary-500 dark:text-secondary-200 mb-1">
               {profile?.users.name || 'User'}
             </Text>
             <Pressable
               className={`h-10 min-w-[116px] rounded-full px-4 flex-row items-center justify-center gap-2 ${
                 isFollowLoading
-                  ? 'bg-gray-300'
+                  ? 'bg-gray-300 dark:bg-gray-700'
                   : isFollowing
-                  ? 'border border-primary-500 bg-secondary-400'
-                  : 'bg-primary-500'
+                  ? 'border border-primary-500 dark:border-secondary-200 bg-secondary-400 dark:bg-surface-darker'
+                  : 'bg-primary-500 dark:bg-primary-600'
               } ${isFollowLoading ? 'opacity-100' : 'opacity-100'}`}
               disabled={isFollowLoading}
               onPress={() => {
@@ -205,16 +213,16 @@ const Index = () => {
                 <Ionicons
                   name={isFollowing ? 'checkmark-circle' : 'person-add'}
                   size={16}
-                  color={isFollowing ? '#660B05' : '#F2E8C6'}
+                  color={isFollowing ? (isDark ? '#FFF9E7' : '#660B05') : (isDark ? '#FFF9E7' : '#F2E8C6')}
                 />
               )}
               <Text
                 className={`font-brsegma-600 text-sm ${
                   isFollowLoading
-                    ? 'text-gray-500'
+                    ? 'text-gray-500 dark:text-gray-400'
                     : isFollowing
-                    ? 'text-primary-500'
-                    : 'text-secondary-400'
+                    ? 'text-primary-500 dark:text-secondary-200'
+                    : 'text-secondary-400 dark:text-secondary-200'
                 }`}
               >
                 {isFollowLoading ? 'Loading...' : isFollowing ? 'Following' : 'Follow'}
@@ -224,42 +232,42 @@ const Index = () => {
 
           <View className='flex flex-row gap-7 mb-2'>
             <View>
-              <Text className='font-brsegma-600 text-primary-500'>{profile?.recipes_count}</Text>
-              <Text className='font-brsegma-500 text-gray-700'>Recipes</Text>
+              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-200'>{profile?.recipes_count}</Text>
+              <Text className='font-brsegma-500 text-gray-700 dark:text-gray-400'>Recipes</Text>
             </View>
             <View>
-              <Text className='font-brsegma-600 text-primary-500'>{profile?.followers}</Text>
-              <Text className='font-brsegma-500 text-gray-700'>Followers</Text>
+              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-200'>{profile?.followers}</Text>
+              <Text className='font-brsegma-500 text-gray-700 dark:text-gray-400'>Followers</Text>
             </View>
             <View>
-              <Text className='font-brsegma-600 text-primary-500'>{profile?.followings}</Text>
-              <Text className='font-brsegma-500 text-gray-700'>Following</Text>
+              <Text className='font-brsegma-600 text-primary-500 dark:text-secondary-200'>{profile?.followings}</Text>
+              <Text className='font-brsegma-500 text-gray-700 dark:text-gray-400'>Following</Text>
             </View>
           </View>
 
-          <Text className="font-brsegma-300 text-sm text-gray-600 leading-5 pt-2 pb-1">
+          <Text className="font-brsegma-300 text-sm text-gray-600 dark:text-gray-400 leading-5 pt-2 pb-1">
             {profile?.bio != "null" ? profile?.bio : 'Passionate about healthy, halal cooking and fitness tracking.'}
           </Text>
 
 
-          <View className="border-t border-b border-gray-300 py-4 mb-6">
+          <View className="border-t border-b border-gray-300 dark:border-surface-darker py-4 mb-6">
             <View className="flex-row justify-between items-center py-2">
-              <Text className="font-brsegma-500 text-gray-700">Current weight</Text>
-              <Text className="font-brsegma-600 text-primary-500">
+              <Text className="font-brsegma-500 text-gray-700 dark:text-gray-400">Current weight</Text>
+              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-200">
                 {profile?.weight || '--'} kg
               </Text>
             </View>
 
             <View className="flex-row justify-between items-center py-2">
-              <Text className="font-brsegma-500 text-gray-700">Goal</Text>
-              <Text className="font-brsegma-600 text-primary-500">
+              <Text className="font-brsegma-500 text-gray-700 dark:text-gray-400">Goal</Text>
+              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-200">
                 {getGoalLabel(profile?.goal_plan)}
               </Text>
             </View>
 
             <View className="flex-row justify-between items-center py-2">
-              <Text className="font-brsegma-500 text-gray-700">Diet</Text>
-              <Text className="font-brsegma-600 text-primary-500">
+              <Text className="font-brsegma-500 text-gray-700 dark:text-gray-400">Diet</Text>
+              <Text className="font-brsegma-600 text-primary-500 dark:text-secondary-200">
                 {getDietLabel(profile?.diet_preferences)}
               </Text>
             </View>
@@ -267,45 +275,42 @@ const Index = () => {
 
           <View className="flex-row justify-center mb-6">
             <TouchableOpacity
-              className={`px-8 py-2 ${activeTab === 'grid' ? 'border-b-2 border-primary-500' : ''}`}
+              className={`px-8 py-2 ${activeTab === 'grid' ? 'border-b-2 border-primary-500 dark:border-secondary-200' : ''}`}
               onPress={() => setActiveTab('grid')}
             >
               <MaterialCommunityIcons
                 name="view-grid"
                 size={24}
-                color={activeTab === 'grid' ? '#660B05' : '#9CA3AF'}
+                color={activeTab === 'grid' ? activeTabColor : inactiveTabColor}
               />
             </TouchableOpacity>
             <TouchableOpacity
-              className={`px-8 py-2 ${activeTab === 'favorites' ? 'border-b-2 border-primary-500' : ''}`}
+              className={`px-8 py-2 ${activeTab === 'favorites' ? 'border-b-2 border-primary-500 dark:border-secondary-200' : ''}`}
               onPress={() => setActiveTab('favorites')}
             >
               <Ionicons
                 name={activeTab === 'favorites' ? 'heart' : 'heart-outline'}
                 size={24}
-                color={activeTab === 'favorites' ? '#660B05' : '#9CA3AF'}
+                color={activeTab === 'favorites' ? activeTabColor : inactiveTabColor}
               />
             </TouchableOpacity>
           </View>
-
-          <View className="flex-row flex-wrap justify-between">
+          <View className="flex-row flex-wrap justify-between" style={{ rowGap: 16 }}>
             {displayedRecipes.slice(0, 6).map((item, index) => (
-              <View key={item.recipe_id || index} className="w-[48%] mb-4">
-                <RecipeCard
-                  recipe={{
-                    recipe_id: item.recipe_id,
-                    Images: item.Images || item.image,
-                    profile_image: item.profile_image,
-                    author_name: item.author_name || item.AuthorName,
-                    name: item.name,
-                    rating_score: item.rating_score,
-                    TotalTime: item.TotalTime,
-                    tags: item.tags,
-                  }}
-                  width="w-full"
-                  onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
-                />
-              </View>
+              <RecipeCard
+                key={item.recipe_id || index}
+                recipe={{
+                  recipe_id: item.recipe_id,
+                  Images: item.Images || item.image,
+                  profile_image: item.profile_image,
+                  author_name: item.author_name || item.AuthorName,
+                  name: item.name,
+                  rating_score: item.rating_score,
+                  TotalTime: item.TotalTime,
+                  tags: item.tags,
+                }}
+                onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
+              />
             ))}
           </View>
 
@@ -314,9 +319,9 @@ const Index = () => {
               <Ionicons
                 name={activeTab === 'favorites' ? 'heart-outline' : 'restaurant-outline'}
                 size={48}
-                color="#9CA3AF"
+                color={isDark ? '#4B5563' : '#9CA3AF'}
               />
-              <Text className="font-brsegma-500 text-gray-500 mt-4">
+              <Text className="font-brsegma-500 text-gray-500 dark:text-gray-400 mt-4">
                 {activeTab === 'favorites' ? 'No liked recipes to display' : 'No recipes to display'}
               </Text>
             </View>

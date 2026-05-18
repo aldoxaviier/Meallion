@@ -4,6 +4,7 @@ import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
+import * as SecureStore from "expo-secure-store";
 
 interface RegisterData {
   name: string;
@@ -106,6 +107,7 @@ async function registerForPushNotificationsAsync() {
       token = (await Notifications.getExpoPushTokenAsync({
         projectId: projectId 
       })).data;
+      SecureStore.setItemAsync("pushToken", token);
     } catch (e) {
       console.log("Error get token:", e);
     }

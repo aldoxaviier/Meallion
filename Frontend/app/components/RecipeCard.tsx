@@ -22,9 +22,10 @@ interface RecipeCardProps {
   isOwnProfile?: boolean;
   activeTab?: string;
   onRefreshList?: () => void;
+  isForYou?: boolean;
 }
 
-export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRefreshList }: RecipeCardProps) => {
+export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRefreshList, isForYou = false }: RecipeCardProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [modalConfig, setModalConfig] = useState({
@@ -120,7 +121,7 @@ export const RecipeCard = ({ recipe, onAddToPlan, isOwnProfile, activeTab, onRef
   return (
     <>
     <TouchableHighlight 
-      className={`w-52 h-80 p-3 gap-2 bg-white dark:bg-surface-dark rounded-xl shadow-sm`} 
+      className={`${isForYou ? 'w-52' : 'w-[48%]'} h-80 p-3 gap-1 bg-white dark:bg-surface-dark rounded-xl shadow-sm`}
       onPress={() => {
         if (showMenu) {
           setShowMenu(false);

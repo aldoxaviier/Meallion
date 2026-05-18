@@ -3,6 +3,7 @@ import { createContext, useContext, useState, ReactNode } from "react"
 interface UserInfo {
   name: string
   email: string
+  expo_push_token: string | null
 }
 
 interface ProfileData {

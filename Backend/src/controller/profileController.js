@@ -1,6 +1,7 @@
 const ApiResponse = require("../utils/apiResponse");
 const  profileRepository  = require("../repositories/profileRepository");
 const profileService = require("../service/profileService");
+const userRepository = require("../repositories/userRepository");
 
 const addProfile = async (req, res) => {
     try {
@@ -97,4 +98,21 @@ const searchProfiles = async (req, res) => {
     }
 }
 
-module.exports = { addProfile, addInteraction, getProfile, getProfileFromID, updateProfile, searchProfiles, getMealTimes };
+const updatePushNotification = async (req, res) => {
+    try {
+        const userId = req.user; 
+        const { isEnabled, pushToken } = req.body;
+        if (isEnabled && pushToken) {
+            await userRepository.updateUser(userId, { expo_push_token: pushToken });
+        } else {
+            await userRepository.updateUser(userId, { expo_push_token: null });
+        }
+
+        res.status(200).json(ApiResponse.success("Notification status updated", null, 200));
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json(ApiResponse.error(err.message, 500));
+    }
+}
+
+module.exports = { addProfile, addInteraction, getProfile, getProfileFromID, updateProfile, searchProfiles, getMealTimes, updatePushNotification };

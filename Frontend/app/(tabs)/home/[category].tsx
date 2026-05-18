@@ -54,7 +54,7 @@ export default function DynamicCategory() {
     };
 
     return (
-        <View className="flex-1 bg-secondary-400 dark:bg-background-dark">
+        <View className="flex bg-secondary-400 dark:bg-background-dark">
             <Stack.Screen 
                 options={{ 
                     headerShown: true,

@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
-import { useContext, useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Switch, Alert } from 'react-native';
+import { useContext, useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
@@ -8,11 +8,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../store/authContext';
 import { api } from '../utils/api';
 import { ProfileDataContext } from '../store/profileDataContext';
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
+import * as SecureStore from 'expo-secure-store';
 
 const Index = () => {
     const { colorScheme, setColorScheme } = useColorScheme();
     
     const [pushNotifications, setPushNotifications] = useState(true);
+    const [isLoadingPushToggle, setIsLoadingPushToggle] = useState(false);
     
     const authContext = useContext(AuthContext);
     const router = useRouter();
@@ -30,6 +34,60 @@ const Index = () => {
             console.error(err)
         }
     }
+
+    useEffect(() => {
+        if (profileContext?.profileData) {
+            const token = profileContext.profileData.users.expo_push_token;
+            setPushNotifications(!!token); 
+        }
+        
+    }, [profileContext?.profileData]);
+
+    async function registerForPushNotificationsAsync() {
+        let token;
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+        
+        if (finalStatus !== 'granted') {
+            Alert.alert('Failed', 'Failed to get push token for push notification!');
+            return null;
+        }
+        
+        token = (await Notifications.getExpoPushTokenAsync({
+            projectId: Constants.expoConfig?.extra?.eas?.projectId,
+        })).data;
+        await SecureStore.setItemAsync("pushToken", token);
+        return token;
+    }
+
+    const handlePushNotificationToggle = async (newValue: boolean) => {
+        setPushNotifications(newValue); 
+        setIsLoadingPushToggle(true);
+
+        try {
+            let expoPushToken = null;
+            if (newValue === true) {
+                expoPushToken = await registerForPushNotificationsAsync();
+                if (!expoPushToken) {
+                    setPushNotifications(false);
+                    setIsLoadingPushToggle(false);
+                    return; 
+                }
+            }
+            await api.put('/profile/updatePushNotification', { isEnabled: newValue, pushToken: expoPushToken });
+        } catch (error) {
+            console.error("Failed to update push notification setting:", error);
+            Alert.alert("Error", "Failed to update notification settings.");
+            setPushNotifications(!newValue); 
+        } finally {
+            setIsLoadingPushToggle(false);
+        }
+    };
 
     const onPressDiateryRequirements = () => {
         router.push('/settings/dietaryRequirements' as any);
@@ -94,7 +152,8 @@ const Index = () => {
                             </View>
                             <Switch
                                 value={pushNotifications}
-                                onValueChange={setPushNotifications}
+                                onValueChange={handlePushNotificationToggle}
+                                disabled={isLoadingPushToggle}
                                 trackColor={{ false: '#E5E5E5', true: '#8C1007' }}
                                 thumbColor="#fff"
                             />

@@ -83,7 +83,8 @@ const getProfile = async (userId) => {
             (SELECT total FROM recipes_total) AS recipes_count,
             json_build_object(
                 'name', u.name,
-                'email', u.email
+                'email', u.email,
+                'expo_push_token', u.expo_push_token
             ) as users
         FROM user_profiles up
         JOIN users u ON up.user_id = u.user_id
@@ -114,7 +115,8 @@ const searchProfiles = async (query) => {
             up.*,
             json_build_object(
                 'name', u.name,
-                'email', u.email
+                'email', u.email,
+                'user_id', u.user_id
             ) as users
         FROM user_profiles up
         JOIN users u ON up.user_id = u.user_id

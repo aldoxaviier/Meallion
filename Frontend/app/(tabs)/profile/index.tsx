@@ -102,8 +102,6 @@ const Index = () => {
   };
 
   const displayedRecipes = activeTab === 'favorites' ? likedRecipes : postrecipes;
-
-
   return (
     <SafeAreaView className="flex-1 bg-primary-600 dark:bg-surface-dark" edges={['top']}>
       <ScrollView 
@@ -201,26 +199,25 @@ const Index = () => {
             </TouchableOpacity>
           </View>
 
-          <View className="flex-row flex-wrap justify-between">
+          <View className="flex-row flex-wrap justify-between" style={{ rowGap: 16 }}>
             {displayedRecipes.slice(0, 6).map((item, index) => (
-              <View key={item.recipe_id || index} className="w-[48%] mb-4">
-                <RecipeCard
-                  recipe={{
-                    recipe_id: item.recipe_id,
-                    Images: item.Images || item.image,
-                    profile_image: item.profile_image,
-                    author_name: item.author_name || item.AuthorName,
-                    name: item.name,
-                    rating_score: item.rating_score,
-                    TotalTime: item.TotalTime,
-                    tags: item.tags,
-                  }}
-                  onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
-                  activeTab={activeTab}
-                  isOwnProfile={true}
-                  onRefreshList={handleSilentRefresh}
-                />
-              </View>
+              <RecipeCard
+                key={item.recipe_id || index}
+                recipe={{
+                  recipe_id: item.recipe_id,
+                  Images: item.Images || item.image,
+                  profile_image: item.profile_image,
+                  author_name: item.author_name || item.AuthorName,
+                  name: item.name,
+                  rating_score: item.rating_score,
+                  TotalTime: item.TotalTime,
+                  tags: item.tags,
+                }}
+                onAddToPlan={() => console.log('Add to plan:', item.recipe_id)}
+                activeTab={activeTab}
+                isOwnProfile={true}
+                onRefreshList={handleSilentRefresh}
+              />
             ))}
           </View>
 

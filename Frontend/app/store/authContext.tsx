@@ -90,13 +90,14 @@ async function registerForPushNotificationsAsync() {
       token = (await Notifications.getExpoPushTokenAsync({
         projectId: projectId 
       })).data;
+      SecureStore.setItemAsync("pushToken", token);
     } catch (e) {
       console.log("Error get token:", e);
     }
   } else {
     console.log("Use a physical device for notifications!");
   }
-
+  
   return token;
 }
 

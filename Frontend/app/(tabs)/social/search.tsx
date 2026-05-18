@@ -27,7 +27,6 @@ export default function Search() {
                 `/profile/search-profiles`,
                 { params: { query: trimmed } }
             );
-            console.log("Search results:", res.data);
             setResults(res?.data || []);
         } catch (error) {
             console.error(error);
@@ -93,7 +92,7 @@ export default function Search() {
             ) : (
                 <FlatList
                     data={results}
-                    keyExtractor={(item) => String(item.recipe_id)}
+                    keyExtractor={(item) => String(item.user_id)}
                     contentContainerStyle={{ paddingVertical: 16, gap: 12 }}
                     keyboardShouldPersistTaps="handled"
                     ListEmptyComponent={
