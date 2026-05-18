@@ -75,6 +75,9 @@ function LayoutContent() {
         const savedTheme = await AsyncStorage.getItem('appTheme');
         if (savedTheme) {
           setColorScheme(savedTheme as 'light' | 'dark');
+        } else {
+          setColorScheme('light'); 
+          await AsyncStorage.setItem('appTheme', 'light');
         }
       } catch (error) {
         console.warn("Error loading theme:", error);

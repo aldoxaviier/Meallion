@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "meallion",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/logo.png",
@@ -45,7 +45,7 @@
           "resizeMode": "contain",
           "backgroundColor": "#FBC563",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#FBC563"
           }
         }
       ],
