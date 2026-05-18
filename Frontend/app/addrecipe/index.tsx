@@ -247,6 +247,12 @@ const Index = () => {
                         },
                         pickerContainer: {
                             width: '100%',
+                            height: 200,
+                        },
+                        pickerItem: {
+                            fontSize: 24, 
+                            height: 40,
+                            textAlign: 'center',
                         },
                         pickerLabelGap: { hours: 10, minutes: 8 },
                         theme: isDark ? "dark" : "light"
@@ -277,6 +283,12 @@ const Index = () => {
                         },
                         pickerContainer: {
                             width: '100%',
+                            height: 150,
+                        },
+                        pickerItem: {
+                            fontSize: 24, 
+                            height: 40,
+                            textAlign: 'center',
                         },
                         pickerLabelGap: { hours: 10, minutes: 8 },
                         theme: isDark ? "dark" : "light"
