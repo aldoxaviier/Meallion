@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "meallion",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/logo.png",
@@ -61,6 +61,12 @@
         "projectId": "e2827cf0-a29d-4929-a83c-09e55986a609"
       }
     },
-    "owner": "meallion"
+    "owner": "meallion",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e2827cf0-a29d-4929-a83c-09e55986a609"
+    }
   }
 }
