@@ -22,6 +22,7 @@ export default function Index() {
   const [TenRecipe, setTenRecipe] = useState<any>([]);
 
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingTenRecipe, setLoadingTenRecipe] = useState(true);
 
   const { colorScheme } = useColorScheme();
   
@@ -101,6 +102,8 @@ export default function Index() {
         }
       } catch (err: any) {
         console.log(err)
+      } finally {
+        setLoadingTenRecipe(false);
       }
     }
 
@@ -387,15 +390,21 @@ export default function Index() {
                 </View>
                 <View className="gap-3">
                   <Text className="text-xl font-fogsta px-6 text-black dark:text-secondary-400">For You</Text>
-                  <FlatList
-                    data={tenRecipe?.TenRecipe}
-                    showsHorizontalScrollIndicator={false}
-                    horizontal={true}
-                    contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
-                    renderItem={({ item }) => (
-                      <RecipeCard recipe={item} onAddToPlan={() => console.log('Add to plan:', item.recipe_id)} isForYou={true} />
-                    )}
-                  />
+                  {loadingTenRecipe ? (
+                    <View className="py-8 justify-center items-center">
+                      <ActivityIndicator size="large" color="#660B05" /> 
+                    </View>
+                  ) : (
+                    <FlatList
+                      data={tenRecipe?.TenRecipe}
+                      showsHorizontalScrollIndicator={false}
+                      horizontal={true}
+                      contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
+                      renderItem={({ item }) => (
+                        <RecipeCard recipe={item} onAddToPlan={() => console.log('Add to plan:', item.recipe_id)} isForYou={true} />
+                      )}
+                    />
+                  )}
                 </View>
               </View>
             </Animated.View>

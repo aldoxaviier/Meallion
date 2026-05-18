@@ -5,7 +5,8 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
-  Animated 
+  Animated,
+  ScrollView
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -110,7 +111,11 @@ export default function Category() {
   };
 
   const renderPage = ({ item: pageCategories }: { item: typeof CATEGORIES }) => (
-    <View style={{ width: SCREEN_WIDTH, paddingHorizontal: 16, paddingTop: 16 }}>
+    <ScrollView 
+      style={{ width: SCREEN_WIDTH }} 
+      contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
         {pageCategories.map((cat) => {
           const isSelected = selected.has(cat.id);
@@ -179,7 +184,7 @@ export default function Category() {
           );
         })}
       </View>
-    </View>
+    </ScrollView>
   );
 
   return (

@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { View,Text, TextInput,TouchableOpacity, Alert,Image} from "react-native"
+import { View,Text, TextInput,TouchableOpacity, Alert,Image, ScrollView} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useContext, useEffect, useState } from "react";
 import { RecipeContext } from "../store/addRecipeContext";
@@ -143,7 +143,12 @@ const Index = () => {
     return (
         <>
         <SafeAreaView className="flex-1 bg-secondary-400 dark:bg-background-dark" edges={['bottom']}>
-            <View className="flex-1 justify-between pb-12">
+            <View className="flex-1 relative">
+            <ScrollView 
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 120, justifyContent: 'space-between' }}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
                 <View className="flex gap-10">
                     <View className="flex gap-2 pt-8">
                         <View className="px-6">
@@ -277,16 +282,15 @@ const Index = () => {
                         theme: isDark ? "dark" : "light"
                     }}
                 />
-
-                <TouchableOpacity
-                    className="py-4 px-10 self-center rounded-full bg-primary-500 dark:bg-primary-600"
-                    onPress={onPressNext}
-                    >
-                    <Text className="text-center font-brsegma-600 text-secondary-400">
-                        Next
-                    </Text>
-                </TouchableOpacity>
-
+            </ScrollView>
+            <TouchableOpacity
+                className="absolute bottom-8 py-4 px-10 self-center rounded-full bg-primary-500 dark:bg-primary-600"
+                onPress={onPressNext}
+            >
+                <Text className="text-center font-brsegma-600 text-secondary-400">
+                    Next
+                </Text>
+            </TouchableOpacity>
             </View>
         </SafeAreaView>
         </>
