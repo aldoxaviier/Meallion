@@ -151,7 +151,7 @@ export const TodaysMeal = () => {
           {currentMeals.length > 0 ? (
             currentMeals.map((meal: any, index: number) => (
               <MealItem
-                key={meal.recipe_id || index}
+                key={index}
                 name={meal.name || "Unknown"}
                 protein={Math.round((meal.ProteinContent || 0))}
                 fat={Math.round((meal.FatContent || 0))}

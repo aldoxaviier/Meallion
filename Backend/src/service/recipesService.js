@@ -343,21 +343,7 @@ const generateMealplan = async (
     days
   }
 ) => {
-    console.log("Generating meal plan with params:", {
-    userId,
-    allergies,
-    diet_preferences,
-    target_calories,
-    target_proteins,
-    target_carbs,
-    target_fats,
-    health_condition,
-    days
-    });
-
-    const response = await fetch(
-    `${process.env.FAST_API_URL}/recommendation/generate-meal-plan`,
-    {
+    const response = await fetch(`${process.env.FAST_API_URL}/recommendation/generate-meal-plan`, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
@@ -377,16 +363,18 @@ const generateMealplan = async (
     );
     const data = await response.json();
     const mealPlan = data.data;
+
+    const todayFormatted = new Date().toLocaleDateString("en-CA");
+    const todayAlreadyPlanned = await recipesRepository.hasMealPlanForDate(userId, todayFormatted);
+    const startOffset = todayAlreadyPlanned ? 1 : 0;
+
     const rows = [];
-    console.log("Received meal plan from API:", mealPlan);
     for (const [dayIndex, dayPlan] of mealPlan.entries()) {
         const planDate = new Date();
-        planDate.setDate(planDate.getDate() + dayIndex);
+        planDate.setDate(planDate.getDate() + startOffset + dayIndex);
         const formattedDate = planDate.toLocaleDateString("en-CA");
-
         for (const [mealTime, meal] of Object.entries(dayPlan.meals)) {
             if (!meal) continue;
-
             rows.push({
             user_id: userId,
             recipe_id: meal.recipe_id,
@@ -396,7 +384,8 @@ const generateMealplan = async (
             });
         }
     }
-    const result = await recipesRepository.addToMealPlan(rows);
+
+    await recipesRepository.addToMealPlan(rows);
     return data.data;
 };
 

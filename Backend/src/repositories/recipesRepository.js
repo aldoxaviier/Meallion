@@ -486,6 +486,15 @@ const deleteRecipe = async (userId, recipeId) => {
     return result;
 }
 
+const hasMealPlanForDate = async (userId, date) => {
+    const result = await sql`
+        SELECT 1 FROM mealplan
+        WHERE user_id = ${userId} AND date = ${date}
+        LIMIT 1;
+    `;
+    return result.length > 0;
+};
+
 module.exports = {
     getAll,
     getIngredients,
@@ -515,5 +524,6 @@ module.exports = {
     getRecipesByUser,
     bulkAddMealPlan,
     getRecipesByFollowing,
-    deleteRecipe
+    deleteRecipe,
+    hasMealPlanForDate
 };

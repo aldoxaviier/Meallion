@@ -349,7 +349,7 @@ const MealSection = ({ title, type, data, onAdd, onDelete, onOpenRecipe, isCompl
         {filteredMeals.length > 0 ? (
           filteredMeals.map((meal: any, index: number) => (
             <TouchableOpacity
-              key={meal.recipe_id || index}
+              key={index}
               onPress={() => onOpenRecipe(meal)}
               activeOpacity={0.85}
               className={`flex-row items-center ${meal.is_eaten ? 'bg-green-200 dark:bg-green-900/50' : 'bg-secondary-400 dark:bg-surface-darker'} rounded-2xl p-3`}
