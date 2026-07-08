@@ -343,7 +343,9 @@ const generateMealplan = async (
     days
   }
 ) => {
-    const response = await fetch(`${process.env.FAST_API_URL}/recommendation/generate-meal-plan`, {
+    const response = await fetch(
+    `${process.env.FAST_API_URL}/recommendation/generate-meal-plan`,
+    {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
@@ -364,9 +366,15 @@ const generateMealplan = async (
     const data = await response.json();
     const mealPlan = data.data;
 
-    const todayFormatted = new Date().toLocaleDateString("en-CA");
-    const todayAlreadyPlanned = await recipesRepository.hasMealPlanForDate(userId, todayFormatted);
-    const startOffset = todayAlreadyPlanned ? 1 : 0;
+    let startOffset = 0;
+    while (true) {
+        const candidateDate = new Date();
+        candidateDate.setDate(candidateDate.getDate() + startOffset);
+        const formattedCandidate = candidateDate.toLocaleDateString("en-CA");
+        const alreadyPlanned = await recipesRepository.hasMealPlanForDate(userId, formattedCandidate);
+        if (!alreadyPlanned) break;
+        startOffset++;
+    }
 
     const rows = [];
     for (const [dayIndex, dayPlan] of mealPlan.entries()) {
