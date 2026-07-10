@@ -15,7 +15,7 @@ const reqOTP = async (email, res) => {
         throw new Error("Email already exists");
     }
     const otp = randomstring.generate({ length: 6, charset: "numeric" });
-    redisClient.setEx(`otp:${email}`, 130, otp);
+    await redisClient.setEx(`otp:${email}`, 130, otp);
     await mailer.sendOTP(email, otp);
     return otp;
 }
@@ -26,7 +26,7 @@ const reqOTPForgotPassword = async (email) => {
         throw new Error("Email does not exist");
     }
     const otp = randomstring.generate({ length: 6, charset: "numeric" });
-    redisClient.setEx(`otp:${email}`, 130, otp);
+    await redisClient.setEx(`otp:${email}`, 130, otp);
     await mailer.sendOTP(email, otp);
     return otp;
 }

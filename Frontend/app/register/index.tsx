@@ -111,6 +111,7 @@ const Index = () => {
               <TouchableOpacity
                 className="bg-primary-500 rounded-[40px] p-4"
                 onPress={handleContinue}
+                disabled={isLoading}
                 activeOpacity={0.8}
               >
                 <Text className="text-white text-center font-brsegma-600">
