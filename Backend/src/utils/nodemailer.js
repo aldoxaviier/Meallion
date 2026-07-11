@@ -3,9 +3,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendOTP = async (email, otp) => {
   try {
-    console.log(`[Resend] Sending OTP to ${email}...`);
+    console.log(`[Resend] Mencoba mengirim OTP ke ${email}...`);
     
-    const data = await resend.emails.send({
+    // Gunakan destructuring { data, error } di sini
+    const { data, error } = await resend.emails.send({
       from: "Meallion <onboarding@resend.dev>",
       to: email,
       subject: "Your Meallion OTP Code",
@@ -26,10 +27,16 @@ const sendOTP = async (email, otp) => {
       `,
     });
 
-    console.log(`[Resend] OTP Sent Successfully! ID: ${data.id}`);
+    if (error) {
+      console.error("[Resend] API Error:", error.message);
+      throw new Error(`Resend API Error: ${error.message}`);
+    }
+
+    console.log(`[Resend] OTP Sukses Dikirim! ID: ${data.id}`);
     return data;
+
   } catch (error) {
-    console.error("[Resend] Failed to send email:", error.message);
+    console.error("[Resend] Gagal mengeksekusi fungsi sendMail:", error.message);
     throw new Error(`Mailer error: ${error.message}`);
   }
 };
