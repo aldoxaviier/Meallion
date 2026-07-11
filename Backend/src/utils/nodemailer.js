@@ -5,9 +5,8 @@ const sendOTP = async (email, otp) => {
   try {
     console.log(`[Resend] Mencoba mengirim OTP ke ${email}...`);
     
-    // Gunakan destructuring { data, error } di sini
     const { data, error } = await resend.emails.send({
-      from: "Meallion <onboarding@resend.dev>",
+      from: "Meallion <otp@meallion.xyz>",
       to: email,
       subject: "Your Meallion OTP Code",
       html: `
