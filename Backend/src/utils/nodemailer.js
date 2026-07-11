@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
     secure: true, 
     auth: {
         type: 'OAuth2',
-        user: 'meallionapp@gmail.com',
+        user: 'meallion123@gmail.com',
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
         refreshToken: REFRESH_TOKEN,
@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
 
 const sendOTP = async (email, otp) => {
     const MailOptions = {
-            from: '"Meallion" <meallionapp@gmail.com>',
+            from: '"Meallion" <meallion123@gmail.com>',
             to: email,
             subject: "OTP",
             text: otp, // plain‑text body
