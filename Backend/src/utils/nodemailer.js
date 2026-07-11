@@ -42,6 +42,10 @@ const sendOTP = async (email, otp) => {
                     </div>
                 `, // HTML body
         }
+    await transporter.verify((err, ok) => {
+        if (err) console.error("VERIFY FAILED:", err);
+        else console.log("Transporter OK");
+    });
     await transporter.sendMail(MailOptions);
 }
 
