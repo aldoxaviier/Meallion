@@ -3,7 +3,9 @@ const nodemailer = require("nodemailer");
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
-
+console.log("CLIENT_ID:", CLIENT_ID);
+console.log("CLIENT_SECRET:", CLIENT_SECRET);
+console.log("REFRESH_TOKEN:", REFRESH_TOKEN);
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
