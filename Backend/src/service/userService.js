@@ -16,6 +16,7 @@ const reqOTP = async (email, res) => {
     }
     const otp = randomstring.generate({ length: 6, charset: "numeric" });
     await redisClient.setEx(`otp:${email}`, 130, otp);
+    console.log("4. OTP berhasil disimpan, mengirim email");
     await mailer.sendOTP(email, otp);
     return otp;
 }
