@@ -59,11 +59,19 @@ const calculateUserRequirements = async (userId, height, weight, activity_level,
 }
 
 const dietaryGroupsCalculator = (caloricIntake, healthCondition) => {
+    //mclp
     if (healthCondition === "diabetes") {
         return {
             carbohydrates: Math.round(caloricIntake * 0.30 / 4),
             proteins: Math.round(caloricIntake * 0.25 / 4),
             fats: Math.round(caloricIntake * 0.45 / 9),
+        }
+    //vlchp
+    } else if (healthCondition === "blood-pressure") {
+        return {
+            carbohydrates: Math.round(caloricIntake * 0.10 / 4),
+            proteins: Math.round(caloricIntake * 0.30 / 4),
+            fats: Math.round(caloricIntake * 0.60 / 9),
         }
     } else {
         return {
