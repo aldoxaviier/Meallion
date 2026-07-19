@@ -8,12 +8,15 @@ import { ProfileDataContext } from "../store/profileDataContext";
 import { WheelPicker, ITEM_HEIGHT } from "../components/WheelPicker";
 import { api } from "../utils/api";
 import profile from "../register/profile";
+import { editProfileSchema } from "../utils/validation";
+import * as yup from "yup";
 
 const goalOptions = ['Lose weight', 'Maintain weight', 'Gain weight'];
 
 
 const Profile = () => {
     const [goal, setGoal] = useState('');
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [selectedGoalIndex, setSelectedGoalIndex] = useState(0);
     const [image, setImage] = useState({
         uri: '',
@@ -122,8 +125,28 @@ const Profile = () => {
     }, [profileContext?.profileData]);
 
     const onSave = async () => {
+        const payload = {
+            name: updatefields.name,
+            weight: updatefields.weight,
+            height: updatefields.height,
+        }
+        try {
+            await editProfileSchema.validate(payload, { abortEarly: false });
+            setErrors({});
+        } catch (validationError) {
+            if (validationError instanceof yup.ValidationError) {
+                const fieldErrors: { [key: string]: string } = {};
+                validationError.inner.forEach((err) => {
+                    if (err.path) {
+                        fieldErrors[err.path] = err.message;
+                    }
+                });
+                setErrors(fieldErrors);
+            }
+            return;
+        }
         if (isSaving) return;
-
+        
         setIsSaving(true);
         const formdata = new FormData();
         if(image.uri){
@@ -225,6 +248,15 @@ const Profile = () => {
                                 </View>
                             </TouchableOpacity>
                         </View>
+                        {Object.keys(errors).length > 0 && (
+                            <View className="flex w-full items-center">
+                                {Object.entries(errors).map(([field, message]) => (
+                                    <Text key={field} className="text-sm font-brsegma-500 text-red-500">
+                                        {message}
+                                    </Text>
+                                ))}
+                            </View>
+                        )}
                     </View>
                 </ScrollView>
                 <View className="px-6 py-4 bg-secondary-400">

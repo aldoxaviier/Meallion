@@ -18,7 +18,13 @@ import { useColorScheme } from "nativewind";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const CATEGORIES = [
-  { id: 2,   name: "Indonesian",      emoji: "🇮🇩", color: "#FFF3E0", border: "#E65100" },
+  { id: 1,   name: "Pescatarian",         emoji: "🍝",  color: "#FFF3E0", border: "#E65100" },
+  { id: 2,   name: "Vegetarian",         emoji: "🥗",  color: "#E8F5E9", border: "#2E7D32" },
+  { id: 3,   name: "Vegan",            emoji: "🌱",  color: "#E8F5E9", border: "#1B5E20" },
+  { id: 4, name: "Dairy Free",    emoji: "🥛",  color: "#E3F2FD", border: "#1565C0" },
+  { id: 5,   name: "Gluten Free",        emoji: "🌾",  color: "#F1F8E9", border: "#33691E" },
+  { id: 6,   name: "Pork Free",              emoji: "🥓",  color: "#FFEBEE", border: "#B71C1C" },
+  { id: 7,   name: "Indonesian",      emoji: "🇮🇩", color: "#FFF3E0", border: "#E65100" },
   { id: 10,  name: "Dutch",           emoji: "🧇",  color: "#FFF8E1", border: "#F9A825" },
   { id: 14,  name: "Dessert",         emoji: "🍰",  color: "#FCE4EC", border: "#C2185B" },
   { id: 16,  name: "Low Protein",     emoji: "🥗",  color: "#E8F5E9", border: "#2E7D32" },
@@ -38,8 +44,6 @@ const CATEGORIES = [
   { id: 90,  name: "German",          emoji: "🥨",  color: "#FFF8E1", border: "#F57F17" },
   { id: 95,  name: "Portuguese",      emoji: "🐟",  color: "#E3F2FD", border: "#0D47A1" },
   { id: 99,  name: "Easy",            emoji: "⚡",  color: "#F9FBE7", border: "#827717" },
-  { id: 101, name: "Lactose Free",    emoji: "🥛",  color: "#E3F2FD", border: "#1565C0" },
-  { id: 106, name: "Vegan",           emoji: "🌱",  color: "#E8F5E9", border: "#1B5E20" },
   { id: 108, name: "Greek",           emoji: "🫒",  color: "#E8F5E9", border: "#2E7D32" },
   { id: 122, name: "Brazilian",       emoji: "🍖",  color: "#FBE9E7", border: "#BF360C" },
   { id: 136, name: "Meat",            emoji: "🥩",  color: "#FFEBEE", border: "#B71C1C" },

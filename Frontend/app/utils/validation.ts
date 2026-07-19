@@ -21,10 +21,16 @@ const recipeSchema = Yup.object({
     }).required("Image is required"),
 });
 
+const editProfileSchema = Yup.object({
+    name: Yup.string().required().min(3, "Profile name must be at least 3 characters"),
+    weight: Yup.number().required().min(1, "Weight must be at least 1").max(500, "Weight cannot exceed 500"),
+    height: Yup.number().required().min(1, "Height must be at least 1").max(300, "Height cannot exceed 300"),
+});
+
 const registerSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   email: Yup.string().required("Email is required").matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/, { message: "Email must contain '@' and end with '.com'", excludeEmptyString: true }),
   password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required")
 });
 
-export { profileSchema, recipeSchema, registerSchema };
+export { profileSchema, recipeSchema, registerSchema, editProfileSchema };
