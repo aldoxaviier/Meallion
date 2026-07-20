@@ -237,7 +237,7 @@ function Page({ recipeData, onRefresh, addLikes }: { recipeData: any, onRefresh:
                 source={
                   recipeData?.profile_image
                     ? { uri: recipeData.profile_image }
-                    : require('../../assets/avatar/profile_dumb.jpg')
+                    : require('../../assets/images/android-icon-background.png')
                 }
                 className="w-9 h-9 rounded-full bg-gray-200 dark:bg-surface-darker"
               />

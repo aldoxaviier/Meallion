@@ -73,13 +73,9 @@ export default function Index() {
 
   useFocusEffect(
     useCallback(() => {
+      fetchedTabs.current.delete('following');
       loadInitialForTab(activeTab);
-
-      return () => {
-        setRecipes([]); 
-        setPage(1);
-      };
-    }, [])
+    }, [activeTab])
   );
 
   useEffect(() => {
@@ -122,16 +118,6 @@ export default function Index() {
     loadInitialForTab(selectedTab);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchedTabs.current.clear();
-      loadInitialForTab('foryou');
-      return () => {
-        setRecipesByTab({ foryou: [], following: [] });
-      };
-    }, [])
-  );
-
   const getFirstTag = (tags: string | string[] | undefined) => {
     if (!tags) return [];
     if (Array.isArray(tags)) return tags.slice(0, 3).map(t => `#${t.trim()}`);
@@ -166,9 +152,6 @@ export default function Index() {
             <Text className="text-gray-600 font-brsegma-300 text-xs dark:text-secondary-300">Food Enthusiast</Text>
           </View>
         </View>
-        <TouchableOpacity>
-          <Feather name="more-vertical" size={20} color="#9CA3AF" />
-        </TouchableOpacity>
       </View>
 
       <View className="mb-3">

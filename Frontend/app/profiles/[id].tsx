@@ -9,6 +9,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router';
 import { ProfileDataContext } from '../store/profileDataContext';
 import { useColorScheme } from 'nativewind';
+import { WarningModal } from '../components/WarningModal';
 
 interface UserProfile {
   activity_level: number;
@@ -43,6 +44,7 @@ const Index = () => {
   const [likedRecipes, setLikedRecipes] = useState<any[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(true);
+  const [showUnfollowModal, setShowUnfollowModal] = useState(false);
   const router = useRouter();
   const {id} = useLocalSearchParams();
   const [profile, setProfile] = useState<UserProfile>();
@@ -133,6 +135,7 @@ const Index = () => {
       await new Promise(resolve => setTimeout(resolve, 250));
       setIsFollowing(nextState);
       await api.post('/user/update-follow', { target_user_id: viewedUserId, follow: nextState });
+      await getProfile();
     } catch (error) {
       console.error('Failed to update follow state:', error);
       Alert.alert('Something went wrong', 'Please try again.');
@@ -141,26 +144,17 @@ const Index = () => {
     }
   };
 
-  const onFollowPress = async () => {
+  const onFollowPress = () => {
     if (isFollowLoading) {
       return;
     }
 
     if (isFollowing) {
-      Alert.alert('Unfollow this user?', 'You will stop seeing their latest recipe updates in your feed.', [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Unfollow',
-          style: 'destructive',
-          onPress: () => {
-            void applyFollowChange(false);
-          },
-        },
-      ]);
+      setShowUnfollowModal(true);
       return;
     }
 
-    await applyFollowChange(true);
+    void applyFollowChange(true);
   };
 
 
@@ -328,6 +322,19 @@ const Index = () => {
           )}
         </View>
       </ScrollView>
+      <WarningModal
+        visible={showUnfollowModal}
+        onClose={() => setShowUnfollowModal(false)}
+        onConfirm={async () => {
+          await applyFollowChange(false);
+          setShowUnfollowModal(false);
+        }}
+        title="Unfollow this user?"
+        message="You will stop seeing their latest recipe updates in your feed."
+        isLoading={isFollowLoading}
+        confirmText="Unfollow"
+        confirmColor="bg-primary-500"
+      />
     </SafeAreaView>
     </>
   );

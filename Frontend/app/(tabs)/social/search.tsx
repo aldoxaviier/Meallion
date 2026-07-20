@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { api } from "@/app/utils/api";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "nativewind";
+import { ProfileDataContext } from "@/app/store/profileDataContext";
 
 export default function Search() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const profileData = useContext(ProfileDataContext);
     const baseUrl = process.env.EXPO_PUBLIC_API_URL;
     
     const { colorScheme } = useColorScheme();
@@ -108,7 +110,13 @@ export default function Search() {
                         return (
                             <TouchableOpacity
                                 activeOpacity={0.85}
-                                onPress={() => router.push(`/profiles/${item.user_id}`)}
+                                onPress={() => {
+                                    if(item.user_id === profileData?.profileData?.user_id) {
+                                        router.push(`/(tabs)/profile`)
+                                    } else {
+                                        router.push(`/profiles/${item.user_id}`)
+                                    }
+                                }}
                                 className="flex-row items-center gap-3 rounded-2xl bg-white dark:bg-surface-dark border border-transparent dark:border-surface-darker p-3"
                             >
                                 <Image
