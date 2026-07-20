@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 from numpy.linalg import norm
+import re
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -12,6 +13,14 @@ MEAL_SLOT_MAP = {
     "lunch": ["Lunch", "Lunch/Dinner", "Lunch/Snacks"],
     "dinner": ["Dinner", "Lunch/Dinner"],
     "snack": ["Snack", "Snacks", "Lunch/Snacks"],
+}
+
+DIET_INGREDIENT_EXCLUSIONS = {
+    "Dairy-free": ["milk", "cheese", "butter", "cream", "yogurt", "yoghurt", "whey", "ghee", "custard"],
+    "Pork-free": ["pork", "bacon"],
+    "Gluten-free": ["wheat", "flour", "barley", "rye", "malt", "breadcrumb", "pasta", "noodle", "soy sauce"],
+    "Vegetarian": ["beef", "pork", "chicken", "fish", "shrimp", "prawn", "squid", "meat", "bacon", "ham", "lamb", "turkey", "duck"],
+    "Pescatarian": ["beef", "pork", "chicken", "lamb", "turkey", "duck", "bacon", "ham"],
 }
 
 SLOT_RATIOS = {
@@ -47,12 +56,10 @@ def normalize_recipe_servings(df: pd.DataFrame):
     """
     Convert nutrition values into PER SERVING values.
     """
-
     df["RecipeServings"] = pd.to_numeric(
         df["RecipeServings"],
         errors="coerce"
     )
-
     df["RecipeServings"] = (
         df["RecipeServings"]
         .fillna(1)
@@ -65,14 +72,11 @@ def normalize_recipe_servings(df: pd.DataFrame):
                 pd.to_numeric(df[col], errors="coerce")
                 .fillna(0)
             )
-
             df[col] = df[col] / df["RecipeServings"]
-
     return df
 
 
 def get_recommendations_service(user_id, limit=20):
-
     response_recipes = (
         supabase_client
         .table("recipes")
@@ -81,12 +85,10 @@ def get_recommendations_service(user_id, limit=20):
     )
 
     response_recipes = response_recipes.model_dump()
-
     recipes_df = pd.DataFrame(response_recipes["data"])
-
     if recipes_df.empty:
         return []
-
+        
     # NORMALIZE TO PER SERVING
     recipes_df = normalize_recipe_servings(recipes_df)
 
@@ -96,11 +98,22 @@ def get_recommendations_service(user_id, limit=20):
         .str.strip()
         .str.split(r"\s*\|\s*")
     )
+    response_profile = (
+        supabase_client
+        .table("user_profiles")
+        .select("diet_preferences")
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+    diet_preferences = response_profile.model_dump()["data"]["diet_preferences"] or []
 
+    recipes_df = apply_diet_filter(recipes_df, diet_preferences, supabase_client)
+
+    if recipes_df.empty:
+        return []
     recipes_with_tags = recipes_df.copy(deep=True)
-
     exploded = recipes_with_tags.explode("tags")
-
     dummies = pd.get_dummies(
         exploded["tags"],
         dtype=float
@@ -447,6 +460,78 @@ def apply_health_filter(
         ]
 
     return df
+
+def apply_diet_filter(recipes_df, diet_preferences, supabase_client):
+    """
+    Filters recipes_df based on user's diet_preferences.
+    - "Vegan" is checked via recipe.tags
+    - all other preferences are checked via ingredient exclusion
+    Expects recipes_df to have 'recipe_id' and 'tags' (already split into list, see normalize step below).
+    """
+    if not diet_preferences:
+        return recipes_df
+
+    filtered_df = recipes_df.copy()
+
+    # --- 1. VEGAN -> tag-based ---
+    if "Vegan" in diet_preferences:
+        filtered_df = filtered_df[
+            filtered_df["tags"].apply(lambda tags: "Vegan" in tags if isinstance(tags, list) else False)
+        ]
+
+    # --- 2. Everything else -> ingredient-based ---
+    ingredient_based_prefs = [p for p in diet_preferences if p != "Vegan"]
+
+    if ingredient_based_prefs and not filtered_df.empty:
+        excluded_keywords = set()
+        for pref in ingredient_based_prefs:
+            excluded_keywords.update(DIET_INGREDIENT_EXCLUSIONS.get(pref, []))
+
+        if excluded_keywords:
+            recipe_ids = filtered_df["recipe_id"].tolist()
+
+            # fetch recipe_ingredients (recipe_id -> ingredient_id)
+            response_ri = (
+                supabase_client
+                .table("recipe_ingredients")
+                .select("recipe_id, ingredient_id")
+                .in_("recipe_id", recipe_ids)
+                .execute()
+            )
+            ri_df = pd.DataFrame(response_ri.model_dump()["data"])
+
+            if not ri_df.empty:
+                # fetch simplified ingredient names for the ingredient_ids involved
+                ingredient_ids = ri_df["ingredient_id"].unique().tolist()
+
+                response_ing = (
+                    supabase_client
+                    .table("ingredients_mapping")
+                    .select("id, original_name")
+                    .in_("id", ingredient_ids)
+                    .execute()
+                )
+                ing_df = pd.DataFrame(response_ing.model_dump()["data"])
+
+                merged_df = ri_df.merge(
+                    ing_df,
+                    left_on="ingredient_id",
+                    right_on="id",
+                    how="left"
+                )
+                merged_df["ingredient_name"] = merged_df["original_name"].fillna("").str.lower()
+
+                pattern = r"\b(" + "|".join(re.escape(k) for k in excluded_keywords) + r")\b"
+
+                bad_recipe_ids = (
+                    merged_df[merged_df["ingredient_name"].str.contains(pattern, regex=True, na=False)]
+                    ["recipe_id"]
+                    .unique()
+                )
+
+                filtered_df = filtered_df[~filtered_df["recipe_id"].isin(bad_recipe_ids)]
+
+    return filtered_df
 
 
 def generate_meal_plan_service(
