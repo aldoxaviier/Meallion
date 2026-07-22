@@ -54,7 +54,13 @@ const calculateUserRequirements = async (userId, height, weight, activity_level,
     }
     const macros = dietaryGroupsCalculator(caloricIntake, healthCondition);
     console.log("here calculator");
-    const profileData = await profileRepository.addProfile({userId, height, weight, activity_level, goal_plan, dislikes, diet_preferences, birthdate, gender, healthCondition, target_calories: caloricIntake, target_carbs: macros.carbohydrates, target_proteins: macros.proteins, target_fats: macros.fats, updated_at: new Date()});
+    const profileexists = await profileRepository.getProfile(userId);
+    let profileData;
+    if(profileexists){
+        profileData = await profileRepository.updateProfile(userId, {target_calories: caloricIntake, target_carbs: macros.carbohydrates, target_proteins: macros.proteins, target_fats: macros.fats, updated_at: new Date()});
+    } else {
+        profileData = await profileRepository.addProfile({userId, height, weight, activity_level, goal_plan, dislikes, diet_preferences, birthdate, gender, healthCondition, target_calories: caloricIntake, target_carbs: macros.carbohydrates, target_proteins: macros.proteins, target_fats: macros.fats, updated_at: new Date()});
+    }
     return profileData;
 }
 
@@ -126,6 +132,10 @@ const updateProfile = async (userId, profile, req) => {
     }
     await profileRepository.updateProfile(userId, updateDataPrev);
     const fullProfile = await profileRepository.getProfile(userId);
+    await calculateUserRequirements(userId, fullProfile.height, 
+        fullProfile.weight, fullProfile.activity_level, fullProfile.goal_plan, 
+        fullProfile.dislikes, fullProfile.diet_preferences, 
+        fullProfile.birthdate, fullProfile.gender, fullProfile.health_condition);
     return fullProfile;
 }
 
