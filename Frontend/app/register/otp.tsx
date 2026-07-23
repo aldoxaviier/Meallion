@@ -4,7 +4,6 @@ import { useState,useContext,useRef,useEffect } from 'react';
 import { RegisterContext } from '../store/registerContext';
 import {api} from '../utils/api';
 import { useRouter } from 'expo-router';
-import { AuthContext } from '../store/authContext';
 import { Ionicons } from '@expo/vector-icons';
 const otpduplicated = () => {
     const [otpValue, setOtpValue] = useState('');
@@ -13,7 +12,6 @@ const otpduplicated = () => {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const [message, setMessage] = useState('');
-    const authContext = useContext(AuthContext);
 
     const handleOtpChange = (value: string) => {
         const numericValue = value.replace(/[^0-9]/g, '').slice(0, 6);

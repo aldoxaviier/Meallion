@@ -8,6 +8,8 @@ import Constants from "expo-constants";
 
 interface AuthContextType {
   accessToken: string;
+  refreshToken: string | null;
+  isLoading: boolean;
   setAccessToken: React.Dispatch<React.SetStateAction<string>>;
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
@@ -17,6 +19,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string>("");
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const accessTokenRef = useRef<string>(accessToken);
 
   useEffect(() => {
@@ -28,10 +32,23 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setTokenGetter(() => accessTokenRef.current);
   }, []);
 
-  
+  useEffect(() => {
+    const loadStoredToken = async () => {
+      try {
+        const stored = await SecureStore.getItemAsync("refreshToken");
+        setRefreshToken(stored);
+      } catch (e) {
+        console.warn("Error loading refresh token:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadStoredToken();
+  }, []);
 
   const login = async (accessToken: string, refreshToken: string) => {
     setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
     await SecureStore.setItemAsync("refreshToken", refreshToken)
     try {
       const pushToken = await registerForPushNotificationsAsync();
@@ -48,11 +65,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     setAccessToken("");
+    setRefreshToken(null);
     await SecureStore.deleteItemAsync("refreshToken");
   };
 
   return (
-    <AuthContext.Provider value={{ accessToken, setAccessToken, login, logout }}>
+    <AuthContext.Provider value={{ accessToken, refreshToken, isLoading, setAccessToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

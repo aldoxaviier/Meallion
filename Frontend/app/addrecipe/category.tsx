@@ -21,9 +21,9 @@ const CATEGORIES = [
   { id: 1,   name: "Pescatarian",         emoji: "🍝",  color: "#FFF3E0", border: "#E65100" },
   { id: 2,   name: "Vegetarian",         emoji: "🥗",  color: "#E8F5E9", border: "#2E7D32" },
   { id: 3,   name: "Vegan",            emoji: "🌱",  color: "#E8F5E9", border: "#1B5E20" },
-  { id: 4, name: "Dairy Free",    emoji: "🥛",  color: "#E3F2FD", border: "#1565C0" },
-  { id: 5,   name: "Gluten Free",        emoji: "🌾",  color: "#F1F8E9", border: "#33691E" },
-  { id: 6,   name: "Pork Free",              emoji: "🥓",  color: "#FFEBEE", border: "#B71C1C" },
+  { id: 4, name: "Dairy-free",    emoji: "🥛",  color: "#E3F2FD", border: "#1565C0" },
+  { id: 5,   name: "Gluten-free",        emoji: "🌾",  color: "#F1F8E9", border: "#33691E" },
+  { id: 6,   name: "Pork-free",              emoji: "🥓",  color: "#FFEBEE", border: "#B71C1C" },
   { id: 7,   name: "Indonesian",      emoji: "🇮🇩", color: "#FFF3E0", border: "#E65100" },
   { id: 10,  name: "Dutch",           emoji: "🧇",  color: "#FFF8E1", border: "#F9A825" },
   { id: 14,  name: "Dessert",         emoji: "🍰",  color: "#FCE4EC", border: "#C2185B" },
@@ -59,6 +59,9 @@ const CATEGORIES = [
   { id: 165, name: "Chinese",         emoji: "🥡",  color: "#FBE9E7", border: "#B71C1C" },
   { id: 168, name: "Roast",           emoji: "🍗",  color: "#FFF3E0", border: "#BF360C" },
 ];
+
+// First 6 entries are dietary restrictions — the ones we want to guide users to first.
+const ESSENTIAL_COUNT = 6;
 
 const PAGE_SIZE = 15;
 const PAGES = [
@@ -114,82 +117,166 @@ export default function Category() {
     router.push("/addrecipe/ingredients");
   };
 
-  const renderPage = ({ item: pageCategories }: { item: typeof CATEGORIES }) => (
-    <ScrollView 
-      style={{ width: SCREEN_WIDTH }} 
-      contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
-        {pageCategories.map((cat) => {
-          const isSelected = selected.has(cat.id);
-          return (
-            <TouchableOpacity
-              key={cat.id}
-              activeOpacity={0.75}
-              onPress={() => toggle(cat.id)}
-              style={{
-                width: "31%",
-                marginBottom: 12,
-                borderRadius: 20,
-                backgroundColor: isSelected ? cat.color : (isDark ? "#2D1110" : "#FFFFFF"),
-                borderWidth: 2.5,
-                borderColor: isSelected ? cat.border : (isDark ? "#3E0703" : "#E8E8E8"),
-                alignItems: "center",
-                paddingVertical: 18,
-                elevation: isSelected ? 6 : 1,
-              }}
-            >
-              <View
-                style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 28,
-                  backgroundColor: isSelected ? (isDark ? "#1A0A0A" : "#FFFFFF") : cat.color,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 8,
-                }}
-              >
-                <Text style={{ fontSize: 28 }}>{cat.emoji}</Text>
-              </View>
+  const renderCard = (cat: (typeof CATEGORIES)[number]) => {
+    const isSelected = selected.has(cat.id);
+    return (
+      <TouchableOpacity
+        key={cat.id}
+        activeOpacity={0.75}
+        onPress={() => toggle(cat.id)}
+        style={{
+          width: "31%",
+          marginBottom: 12,
+          borderRadius: 20,
+          backgroundColor: isSelected ? cat.color : (isDark ? "#2D1110" : "#FFFFFF"),
+          borderWidth: 2.5,
+          borderColor: isSelected ? cat.border : (isDark ? "#3E0703" : "#E8E8E8"),
+          alignItems: "center",
+          paddingVertical: 18,
+          elevation: isSelected ? 6 : 1,
+        }}
+      >
+        <View
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: isSelected ? (isDark ? "#1A0A0A" : "#FFFFFF") : cat.color,
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 8,
+          }}
+        >
+          <Text style={{ fontSize: 28 }}>{cat.emoji}</Text>
+        </View>
 
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontWeight: isSelected ? "700" : "500",
-                  color: isSelected ? cat.border : (isDark ? "#F2E8C6" : "#444"),
-                  textAlign: "center",
-                  lineHeight: 16,
-                }}
-                numberOfLines={2}
-              >
-                {cat.name}
-              </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            fontWeight: isSelected ? "700" : "500",
+            color: isSelected ? cat.border : (isDark ? "#F2E8C6" : "#444"),
+            textAlign: "center",
+            lineHeight: 16,
+          }}
+          numberOfLines={2}
+        >
+          {cat.name}
+        </Text>
 
-              {isSelected && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: 8,
-                    right: 8,
-                    width: 18,
-                    height: 18,
-                    borderRadius: 9,
-                    backgroundColor: cat.border,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text style={{ color: "#FFF", fontSize: 10, fontWeight: "800" }}>✓</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        })}
+        {isSelected && (
+          <View
+            style={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              width: 18,
+              height: 18,
+              borderRadius: 9,
+              backgroundColor: cat.border,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ color: "#FFF", fontSize: 10, fontWeight: "800" }}>✓</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
+  const renderSectionHeader = (label: string, sublabel?: string, icon?: keyof typeof Ionicons.glyphMap) => (
+    <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12, marginTop: 4 }}>
+      {icon && (
+        <View
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: 11,
+            backgroundColor: "#E65100",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 8,
+          }}
+        >
+          <Ionicons name={icon} size={13} color="#FFF" />
+        </View>
+      )}
+      <View>
+        <Text
+          style={{
+            fontSize: 13,
+            fontWeight: "700",
+            color: isDark ? "#F2E8C6" : "#3A2A20",
+            letterSpacing: 0.2,
+          }}
+        >
+          {label}
+        </Text>
+        {sublabel && (
+          <Text style={{ fontSize: 11, color: isDark ? "#B8A88A" : "#8A7A68", marginTop: 1 }}>
+            {sublabel}
+          </Text>
+        )}
       </View>
-    </ScrollView>
+    </View>
   );
+
+  const renderPage = ({ item: pageCategories, index: pageIndex }: { item: typeof CATEGORIES; index: number }) => {
+    // Page 0 gets a dedicated "dietary preferences" section to steer users to the
+    // most important categories first, followed by the rest under a lighter divider.
+    if (pageIndex === 0) {
+      const essentials = pageCategories.slice(0, ESSENTIAL_COUNT);
+      const others = pageCategories.slice(ESSENTIAL_COUNT);
+
+      return (
+        <ScrollView
+          style={{ width: SCREEN_WIDTH }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Highlighted "essential" section */}
+          <View
+            style={{
+              borderWidth: 1.5,
+              borderStyle: "dashed",
+              borderColor: isDark ? "#5A3A1A" : "#E8C79A",
+              borderRadius: 24,
+              backgroundColor: isDark ? "#241813" : "#FFF8EE",
+              padding: 14,
+              marginBottom: 20,
+            }}
+          >
+            {renderSectionHeader(
+              "Dietary Preferences",
+              "Start here — helps us match you with the right recipes",
+              "star"
+            )}
+            <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
+              {essentials.map((cat) => renderCard(cat))}
+            </View>
+          </View>
+
+          {/* Divider + everything else */}
+          {renderSectionHeader("More Categories", "Optional — pick as many as you like")}
+          <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
+            {others.map((cat) => renderCard(cat))}
+          </View>
+        </ScrollView>
+      );
+    }
+
+    return (
+      <ScrollView
+        style={{ width: SCREEN_WIDTH }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
+          {pageCategories.map((cat) => renderCard(cat))}
+        </View>
+      </ScrollView>
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#FDFAF6] dark:bg-background-dark" edges={["bottom"]}>

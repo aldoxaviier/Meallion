@@ -11,7 +11,7 @@ const refreshToken = (user_id) =>{
     const payload = {
         user: user_id
     }
-    return jwt.sign(payload, process.env.RefreshSecret, { expiresIn: "1d" });
+    return jwt.sign(payload, process.env.RefreshSecret, { expiresIn: "7d" });
 }
 
 module.exports = { accessToken, refreshToken };

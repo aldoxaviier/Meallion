@@ -51,10 +51,10 @@ const myLightTheme = {
 function LayoutContent() {
   const authContext = useContext(AuthContext);
   const user = authContext?.accessToken;
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
-  
+  const refreshToken = authContext?.refreshToken ?? null;
+  const isAuthLoading = authContext?.isLoading ?? true;
+
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isThemeLoaded, setIsThemeLoaded] = useState(false);
 
   const { colorScheme, setColorScheme } = useColorScheme();
@@ -133,21 +133,6 @@ function LayoutContent() {
 
     loadAppResources();
   }, []);
-
-  useEffect(() => {
-    const loadTokens = async () => {
-      try {
-        const storedRefreshToken = await SecureStore.getItemAsync("refreshToken");
-        setRefreshToken(storedRefreshToken);
-      } catch (e) {
-        console.warn("Error loading refresh token:", e);
-      } finally {
-        setIsAuthLoading(false);
-      }
-    };
-
-    loadTokens();
-  }, [user]);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded && assetsLoaded && !isAuthLoading && isThemeLoaded) {

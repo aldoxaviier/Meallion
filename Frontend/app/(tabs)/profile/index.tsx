@@ -1,7 +1,6 @@
 import { View, Text, TouchableOpacity, Image, ScrollView, FlatList, RefreshControl } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { api } from '../../utils/api';
-import { AuthContext } from '../../store/authContext';
 import { ProfileDataContext } from '../../store/profileDataContext';
 import { TenRecipeContext } from '../../store/tenRecipeContext';
 import { useCallback, useState, useContext } from 'react';
@@ -11,7 +10,6 @@ import { RecipeCard } from '../../components/RecipeCard';
 import { useColorScheme } from 'nativewind';
 
 const Index = () => {
-  const authContext = useContext(AuthContext);
   const profileData = useContext(ProfileDataContext);
   const tenRecipe = useContext(TenRecipeContext);
   const [activeTab, setActiveTab] = useState<'grid' | 'favorites'>('grid');
