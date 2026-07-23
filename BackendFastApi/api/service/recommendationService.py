@@ -76,7 +76,7 @@ def normalize_recipe_servings(df: pd.DataFrame):
     return df
 
 
-def get_recommendations_service(user_id, limit=20):
+def get_recommendations_service(user_id, limit=20, allergies=None):
     response_recipes = (
         supabase_client
         .table("recipes")
@@ -101,14 +101,25 @@ def get_recommendations_service(user_id, limit=20):
     response_profile = (
         supabase_client
         .table("user_profiles")
-        .select("diet_preferences")
+        .select("diet_preferences, allergies")   # fetch both together
         .eq("user_id", user_id)
         .single()
         .execute()
     )
-    diet_preferences = response_profile.model_dump()["data"]["diet_preferences"] or []
+    profile_data = response_profile.model_dump()["data"]
+    diet_preferences = profile_data["diet_preferences"] or []
+    allergies = profile_data["allergies"] or []
 
     recipes_df = apply_diet_filter(recipes_df, diet_preferences, supabase_client)
+
+    if recipes_df.empty:
+        return []
+
+    # ALLERGY FILTER
+    recipes_df = apply_allergy_filter(
+        recipes_df,
+        allergies or []
+    )
 
     if recipes_df.empty:
         return []
@@ -327,50 +338,38 @@ def get_meal_slot_columns(df_columns, slot: str):
 
 
 def filter_by_slot(df: pd.DataFrame, slot: str):
-
     slot_cols = get_meal_slot_columns(
         df.columns,
         slot
     )
-
     if not slot_cols:
         return df
-
     mask = df[slot_cols].any(axis=1)
-
     return df[mask]
 
 
 def score_recipe(row, targets, slot_ratio):
-
     target_calories = (
         targets["calories"] * slot_ratio
     )
-
     target_protein = (
         targets["protein"] * slot_ratio
     )
-
     target_carbs = (
         targets["carbs"] * slot_ratio
     )
-
     target_fat = (
         targets["fat"] * slot_ratio
     )
-
     calorie_score = abs(
         row["Calories"] - target_calories
     ) / (target_calories + 1e-9)
-
     protein_score = abs(
         row["ProteinContent"] - target_protein
     ) / (target_protein + 1e-9)
-
     carbs_score = abs(
         row["CarbohydrateContent"] - target_carbs
     ) / (target_carbs + 1e-9)
-
     fat_score = abs(
         row["FatContent"] - target_fat
     ) / (target_fat + 1e-9)
@@ -387,10 +386,8 @@ def apply_allergy_filter(
     df: pd.DataFrame,
     allergies: list[str]
 ):
-
     if not allergies:
         return df
-
     ingredient_resp = (
         supabase_client
         .table("ingredients_mapping")
@@ -399,15 +396,12 @@ def apply_allergy_filter(
         .execute()
         .model_dump()
     )
-
     allergen_ingredient_ids = [
         row["id"]
         for row in ingredient_resp["data"]
     ]
-
     if not allergen_ingredient_ids:
         return df
-
     recipe_ing_resp = (
         supabase_client
         .table("recipe_ingredients")
@@ -416,12 +410,10 @@ def apply_allergy_filter(
         .execute()
         .model_dump()
     )
-
     excluded_recipe_ids = {
         row["recipe_id"]
         for row in recipe_ing_resp["data"]
     }
-
     if not excluded_recipe_ids:
         return df
 
@@ -434,10 +426,8 @@ def apply_health_filter(
     df: pd.DataFrame,
     health_condition: str
 ):
-
     if not health_condition:
         return df
-
     hc = health_condition.lower()
 
     if hc == "diabetes":
@@ -445,7 +435,6 @@ def apply_health_filter(
             df["SugarContent"] * 4 <
             0.1 * df["Calories"]
         ]
-
     elif hc in [
         "blood pressure",
         "hypertension"
@@ -453,7 +442,6 @@ def apply_health_filter(
         df = df[
             df["SodiumContent"] < 2000
         ]
-
     elif hc == "cholesterol":
         df = df[
             df["CholesterolContent"] < 275
@@ -544,26 +532,14 @@ def generate_meal_plan_service(
     health_condition,
     allergies,
 ):
-
     recommended_recipes = get_recommendations_service(
         user_id,
         limit=100
     )
-
     df = pd.DataFrame(recommended_recipes)
 
     if df.empty:
         return []
-
-    # ALLERGY FILTER
-    if allergies:
-        df = apply_allergy_filter(
-            df,
-            allergies
-        )
-
-        if df.empty:
-            return []
 
     # HEALTH FILTER
     df = apply_health_filter(
@@ -573,34 +549,25 @@ def generate_meal_plan_service(
 
     if df.empty:
         return []
-
     targets = {
         "calories": target_calories,
         "protein": target_proteins,
         "carbs": target_carbs,
         "fat": target_fats,
     }
-
     slots = [
         "breakfast",
         "lunch",
         "snack",
         "dinner"
     ]
-
     slot_pools = {}
-
     for slot in slots:
-
         slot_ratio = SLOT_RATIOS[slot]
-
         pool = filter_by_slot(df, slot)
-
         if pool.empty:
             pool = df.copy()
-
         pool = pool.copy()
-
         pool["score"] = pool.apply(
             lambda row: score_recipe(
                 row,
@@ -609,78 +576,57 @@ def generate_meal_plan_service(
             ),
             axis=1
         )
-
         pool = pool.sort_values(
             "score"
         ).reset_index(drop=True)
-
         slot_pools[slot] = pool
-
     mealplan = []
-
     global_used_ids = set()
-
     for day in range(days):
-
         day_plan = {
             "day": day + 1,
             "meals": {}
         }
-
         for slot in slots:
-
             pool = slot_pools[slot]
-
             candidates = pool[
                 ~pool["recipe_id"].isin(
                     global_used_ids
                 )
             ]
-
             if candidates.empty:
                 candidates = pool
-
             if candidates.empty:
                 day_plan["meals"][slot] = None
                 continue
-
             top_candidates = candidates.head(5)
-
             meal = (
                 top_candidates
                 .sample(1)
                 .iloc[0]
             )
-
             # RECOMMENDED SERVING MULTIPLIER
             target_slot_calories = (
                 targets["calories"] *
                 SLOT_RATIOS[slot]
             )
-
             serving_multiplier = (
                 target_slot_calories /
                 (meal["Calories"] + 1e-9)
             )
-
             serving_multiplier = round(
                 serving_multiplier,
                 1
             )
-
             meal_dict = meal.to_dict()
-
             meal_dict["recommended_servings"] = max(
                 0.5,
                 serving_multiplier
             )
-
             global_used_ids.add(
                 meal["recipe_id"]
             )
-
             day_plan["meals"][slot] = meal_dict
-
         mealplan.append(day_plan)
 
     return mealplan
