@@ -77,6 +77,7 @@ def normalize_recipe_servings(df: pd.DataFrame):
 
 
 def get_recommendations_service(user_id, limit=20, allergies=None):
+    # 1. MENGAMBIL DATA RESEP
     response_recipes = (
         supabase_client
         .table("recipes")
@@ -84,38 +85,56 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
         .execute()
     )
 
+    # Mengubah response Supabase menjadi DataFrame
     response_recipes = response_recipes.model_dump()
     recipes_df = pd.DataFrame(response_recipes["data"])
+
+    # Jika tidak terdapat resep, proses rekomendasi stop
     if recipes_df.empty:
         return []
-        
-    # NORMALIZE TO PER SERVING
+
+    # 2. NORMALISASI INFORMASI NUTRISI
+    # Mengubah nilai nutrisi resep menjadi nilai per serving
     recipes_df = normalize_recipe_servings(recipes_df)
 
+    # 3. PREPROCESSING TAG RESEP, split tag into list
     recipes_df["tags"] = (
         recipes_df["tags"]
         .fillna("")
         .str.strip()
         .str.split(r"\s*\|\s*")
     )
+
+    # 4. MENGAMBIL PREFERENSI DAN ALERGI USER
+    # Mengambil diet preference dan allergy milik user
     response_profile = (
         supabase_client
         .table("user_profiles")
-        .select("diet_preferences, allergies")   # fetch both together
+        .select("diet_preferences, allergies")
         .eq("user_id", user_id)
         .single()
         .execute()
     )
+
     profile_data = response_profile.model_dump()["data"]
+
+    # Jika preference atau allergy bernilai NULL, pake list kosong
     diet_preferences = profile_data["diet_preferences"] or []
     allergies = profile_data["allergies"] or []
 
-    recipes_df = apply_diet_filter(recipes_df, diet_preferences, supabase_client)
+    # 5. FILTER RESEP BERDASARKAN DIET
+    # Menghapus resep berdasarkan diet preference user
+    recipes_df = apply_diet_filter(
+        recipes_df,
+        diet_preferences,
+        supabase_client
+    )
 
     if recipes_df.empty:
         return []
 
-    # ALLERGY FILTER
+    # 6. FILTER RESEP BERDASARKAN ALERGI
+    # Menghapus resep berdasarkan alergi user
     recipes_df = apply_allergy_filter(
         recipes_df,
         allergies or []
@@ -123,13 +142,29 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
 
     if recipes_df.empty:
         return []
+
+    # 7. ONE-HOT ENCODING TAG
+    # Membuat copy DataFrame karena recipes_df masih dibutuhkan
+    # untuk mengambil informasi asli resep pada tahap akhir.
     recipes_with_tags = recipes_df.copy(deep=True)
+
+    # Memisahkan setiap tag menjadi baris tersendiri.
+    # Contoh:
+    # ["Italian", "Chicken"] menjadi dua baris.
     exploded = recipes_with_tags.explode("tags")
+
+    # Mengubah tag menjadi representasi numerik
+    # Contoh:
+    #            Italian  Chicken  Vegan
+    # Recipe A      1        1       0
+    # Recipe B      0        0       1
     dummies = pd.get_dummies(
         exploded["tags"],
         dtype=float
     )
 
+    # Menggabungkan kembali tag ke masing-masing resep.
+    # max() digunakan karena satu resep dapat memiliki banyak tag.
     recipes_with_tags = (
         exploded
         .drop(columns="tags")
@@ -138,6 +173,11 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
         .max()
     )
 
+    # 8. MEMISAHKAN TAG JENIS MAKANAN
+    # Breakfast, Lunch, Snack, dan Dinner tidak digunakan sebagai
+    # fitur untuk menentukan kemiripan preferensi user.
+    # Tag ini disimpan secara terpisah untuk digunakan oleh
+    # meal plan generator.
     MEAL_TYPE_KEYWORDS = [
         "Breakfast",
         "Lunch",
@@ -153,6 +193,8 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
         )
     ]
 
+    # Menyimpan informasi meal type sebelum kolomnya dihapus
+    # dari feature matrix.
     meal_type_df = recipes_with_tags[
         ["recipe_id"] + meal_type_cols
     ].copy()
@@ -161,6 +203,10 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
         columns=meal_type_cols
     )
 
+    # 9. MEMBENTUK TAG / FEATURE MATRIX
+    # Menghapus kolom informasi resep yang bukan merupakan tag.
+    # Hasil akhirnya hanya berisi fitur-fitur tag untuk
+    # perhitungan Content-Based Filtering.
     tag_matrix = recipes_with_tags.drop(
         columns=[
             c for c in NON_TAG_COLS
@@ -168,21 +214,32 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
         ]
     )
 
-    logger.info(f"Tag matrix columns: {tag_matrix.columns}")
+    logger.info(
+        f"Tag matrix columns: {tag_matrix.columns}"
+    )
 
-    # TF-IDF
+    # 10. MEMBERIKAN BOBOT IDF PADA TAG
+    # Menghitung seberapa sering setiap tag muncul pada seluruh resep.
     tag_frequency = tag_matrix.sum(axis=0)
 
+    # Menggunakan IDF untuk mengurangi bobot tag yang terlalu umum
+    # dan meningkatkan pengaruh tag yang lebih spesifik/langka.
+    #
+    # Semakin jarang sebuah tag muncul, semakin tinggi bobot IDF-nya.
     idf = np.log(
         (len(tag_matrix) + 1) /
         (tag_frequency + 1)
     )
 
+    # Memberikan bobot IDF ke setiap tag.
     tag_matrix = tag_matrix * idf
 
     recipes_with_tags[tag_matrix.columns] = tag_matrix
 
-    # USER INTERACTIONS
+    # 11. MENGAMBIL INTERAKSI USER TERHADAP RESEP
+    # Mengambil riwayat interaksi user terhadap resep.
+    # Score dari interaksi nantinya digunakan untuk membentuk
+    # user profile.
     response_ratings = (
         supabase_client
         .table("user_recipe_interactions")
@@ -192,26 +249,44 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
     )
 
     response_ratings = response_ratings.model_dump()
-
     ratings_df = pd.DataFrame(response_ratings["data"])
 
+    # 12. COLD START
+    # Jika user belum memiliki interaksi, sistem belum memiliki
+    # informasi yang cukup untuk membentuk user profile.
+    # Oleh karena itu, sistem memberikan resep secara random.
     if ratings_df.empty:
         top_recipes = recipes_df.sample(
             min(limit, len(recipes_df))
         )
 
-        return top_recipes.to_dict(orient="records")
+        return top_recipes.to_dict(
+            orient="records"
+        )
 
-    ratings_df = ratings_df.drop(["id"], axis=1)
+    # ID interaksi tidak diperlukan dalam proses rekomendasi.
+    ratings_df = ratings_df.drop(
+        ["id"],
+        axis=1
+    )
 
+    # 13. MENGAMBIL TAG RESEP YANG PERNAH DIINTERAKSI USER
+    # Memilih feature/tag hanya dari resep yang pernah memiliki
+    # interaksi dengan user.
     user_tags_df = recipes_with_tags[
         recipes_with_tags.recipe_id.isin(
             ratings_df.recipe_id
         )
     ].copy()
 
-    user_tags_df.reset_index(drop=True, inplace=True)
+    user_tags_df.reset_index(
+        drop=True,
+        inplace=True
+    )
 
+    # 14. MENYELARASKAN SCORE INTERAKSI DENGAN RESEP
+    # Menggabungkan recipe_id dengan score interaksi agar
+    # setiap feature resep memiliki bobot sesuai perilaku user.
     aligned_scores = (
         user_tags_df[["recipe_id"]]
         .merge(
@@ -221,6 +296,8 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
         )
     )["score"].fillna(0)
 
+    # Menghapus metadata sehingga hanya feature/tag yang
+    # digunakan untuk membentuk user profile.
     user_tags_df = user_tags_df.drop(
         columns=[
             c for c in NON_TAG_COLS
@@ -228,17 +305,34 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
         ]
     )
 
-    user_profile = user_tags_df.T.dot(aligned_scores)
+    # 15. MEMBENTUK USER PROFILE
+    # User profile dibentuk dari penjumlahan weighted feature
+    # resep yang pernah diinteraksi.
+    #
+    # Semakin besar score interaksi terhadap sebuah resep,
+    # semakin besar pengaruh tag resep tersebut terhadap
+    # preferensi user.
+    user_profile = user_tags_df.T.dot(
+        aligned_scores
+    )
 
+    # Melakukan normalisasi terhadap user profile agar panjang
+    # vektornya menjadi 1 dan dapat dibandingkan menggunakan
+    # cosine similarity.
     user_profile_norm = (
         user_profile /
         (norm(user_profile) + 1e-9)
     )
 
+    # 16. MEMBENTUK RECIPE PROFILE / RECIPE MATRIX
+    # Menggunakan recipe_id sebagai index agar score rekomendasi
+    # nantinya dapat langsung dikaitkan dengan recipe_id.
     recipes_with_tags = recipes_with_tags.set_index(
         recipes_with_tags.recipe_id
     )
 
+    # Menghapus seluruh metadata sehingga hanya feature/tag
+    # yang tersisa.
     recipes_with_tags = recipes_with_tags.drop(
         columns=[
             c for c in NON_TAG_COLS
@@ -248,54 +342,89 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
 
     recipe_matrix = recipes_with_tags.values
 
+    # Menghitung panjang setiap vektor resep.
     recipe_norms = norm(
         recipe_matrix,
         axis=1,
         keepdims=True
     )
 
+    # Melakukan normalisasi terhadap setiap recipe vector.
     recipe_matrix_norm = (
         recipe_matrix /
         (recipe_norms + 1e-9)
     )
 
+    # 17. MENGHITUNG CONTENT-BASED RECOMMENDATION SCORE
+    # Menghitung cosine similarity antara setiap recipe profile
+    # dengan user profile.
+    #
+    # Karena kedua vector telah dinormalisasi, dot product
+    # menghasilkan cosine similarity.
     recommendation_score = pd.Series(
-        recipe_matrix_norm.dot(user_profile_norm),
+        recipe_matrix_norm.dot(
+            user_profile_norm
+        ),
         index=recipes_with_tags.index
     )
 
+    # 18. MENGHITUNG POPULARITY SCORE
+    # Mengambil jumlah rating/interaksi sebagai ukuran popularitas
+    # dari masing-masing resep.
     popularity = (
         recipes_df
         .set_index("recipe_id")["rating_total"]
         .fillna(0)
     )
 
+    # Melakukan Min-Max Normalization agar popularity score
+    # memiliki rentang 0 sampai 1.
     popularity = (
         popularity - popularity.min()
     ) / (
-        popularity.max() - popularity.min() + 1e-9
+        popularity.max() -
+        popularity.min() +
+        1e-9
     )
 
+    # Menyamakan index popularity score dengan recommendation score.
     popularity = popularity.reindex(
         recommendation_score.index
     ).fillna(0)
 
+    # 19. HYBRID SCORING
+    # Final score terdiri dari:
+    # 80% Content-Based Filtering score
+    # 20% Popularity score
+    #
+    # Content-Based Filtering tetap menjadi faktor utama,
+    # sedangkan popularity membantu memberikan resep yang
+    # secara umum lebih populer.
     final_score = (
         0.8 * recommendation_score +
         0.2 * popularity
     )
 
+    # Mengurutkan resep berdasarkan final score tertinggi.
     final_score = final_score.sort_values(
         ascending=False
     )
 
+    # 20. MEMILIH RESEP REKOMENDASI
+    # Mengambil 100 resep dengan final score tertinggi.
     top_100 = final_score.head(100)
 
+    # Dari Top 100 tersebut dipilih secara random sebanyak limit.
+    # Randomisasi dilakukan agar rekomendasi tidak selalu
+    # menampilkan resep yang sama pada setiap request.
     recommended_indices = top_100.sample(
         n=min(limit, len(top_100)),
         random_state=None
     ).index
 
+    # 21. MENGAMBIL DATA LENGKAP RESEP
+    # Menggunakan recipe_id yang terpilih untuk mengambil kembali
+    # informasi lengkap resep dari recipes_df.
     copy = recipes_df.copy(deep=True)
 
     copy = copy.set_index(
@@ -313,12 +442,17 @@ def get_recommendations_service(user_id, limit=20, allergies=None):
         .fillna(0.0)
     )
 
+    # 22. MENGEMBALIKAN INFORMASI MEAL TYPE
+    # Menggabungkan kembali tag Breakfast/Lunch/Snack/Dinner
+    # agar data tersebut dapat digunakan oleh meal plan generator.
     recommended_recipes = recommended_recipes.merge(
         meal_type_df,
         on="recipe_id",
         how="left"
     )
 
+    # Mengubah DataFrame menjadi list of dictionaries
+    # agar dapat dikembalikan sebagai response API.
     return recommended_recipes.to_dict(
         orient="records"
     )
