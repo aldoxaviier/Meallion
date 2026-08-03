@@ -79,6 +79,13 @@ const dietaryGroupsCalculator = (caloricIntake, healthCondition) => {
             proteins: Math.round(caloricIntake * 0.30 / 4),
             fats: Math.round(caloricIntake * 0.60 / 9),
         }
+    } else if (healthCondition === "cholesterol") {
+        console.log("cholesterol");
+        return {
+            carbohydrates: Math.round(caloricIntake * 0.35 / 4),
+            proteins: Math.round(caloricIntake * 0.50 / 4),
+            fats: Math.round(caloricIntake * 0.15 / 9),
+        }
     } else {
         return {
             carbohydrates: Math.round(caloricIntake * 0.30 / 4),
