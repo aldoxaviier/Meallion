@@ -45,9 +45,9 @@ const addInteraction = async (userId, interactions) => {
 const calculateUserRequirements = async (userId, height, weight, activity_level, goal_plan, dislikes, diet_preferences, birthdate,gender, healthCondition) => {
     const tdee = tdeeCalculator(height, weight, activity_level, birthdate, gender);
     let caloricIntake;
-    if (goal_plan === "Lose Weight") {
+    if (goal_plan === "Lose weight") {
         caloricIntake = Math.round(tdee - 500);
-    } else if (goal_plan === "Gain Weight") {
+    } else if (goal_plan === "Gain weight") {
         caloricIntake = Math.round(tdee + 500);
     } else {
         caloricIntake = Math.round(tdee);
